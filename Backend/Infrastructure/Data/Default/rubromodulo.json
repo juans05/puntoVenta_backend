@@ -1,0 +1,140 @@
+[
+  {
+    "id": 1,
+    "rubroId": 1,
+    "codigoModulo": "PUNTO_VENTA",
+    "activo": true
+  },
+  {
+    "id": 2,
+    "rubroId": 1,
+    "codigoModulo": "CAJA",
+    "activo": true
+  },
+  {
+    "id": 3,
+    "rubroId": 1,
+    "codigoModulo": "CLIENTES",
+    "activo": true
+  },
+  {
+    "id": 4,
+    "rubroId": 1,
+    "codigoModulo": "REPORTES",
+    "activo": true
+  },
+  {
+    "id": 5,
+    "rubroId": 1,
+    "codigoModulo": "COMPROBANTES",
+    "activo": true
+  },
+  {
+    "id": 6,
+    "rubroId": 1,
+    "codigoModulo": "ASISTENCIA_RENTA",
+    "activo": false
+  },
+  {
+    "id": 7,
+    "rubroId": 2,
+    "codigoModulo": "PUNTO_VENTA",
+    "activo": true
+  },
+  {
+    "id": 8,
+    "rubroId": 2,
+    "codigoModulo": "CAJA",
+    "activo": true
+  },
+  {
+    "id": 9,
+    "rubroId": 2,
+    "codigoModulo": "CLIENTES",
+    "activo": true
+  },
+  {
+    "id": 10,
+    "rubroId": 2,
+    "codigoModulo": "REPORTES",
+    "activo": true
+  },
+  {
+    "id": 11,
+    "rubroId": 2,
+    "codigoModulo": "COMPROBANTES",
+    "activo": true
+  },
+  {
+    "id": 12,
+    "rubroId": 3,
+    "codigoModulo": "PUNTO_VENTA",
+    "activo": true
+  },
+  {
+    "id": 13,
+    "rubroId": 3,
+    "codigoModulo": "CAJA",
+    "activo": true
+  },
+  {
+    "id": 14,
+    "rubroId": 3,
+    "codigoModulo": "CLIENTES",
+    "activo": true
+  },
+  {
+    "id": 15,
+    "rubroId": 3,
+    "codigoModulo": "REPORTES",
+    "activo": true
+  },
+  {
+    "id": 16,
+    "rubroId": 3,
+    "codigoModulo": "COMPROBANTES",
+    "activo": true
+  },
+  {
+    "id": 17,
+    "rubroId": 3,
+    "codigoModulo": "KARDEX",
+    "activo": true
+  },
+  {
+    "id": 18,
+    "rubroId": 4,
+    "codigoModulo": "PUNTO_VENTA",
+    "activo": true
+  },
+  {
+    "id": 19,
+    "rubroId": 4,
+    "codigoModulo": "CAJA",
+    "activo": true
+  },
+  {
+    "id": 20,
+    "rubroId": 4,
+    "codigoModulo": "CLIENTES",
+    "activo": true
+  },
+  {
+    "id": 21,
+    "rubroId": 4,
+    "codigoModulo": "REPORTES",
+    "activo": true
+  },
+  {
+    "id": 22,
+    "rubroId": 4,
+    "codigoModulo": "COMPROBANTES",
+    "activo": true
+  },
+  {
+    "id": 23,
+    "rubroId": 4,
+    "codigoModulo": "KARDEX",
+    "activo": true
+  }
+]

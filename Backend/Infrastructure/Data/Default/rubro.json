@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "nombre": "Spa"
+  },
+  {
+    "id": 2,
+    "nombre": "Restaurante"
+  },
+  {
+    "id": 3,
+    "nombre": "Retail"
+  },
+  {
+    "id": 4,
+    "nombre": "Droguería"
+  }
+]

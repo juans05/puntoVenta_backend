@@ -1,0 +1,39 @@
+[
+  {
+    "id": 1,
+    "nombre": "tarjeta Visa",
+    "descripcion": "Tarjeta",
+    "posicion": 1,
+    "pagoRapido": true,
+    "cambioPermitido": false,
+    "marcarTransaccionpagada": true,
+    "imprimirRecibo": true,
+    "teclaAccesoRapido": "V",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 2,
+    "nombre": "tarjeta MasterCard",
+    "descripcion": "Tarjeta",
+    "posicion": 2,
+    "pagoRapido": true,
+    "cambioPermitido": false,
+    "marcarTransaccionpagada": true,
+    "imprimirRecibo": true,
+    "teclaAccesoRapido": "M",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 3,
+    "nombre": "Transferencia Bancaria",
+    "descripcion": "Transferencia",
+    "posicion": 3,
+    "pagoRapido": true,
+    "cambioPermitido": false,
+    "marcarTransaccionpagada": true,
+    "imprimirRecibo": true,
+    "teclaAccesoRapido": "B",
+    "usuarioCreacion": "Admin"
+  }
+
+]

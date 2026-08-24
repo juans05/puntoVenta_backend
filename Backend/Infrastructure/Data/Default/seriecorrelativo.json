@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "tipoDocumentoVentaId": 1,
+    "serie": "F001",
+    "correlativo": 1,
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 2,
+    "tipoDocumentoVentaId": 2,
+    "serie": "B001",
+    "correlativo": 1,
+    "usuarioCreacion": "Admin"
+  }
+]

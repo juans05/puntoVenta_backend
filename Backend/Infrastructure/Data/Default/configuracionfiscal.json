@@ -1,0 +1,22 @@
+[
+  {
+    "pais": "PE",
+    "ruc": "10430936315",
+    "razonSocial": "SOLIS EGUIZABAL VENTURA",
+    "nombreComercial": "SOLIS SALON & SPA",
+    "direccion": "URB. MERCURIO CAL. CESAR VALLEJO 881",
+    "ubigeoId": "150117",
+    "departamento": "LIMA",
+    "provincia": "LIMA",
+    "distrito": "LOS OLIVOS",
+    "serieFactura": "F001",
+    "serieBoleta": "B001",
+    "serieNota": "RC01",
+    "codigoAdaptador": "SUNAT_APIPERU",
+    "moneda": "PEN",
+    "porcentajeImpuesto": 18,
+    "activo": true,
+    "tenantId": "SPASOLIS1",
+    "usuarioCreacion": "Admin"
+  }
+]

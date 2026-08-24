@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "codigo": "PEN",
+    "simbolo": "S/",
+    "locale": "es-PE",
+    "paisId": 604
+  },
+  {
+    "id": 2,
+    "codigo": "MXN",
+    "simbolo": "$",
+    "locale": "es-MX",
+    "paisId": 484
+  },
+  {
+    "id": 3,
+    "codigo": "COP",
+    "simbolo": "$",
+    "locale": "es-CO",
+    "paisId": 170
+  },
+  {
+    "id": 4,
+    "codigo": "USD",
+    "simbolo": "$",
+    "locale": "es-EC",
+    "paisId": 218
+  }
+]

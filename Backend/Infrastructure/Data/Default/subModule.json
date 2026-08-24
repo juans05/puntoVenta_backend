@@ -1,0 +1,65 @@
+[
+  {
+    "identificador": "101",
+    "nombre": "Dashboard",
+    "moduloId": "100",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "201",
+    "nombre": "Productos",
+    "moduloId": "200",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "301",
+    "nombre": "Ventas del día",
+    "moduloId": "300",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "401",
+    "nombre": "Clientes",
+    "moduloId": "400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "701",
+    "nombre": "Reporte cierre de caja",
+    "moduloId": "700",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "801",
+    "nombre": "Mi empresa",
+    "moduloId": "800",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "901",
+    "nombre": "Documentos Facturados",
+    "moduloId": "900",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1101",
+    "nombre": "Compras",
+    "moduloId": "1100",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1301",
+    "nombre": "Gastos",
+    "moduloId": "1300",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  }
+]

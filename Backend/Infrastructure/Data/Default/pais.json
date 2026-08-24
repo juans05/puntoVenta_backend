@@ -1,0 +1,38 @@
+[
+  {
+    "id": 604,
+    "codigo": "PE",
+    "nombre": "Perú",
+    "idioma": "es",
+    "monedaCodigo": "PEN",
+    "timeZone": "SA Pacific Standard Time",
+    "esquemaFiscal": "SUNAT"
+  },
+  {
+    "id": 484,
+    "codigo": "MX",
+    "nombre": "México",
+    "idioma": "es",
+    "monedaCodigo": "MXN",
+    "timeZone": "Central Standard Time (Mexico)",
+    "esquemaFiscal": "SAT"
+  },
+  {
+    "id": 170,
+    "codigo": "CO",
+    "nombre": "Colombia",
+    "idioma": "es",
+    "monedaCodigo": "COP",
+    "timeZone": "SA Pacific Standard Time",
+    "esquemaFiscal": "DIAN"
+  },
+  {
+    "id": 218,
+    "codigo": "EC",
+    "nombre": "Ecuador",
+    "idioma": "es",
+    "monedaCodigo": "USD",
+    "timeZone": "SA Pacific Standard Time",
+    "esquemaFiscal": "SRI"
+  }
+]

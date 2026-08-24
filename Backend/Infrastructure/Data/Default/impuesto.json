@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "nombre": "IGV",
+    "porcentaje": 18,
+    "aplicableA": "FACTURA|BOLETA",
+    "paisId": 604
+  },
+  {
+    "id": 2,
+    "nombre": "IVA",
+    "porcentaje": 16,
+    "aplicableA": "FACTURA|BOLETA",
+    "paisId": 484
+  },
+  {
+    "id": 3,
+    "nombre": "IVA",
+    "porcentaje": 19,
+    "aplicableA": "FACTURA|BOLETA",
+    "paisId": 170
+  },
+  {
+    "id": 4,
+    "nombre": "IVA",
+    "porcentaje": 12,
+    "aplicableA": "FACTURA|BOLETA",
+    "paisId": 218
+  }
+]

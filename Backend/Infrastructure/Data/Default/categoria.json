@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "nombre": "Cortes",
+    "rubroId": "1",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 2,
+    "nombre": "Peinados",
+    "rubroId": "1",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 3,
+    "nombre": "Uñas",
+    "rubroId": "1",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 4,
+    "nombre": "Productos",
+    "rubroId": "1",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 5,
+    "nombre": "Promociones",
+    "rubroId": "1",
+    "usuarioCreacion": "Admin"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "nombre": "DNI",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 2,
+    "nombre": "Pasaporte",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 3,
+    "nombre": "Carnet de Extranjeria",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 4,
+    "nombre": "Libre",
+    "usuarioCreacion": "Admin"
+  }
+]

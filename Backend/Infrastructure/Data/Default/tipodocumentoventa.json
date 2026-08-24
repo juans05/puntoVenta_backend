@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "nombre": "Boleta",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 2,
+    "nombre": "Factura",
+    "usuarioCreacion": "Admin"
+  }
+
+]

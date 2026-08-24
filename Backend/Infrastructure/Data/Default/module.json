@@ -1,0 +1,56 @@
+[
+  {
+    "identificador": "100",
+    "nombre": "Dashboard",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "200",
+    "nombre": "Productos",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "300",
+    "nombre": "Ventas del día",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "400",
+    "nombre": "Clientes",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "700",
+    "nombre": "Reporte cierre de caja",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "800",
+    "nombre": "Mi empresa",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "900",
+    "nombre": "Documentos Facturados",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1100",
+    "nombre": "Compras",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1300",
+    "nombre": "Gastos",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  }
+]
