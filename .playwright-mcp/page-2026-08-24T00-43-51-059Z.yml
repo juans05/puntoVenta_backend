@@ -1,0 +1,98 @@
+- generic [ref=f6e4]:
+  - navigation [ref=f6e5]:
+    - generic [ref=f6e7]:
+      - generic [ref=f6e8]:
+        - button "Abrir Sidebar" [ref=f6e9] [cursor=pointer]
+        - generic [ref=f6e13]:
+          - link [ref=f6e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f6e15]
+          - generic "Ocultar menú" [ref=f6e16] [cursor=pointer]
+      - button "Abrir menú de usuario T" [ref=f6e22] [cursor=pointer]:
+        - generic [ref=f6e23]: Abrir menú de usuario
+        - generic [ref=f6e24]: T
+  - generic [ref=f6e27]:
+    - link "Volver a Gastos" [ref=f6e29] [cursor=pointer]:
+      - /url: /dashboard/gastos
+    - generic [ref=f6e32]:
+      - generic [ref=f6e33]:
+        - generic [ref=f6e34]:
+          - heading "Categorías de gasto" [level=3] [ref=f6e35]
+          - paragraph [ref=f6e36]: Categorías disponibles al registrar un nuevo gasto.
+        - button "Nueva categoría" [ref=f6e37] [cursor=pointer]
+      - table [ref=f6e40]:
+        - rowgroup [ref=f6e41]:
+          - row [ref=f6e42]:
+            - columnheader "Nombre" [ref=f6e43]
+            - columnheader "Estado" [ref=f6e44]
+            - columnheader [ref=f6e45]
+        - rowgroup [ref=f6e46]:
+          - row [ref=f6e47]:
+            - cell [ref=f6e48]:
+              - table [ref=f6e49]:
+                - rowgroup [ref=f6e50]:
+                  - row [ref=f6e51]:
+                    - cell [ref=f6e52]
+                    - cell [ref=f6e55]
+                    - cell [ref=f6e58]
+                  - row [ref=f6e61]:
+                    - cell [ref=f6e62]
+                    - cell [ref=f6e65]
+                    - cell [ref=f6e68]
+                  - row [ref=f6e71]:
+                    - cell [ref=f6e72]
+                    - cell [ref=f6e75]
+                    - cell [ref=f6e78]
+                  - row [ref=f6e81]:
+                    - cell [ref=f6e82]
+                    - cell [ref=f6e85]
+                    - cell [ref=f6e88]
+                  - row [ref=f6e91]:
+                    - cell [ref=f6e92]
+                    - cell [ref=f6e95]
+                    - cell [ref=f6e98]
+                  - row [ref=f6e101]:
+                    - cell [ref=f6e102]
+                    - cell [ref=f6e105]
+                    - cell [ref=f6e108]
+    - generic [ref=f6e111]:
+      - generic [ref=f6e112]:
+        - generic [ref=f6e113]:
+          - heading "Métodos de pago" [level=3] [ref=f6e114]
+          - paragraph [ref=f6e115]: Métodos de pago disponibles al registrar un gasto o una venta.
+        - button "Nuevo método de pago" [ref=f6e116] [cursor=pointer]
+      - table [ref=f6e119]:
+        - rowgroup [ref=f6e120]:
+          - row [ref=f6e121]:
+            - columnheader "Nombre" [ref=f6e122]
+            - columnheader "Estado" [ref=f6e123]
+            - columnheader [ref=f6e124]
+        - rowgroup [ref=f6e125]:
+          - row [ref=f6e126]:
+            - cell [ref=f6e127]:
+              - table [ref=f6e128]:
+                - rowgroup [ref=f6e129]:
+                  - row [ref=f6e130]:
+                    - cell [ref=f6e131]
+                    - cell [ref=f6e134]
+                    - cell [ref=f6e137]
+                  - row [ref=f6e140]:
+                    - cell [ref=f6e141]
+                    - cell [ref=f6e144]
+                    - cell [ref=f6e147]
+                  - row [ref=f6e150]:
+                    - cell [ref=f6e151]
+                    - cell [ref=f6e154]
+                    - cell [ref=f6e157]
+                  - row [ref=f6e160]:
+                    - cell [ref=f6e161]
+                    - cell [ref=f6e164]
+                    - cell [ref=f6e167]
+                  - row [ref=f6e170]:
+                    - cell [ref=f6e171]
+                    - cell [ref=f6e174]
+                    - cell [ref=f6e177]
+                  - row [ref=f6e180]:
+                    - cell [ref=f6e181]
+                    - cell [ref=f6e184]
+                    - cell [ref=f6e187]

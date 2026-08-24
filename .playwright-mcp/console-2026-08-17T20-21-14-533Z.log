@@ -1,0 +1,12 @@
+[    1694ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/chunk-GYWC62UC.js?v=96cc1621:21535
+[    2063ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Login/index.tsx:67
+[    2063ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Login/index.tsx:68
+[    2063ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Login/index.tsx:100
+[    2094ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://restaurant21.lobytech.test:3001/:0
+[    4413ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/redux/reducers/Admin/my-business/myBusiness.reducer.ts:174
+[    4414ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/tenant/recursos:0
+[  158550ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Login/index.tsx?t=1786998232626:67
+[  158550ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Login/index.tsx?t=1786998232626:68
+[  158550ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Login/index.tsx?t=1786998232626:100
+[  160927ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/redux/reducers/Admin/my-business/myBusiness.reducer.ts:174
+[  160927ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/tenant/recursos:0

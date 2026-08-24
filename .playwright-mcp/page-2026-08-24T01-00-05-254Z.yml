@@ -1,0 +1,101 @@
+- generic [ref=f7e4]:
+  - navigation [ref=f7e5]:
+    - generic [ref=f7e7]:
+      - generic [ref=f7e9]:
+        - link [ref=f7e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img "Logo de la empresa" [ref=f7e11]
+        - generic "Ocultar menú" [ref=f7e12] [cursor=pointer]
+      - generic [ref=f7e17]:
+        - link [ref=f7e19] [cursor=pointer]:
+          - /url: /facturacion
+          - paragraph [ref=f7e22]: Ir a ventas
+        - button "Abrir menú de usuario T" [ref=f7e24] [cursor=pointer]:
+          - generic [ref=f7e25]: Abrir menú de usuario
+          - generic [ref=f7e26]: T
+  - complementary "Sidebar" [ref=f7e27]:
+    - generic [ref=f7e29]:
+      - generic [ref=f7e30]: T
+      - generic [ref=f7e31]:
+        - heading "tendyperu" [level=5] [ref=f7e32]
+        - paragraph [ref=f7e33]: TENDYPERU
+        - generic [ref=f7e34]: Conectado
+    - list [ref=f7e37]:
+      - listitem [ref=f7e38]:
+        - link "Dashboard" [ref=f7e39] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=f7e43]:
+        - link "Productos" [ref=f7e44] [cursor=pointer]:
+          - /url: /dashboard/productos
+      - listitem [ref=f7e48]:
+        - link "Ventas del día" [ref=f7e49] [cursor=pointer]:
+          - /url: /dashboard/ventas-realizadas
+      - listitem [ref=f7e53]:
+        - link "Clientes / Proveedores" [ref=f7e54] [cursor=pointer]:
+          - /url: /dashboard/clientes
+      - listitem [ref=f7e58]:
+        - link "Reporte cierre de caja" [ref=f7e59] [cursor=pointer]:
+          - /url: /dashboard/reporte-cierre-caja
+      - listitem [ref=f7e69]:
+        - link "Mi empresa" [ref=f7e70] [cursor=pointer]:
+          - /url: /dashboard/mi-empresa
+      - listitem [ref=f7e74]:
+        - link "Documentos Facturados" [ref=f7e75] [cursor=pointer]:
+          - /url: /dashboard/documentos-facturados
+      - listitem [ref=f7e81]:
+        - link "Usuarios" [ref=f7e82] [cursor=pointer]:
+          - /url: /dashboard/usuarios
+      - listitem [ref=f7e86]:
+        - link "Sucursales" [ref=f7e87] [cursor=pointer]:
+          - /url: /dashboard/sucursales
+      - listitem [ref=f7e91]:
+        - link "Cajas" [ref=f7e92] [cursor=pointer]:
+          - /url: /dashboard/cajas
+      - listitem [ref=f7e96]:
+        - link "Compras" [ref=f7e97] [cursor=pointer]:
+          - /url: /dashboard/compras
+      - listitem [ref=f7e101]:
+        - link "Gastos" [ref=f7e102] [cursor=pointer]:
+          - /url: /dashboard/gastos
+      - listitem [ref=f7e106]:
+        - button "Configuraciones" [ref=f7e107] [cursor=pointer]
+        - list [ref=f7e150]:
+          - listitem [ref=f7e151]:
+            - link "Categorías y métodos de pago" [active] [ref=f7e152] [cursor=pointer]:
+              - /url: /dashboard/gastos/catalogos
+  - generic [ref=f7e178]:
+    - link "Volver a Gastos" [ref=f7e180] [cursor=pointer]:
+      - /url: /dashboard/gastos
+    - generic [ref=f7e183]:
+      - generic [ref=f7e184]:
+        - generic [ref=f7e185]:
+          - heading "Categorías de gasto" [level=3] [ref=f7e186]
+          - paragraph [ref=f7e187]: Categorías disponibles al registrar un nuevo gasto.
+        - button "Nueva categoría" [ref=f7e188] [cursor=pointer]
+      - table [ref=f7e191]:
+        - rowgroup [ref=f7e192]:
+          - row [ref=f7e193]:
+            - columnheader "Nombre" [ref=f7e194]
+            - columnheader "Estado" [ref=f7e195]
+            - columnheader [ref=f7e196]
+        - rowgroup [ref=f7e197]:
+          - row [ref=f7e198]:
+            - cell "Servicios" [ref=f7e199]
+            - cell "Activo" [ref=f7e200]
+            - cell [ref=f7e201]:
+              - button "Deshabilitar" [ref=f7e202] [cursor=pointer]
+    - generic [ref=f7e204]:
+      - generic [ref=f7e205]:
+        - generic [ref=f7e206]:
+          - heading "Métodos de pago" [level=3] [ref=f7e207]
+          - paragraph [ref=f7e208]: Métodos de pago disponibles al registrar un gasto o una venta.
+        - button "Nuevo método de pago" [ref=f7e209] [cursor=pointer]
+      - table [ref=f7e212]:
+        - rowgroup [ref=f7e213]:
+          - row [ref=f7e214]:
+            - columnheader "Nombre" [ref=f7e215]
+            - columnheader "Estado" [ref=f7e216]
+            - columnheader [ref=f7e217]
+        - rowgroup [ref=f7e218]:
+          - row [ref=f7e219]:
+            - cell "No hay registros todavía" [ref=f7e220]

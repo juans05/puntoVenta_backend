@@ -1,0 +1,22 @@
+- generic [ref=f3e4]:
+  - generic [ref=f3e5]:
+    - img "Logo de la empresa" [ref=f3e6]
+    - generic [ref=f3e7]:
+      - heading "Iniciar Sesión" [level=5] [ref=f3e8]
+      - paragraph [ref=f3e9]: Ingresa a tu cuenta y accede a tu sistema en linea
+    - generic [ref=f3e10]:
+      - generic [ref=f3e12]:
+        - generic [ref=f3e13]: Usuario o correo electrónico
+        - textbox [ref=f3e14] [cursor=pointer]
+      - generic [ref=f3e15]:
+        - button "Mostrar contraseña" [ref=f3e16] [cursor=pointer]
+        - generic [ref=f3e19]:
+          - generic [ref=f3e20]: Contraseña
+          - textbox [ref=f3e21]
+      - button "Iniciar sesión" [ref=f3e23] [cursor=pointer]
+  - paragraph [ref=f3e29]:
+    - text: El mejor
+    - strong [ref=f3e30]: sistema
+    - text: para cualquier
+    - strong [ref=f3e31]: negocio
+    - text: ", hecho para ti, verfica tus reportes, productos,ventas,etc."

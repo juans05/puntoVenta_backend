@@ -1,0 +1,141 @@
+[     351ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     458ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `ClientesProveedores`.  
+    at http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/@tremor_react.js?v=23710b64:42520:17
+    at ClientesProveedores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx?t=1787529652442:86:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787527165311:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787529772918:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[     465ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[     579ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[     593ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[    1677ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[    1953ms] [LOG] {code: 1, message: Succeeded, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:269
+[    1955ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[    1957ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[    1957ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[    1958ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `TableUserBody`.  
+    at td
+    at TableUserBody (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:25:5)
+    at tbody
+    at table
+    at div
+    at UserTable (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/index.tsx:26:5)
+    at div
+    at div
+    at div
+    at ClientesProveedores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx?t=1787529652442:86:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787527165311:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787529772918:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[    1958ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[    1959ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[    1959ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[    2289ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   15916ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[   15961ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `ClientesProveedores`.  
+    at http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/@tremor_react.js?v=23710b64:42520:17
+    at ClientesProveedores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx?t=1787529652442:86:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787527165311:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787529772918:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[   15967ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   16025ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   16046ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   16195ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   16409ms] [LOG] {code: 1, message: Succeeded, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:269
+[   16412ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   16414ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   16414ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   16414ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `TableUserBody`.  
+    at td
+    at TableUserBody (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:25:5)
+    at tbody
+    at table
+    at div
+    at UserTable (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/index.tsx:26:5)
+    at div
+    at div
+    at div
+    at ClientesProveedores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx?t=1787529652442:86:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787527165311:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787529772918:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[   16415ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[   16415ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[   16415ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   16833ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   56027ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   56027ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   56028ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[   56028ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[   56028ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   56035ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   56230ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   56436ms] [LOG] {code: 1, message: Succeeded, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:269
+[   56439ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   56441ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   56441ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   56441ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[   56441ms] [LOG] {id: 1, index: 1, nombre: JUAN SAAVEDRA, tipoDocumentoId: 1, numeroDocumento: 46049352} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableButton.tsx:26
+[   56442ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[   56840ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63

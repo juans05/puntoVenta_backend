@@ -1,0 +1,116 @@
+- generic [ref=f4e1]:
+  - generic [ref=f4e4]:
+    - navigation [ref=f4e5]:
+      - generic [ref=f4e7]:
+        - generic [ref=f4e9]:
+          - link [ref=f4e212] [cursor=pointer]:
+            - /url: /dashboard
+          - generic [ref=f4e214] [cursor=pointer]
+        - generic [ref=f4e16]:
+          - link [ref=f4e215] [cursor=pointer]:
+            - /url: /facturacion
+            - paragraph [ref=f4e21]: Ir a ventas
+          - button [ref=f4e216] [cursor=pointer]:
+            - generic [ref=f4e24]: Abrir menú de usuario
+            - generic [ref=f4e25]: T
+    - complementary [ref=f4e217]:
+      - generic [ref=f4e28]:
+        - generic [ref=f4e29]: T
+        - generic [ref=f4e30]:
+          - heading [level=5] [ref=f4e218]: tendyperu
+          - paragraph [ref=f4e32]: TENDYPERU
+          - generic [ref=f4e33]: Conectado
+      - list [ref=f4e36]:
+        - listitem [ref=f4e37]:
+          - link [ref=f4e219] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=f4e41]: Dashboard
+        - listitem [ref=f4e42]:
+          - link [ref=f4e220] [cursor=pointer]:
+            - /url: /dashboard/productos
+            - generic [ref=f4e46]: Productos
+        - listitem [ref=f4e47]:
+          - link [ref=f4e221] [cursor=pointer]:
+            - /url: /dashboard/ventas-realizadas
+            - generic [ref=f4e51]: Ventas del día
+        - listitem [ref=f4e52]:
+          - link [ref=f4e222] [cursor=pointer]:
+            - /url: /dashboard/clientes
+            - generic [ref=f4e56]: Clientes / Proveedores
+        - listitem [ref=f4e57]:
+          - link [ref=f4e223] [cursor=pointer]:
+            - /url: /dashboard/reporte-cierre-caja
+            - generic [ref=f4e67]: Reporte cierre de caja
+        - listitem [ref=f4e68]:
+          - link [ref=f4e224] [cursor=pointer]:
+            - /url: /dashboard/mi-empresa
+            - generic [ref=f4e72]: Mi empresa
+        - listitem [ref=f4e73]:
+          - link [ref=f4e225] [cursor=pointer]:
+            - /url: /dashboard/documentos-facturados
+            - generic [ref=f4e79]: Documentos Facturados
+        - listitem [ref=f4e80]:
+          - link [ref=f4e226] [cursor=pointer]:
+            - /url: /dashboard/usuarios
+            - generic [ref=f4e84]: Usuarios
+        - listitem [ref=f4e85]:
+          - link [ref=f4e227] [cursor=pointer]:
+            - /url: /dashboard/sucursales
+            - generic [ref=f4e89]: Sucursales
+        - listitem [ref=f4e90]:
+          - link [ref=f4e228] [cursor=pointer]:
+            - /url: /dashboard/cajas
+            - generic [ref=f4e94]: Cajas
+        - listitem [ref=f4e95]:
+          - link [ref=f4e229] [cursor=pointer]:
+            - /url: /dashboard/compras
+            - generic [ref=f4e99]: Compras
+        - listitem [ref=f4e100]:
+          - link [ref=f4e230] [cursor=pointer]:
+            - /url: /dashboard/gastos
+            - generic [ref=f4e104]: Gastos
+    - generic [ref=f4e107]:
+      - link [ref=f4e231] [cursor=pointer]:
+        - /url: /dashboard/gastos
+        - text: Volver a Gastos
+      - generic [ref=f4e112]:
+        - generic [ref=f4e113]:
+          - generic [ref=f4e114]:
+            - heading [level=3] [ref=f4e232]: Categorías de gasto
+            - paragraph [ref=f4e116]: Categorías disponibles al registrar un nuevo gasto.
+          - button [ref=f4e233] [cursor=pointer]:
+            - generic [ref=f4e118]: Nueva categoría
+        - table [ref=f4e120]:
+          - rowgroup [ref=f4e121]:
+            - row [ref=f4e234]:
+              - columnheader [ref=f4e235]: Nombre
+              - columnheader [ref=f4e236]: Estado
+              - columnheader [ref=f4e125]
+          - rowgroup [ref=f4e126]:
+            - row [ref=f4e237]:
+              - cell [ref=f4e238]: No hay registros todavía
+      - generic [ref=f4e191]:
+        - generic [ref=f4e192]:
+          - generic [ref=f4e193]:
+            - heading [level=3] [ref=f4e239]: Métodos de pago
+            - paragraph [ref=f4e195]: Métodos de pago disponibles al registrar un gasto o una venta.
+          - button [ref=f4e240] [cursor=pointer]:
+            - generic [ref=f4e197]: Nuevo método de pago
+        - table [ref=f4e199]:
+          - rowgroup [ref=f4e200]:
+            - row [ref=f4e241]:
+              - columnheader [ref=f4e242]: Nombre
+              - columnheader [ref=f4e243]: Estado
+              - columnheader [ref=f4e204]
+          - rowgroup [ref=f4e205]:
+            - row [ref=f4e244]:
+              - cell [ref=f4e245]: No hay registros todavía
+  - dialog [active] [ref=f4e247]:
+    - generic [ref=f4e248]:
+      - heading "Nueva categoría" [level=3] [ref=f4e249]
+      - generic [ref=f4e250]:
+        - generic [ref=f4e251]: Nombre de la categoría
+        - textbox [ref=f4e252] [cursor=pointer]
+      - generic [ref=f4e253]:
+        - button "Cancelar" [ref=f4e254] [cursor=pointer]
+        - button "Guardar" [ref=f4e256] [cursor=pointer]

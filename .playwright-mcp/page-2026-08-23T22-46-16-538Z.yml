@@ -1,0 +1,15 @@
+- generic [ref=f4e5]:
+  - img "Logo de la empresa" [ref=f4e6]
+  - generic [ref=f4e7]:
+    - heading "Iniciar Sesión" [level=5] [ref=f4e8]
+    - paragraph [ref=f4e9]: Ingresa a tu cuenta y accede a tu sistema en linea
+  - generic [ref=f4e10]:
+    - generic [ref=f4e12]:
+      - generic [ref=f4e13]: Usuario o correo electrónico
+      - textbox [ref=f4e14] [cursor=pointer]
+    - generic [ref=f4e15]:
+      - button "Mostrar contraseña" [ref=f4e16] [cursor=pointer]
+      - generic [ref=f4e17]:
+        - generic [ref=f4e18]: Contraseña
+        - textbox [ref=f4e19]
+    - button "Iniciar sesión" [ref=f4e21] [cursor=pointer]

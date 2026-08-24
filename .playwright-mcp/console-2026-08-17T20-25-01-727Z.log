@@ -1,0 +1,55 @@
+[     246ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/chunk-GYWC62UC.js?v=96cc1621:21535
+[     298ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[     298ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100
+[     310ms] [ERROR] Warning: validateDOMNesting(...): %s cannot appear as a child of <%s>.%s%s%s <h4> h3   
+    at h4
+    at h3
+    at div
+    at div
+    at ListaProductos (http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/ListaProductos/index.tsx:31:3)
+    at div
+    at div
+    at div
+    at Facturacion (http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:40:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-router-dom.js?v=96cc1621:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-router-dom.js?v=96cc1621:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-router-dom.js?v=96cc1621:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-router-dom.js?v=96cc1621:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-query.js?v=96cc1621:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-redux.js?v=96cc1621:1481:3)
+    at App (http://restaurant21.lobytech.test:3001/src/App.tsx?t=1786998232626:31:7)
+    at Provider (http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/react-redux.js?v=96cc1621:1481:3) @ http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/chunk-GYWC62UC.js?v=96cc1621:520
+[     401ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[     402ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100
+[     428ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[     428ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100
+[    2768ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[    2768ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/Admin/productos/producto.reducer.ts:346:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/Admin/productos/producto.reducer.ts:354
+[    2769ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/Category/listar:0
+[    2785ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[    2785ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/extensiones/extensiones..reducer.ts:42:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/extensiones/extensiones..reducer.ts:51
+[    2785ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/extensiones/tipo-metodo-pago:0
+[    2786ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[    2786ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/Admin/productos/producto.reducer.ts:312:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/Admin/productos/producto.reducer.ts:331
+[    2787ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[    2787ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100
+[    2791ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/productos/listar?CategoriaId=0&Value=&Page=1&Amount=100:0
+[    2792ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[    2793ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:82:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:92
+[    2793ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/autenticacion/@me:0
+[    2793ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[    2793ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100
+[  159599ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[  159599ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100
+[  162462ms] [LOG] [] @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:73
+[  162463ms] [LOG] null @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/index.tsx:100

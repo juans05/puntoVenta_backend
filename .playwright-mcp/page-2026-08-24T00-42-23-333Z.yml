@@ -1,0 +1,99 @@
+- generic [ref=f4e4]:
+  - navigation [ref=f4e5]:
+    - generic [ref=f4e7]:
+      - generic [ref=f4e9]:
+        - link [ref=f4e258] [cursor=pointer]:
+          - /url: /dashboard
+          - img "Logo de la empresa" [ref=f4e259]
+        - generic "Ocultar menú" [ref=f4e260] [cursor=pointer]
+      - generic [ref=f4e16]:
+        - link [ref=f4e261] [cursor=pointer]:
+          - /url: /facturacion
+          - paragraph [ref=f4e21]: Ir a ventas
+        - button "Abrir menú de usuario T" [ref=f4e262] [cursor=pointer]:
+          - generic [ref=f4e24]: Abrir menú de usuario
+          - generic [ref=f4e25]: T
+  - complementary "Sidebar" [ref=f4e263]:
+    - generic [ref=f4e28]:
+      - generic [ref=f4e29]: T
+      - generic [ref=f4e30]:
+        - heading "tendyperu" [level=5] [ref=f4e264]
+        - paragraph [ref=f4e32]: TENDYPERU
+        - generic [ref=f4e33]: Conectado
+    - list [ref=f4e36]:
+      - listitem [ref=f4e37]:
+        - link "Dashboard" [ref=f4e265] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=f4e42]:
+        - link "Productos" [ref=f4e266] [cursor=pointer]:
+          - /url: /dashboard/productos
+      - listitem [ref=f4e47]:
+        - link "Ventas del día" [ref=f4e267] [cursor=pointer]:
+          - /url: /dashboard/ventas-realizadas
+      - listitem [ref=f4e52]:
+        - link "Clientes / Proveedores" [ref=f4e268] [cursor=pointer]:
+          - /url: /dashboard/clientes
+      - listitem [ref=f4e57]:
+        - link "Reporte cierre de caja" [ref=f4e269] [cursor=pointer]:
+          - /url: /dashboard/reporte-cierre-caja
+      - listitem [ref=f4e68]:
+        - link "Mi empresa" [ref=f4e270] [cursor=pointer]:
+          - /url: /dashboard/mi-empresa
+      - listitem [ref=f4e73]:
+        - link "Documentos Facturados" [ref=f4e271] [cursor=pointer]:
+          - /url: /dashboard/documentos-facturados
+      - listitem [ref=f4e80]:
+        - link "Usuarios" [ref=f4e272] [cursor=pointer]:
+          - /url: /dashboard/usuarios
+      - listitem [ref=f4e85]:
+        - link "Sucursales" [ref=f4e273] [cursor=pointer]:
+          - /url: /dashboard/sucursales
+      - listitem [ref=f4e90]:
+        - link "Cajas" [ref=f4e274] [cursor=pointer]:
+          - /url: /dashboard/cajas
+      - listitem [ref=f4e95]:
+        - link "Compras" [ref=f4e275] [cursor=pointer]:
+          - /url: /dashboard/compras
+      - listitem [ref=f4e100]:
+        - link "Gastos" [ref=f4e276] [cursor=pointer]:
+          - /url: /dashboard/gastos
+  - generic [ref=f4e107]:
+    - link "Volver a Gastos" [ref=f4e277] [cursor=pointer]:
+      - /url: /dashboard/gastos
+    - generic [ref=f4e112]:
+      - generic [ref=f4e113]:
+        - generic [ref=f4e114]:
+          - heading "Categorías de gasto" [level=3] [ref=f4e278]
+          - paragraph [ref=f4e116]: Categorías disponibles al registrar un nuevo gasto.
+        - button "Nueva categoría" [active] [ref=f4e279] [cursor=pointer]
+      - table [ref=f4e120]:
+        - rowgroup [ref=f4e121]:
+          - row [ref=f4e280]:
+            - columnheader "Nombre" [ref=f4e281]
+            - columnheader "Estado" [ref=f4e282]
+            - columnheader [ref=f4e125]
+        - rowgroup [ref=f4e126]:
+          - row [ref=f4e283]:
+            - cell "Servicios" [ref=f4e284]
+            - cell "Activo" [ref=f4e285]
+            - cell [ref=f4e286]:
+              - button "Deshabilitar" [ref=f4e287] [cursor=pointer]
+    - generic [ref=f4e191]:
+      - generic [ref=f4e192]:
+        - generic [ref=f4e193]:
+          - heading "Métodos de pago" [level=3] [ref=f4e289]
+          - paragraph [ref=f4e195]: Métodos de pago disponibles al registrar un gasto o una venta.
+        - button "Nuevo método de pago" [ref=f4e290] [cursor=pointer]
+      - table [ref=f4e199]:
+        - rowgroup [ref=f4e200]:
+          - row [ref=f4e291]:
+            - columnheader "Nombre" [ref=f4e292]
+            - columnheader "Estado" [ref=f4e293]
+            - columnheader [ref=f4e204]
+        - rowgroup [ref=f4e205]:
+          - row [ref=f4e294]:
+            - cell "No hay registros todavía" [ref=f4e295]
+    - region "Notifications alt+T":
+      - list:
+        - status [ref=f4e296]:
+          - generic [ref=f4e300]: Registrado exitosamente

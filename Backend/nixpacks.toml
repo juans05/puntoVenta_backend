@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["dotnet-sdk_6"]
+
+[phases.build]
+cmds = ["dotnet publish -c Release -o out"]
+
+[phases.run]
+cmd = "dotnet out/Spa.Api.dll"

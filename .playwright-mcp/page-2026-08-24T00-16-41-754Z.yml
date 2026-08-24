@@ -1,0 +1,70 @@
+- generic [ref=f28e4]:
+  - navigation [ref=f28e5]:
+    - generic [ref=f28e7]:
+      - generic [ref=f28e8]:
+        - button "Abrir Sidebar" [ref=f28e9] [cursor=pointer]
+        - generic [ref=f28e13]:
+          - link [ref=f28e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f28e15]
+          - generic "Ocultar menú" [ref=f28e16] [cursor=pointer]
+      - button "Abrir menú de usuario A" [ref=f28e22] [cursor=pointer]:
+        - generic [ref=f28e23]: Abrir menú de usuario
+        - generic [ref=f28e24]: A
+  - generic [ref=f28e27]:
+    - generic [ref=f28e30]:
+      - generic [ref=f28e31] [cursor=pointer]: Reporte Resumido de cierre de caja
+      - generic [ref=f28e32] [cursor=pointer]: Reporte Detallado de Cierre de Caja
+    - generic [ref=f28e33]:
+      - generic [ref=f28e38]:
+        - generic [ref=f28e39]: Seleccione una usuario
+        - textbox [ref=f28e40] [cursor=pointer]
+      - generic [ref=f28e47]:
+        - generic [ref=f28e48] [cursor=pointer]
+        - generic [ref=f28e52]:
+          - generic [ref=f28e53]: Fecha
+          - textbox [ref=f28e54]: 23/08/2026
+    - generic [ref=f28e55]:
+      - generic [ref=f28e59]:
+        - paragraph [ref=f28e60]: Boletas
+        - heading "0" [level=3] [ref=f28e61]
+      - generic [ref=f28e65]:
+        - paragraph [ref=f28e66]: Facturas
+        - heading "0" [level=3] [ref=f28e67]
+      - generic [ref=f28e71]:
+        - paragraph [ref=f28e72]: Total de Documentos
+        - heading "0" [level=3] [ref=f28e73]
+      - generic [ref=f28e79]:
+        - paragraph [ref=f28e80]: Total (S/.)
+        - heading "S/. 0.00" [level=3] [ref=f28e81]
+    - generic [ref=f28e82]:
+      - heading "Reporte Resumido del día 23/08/2026" [level=3] [ref=f28e83]
+      - table [ref=f28e85]:
+        - rowgroup [ref=f28e86]:
+          - row [ref=f28e87]:
+            - columnheader "Tipo de Documento" [ref=f28e88]
+            - columnheader "Medio de pago" [ref=f28e90]
+            - columnheader "Total (S/.)" [ref=f28e92]
+          - row [ref=f28e94]:
+            - columnheader "Efectivo" [ref=f28e95]
+            - columnheader "Tarjeta Visa" [ref=f28e97]
+            - columnheader "Yape" [ref=f28e99]
+        - rowgroup [ref=f28e101]:
+          - row [ref=f28e102] [cursor=pointer]:
+            - cell "BOLETAS" [ref=f28e103]
+            - cell "S/. 0.00" [ref=f28e104]
+            - cell "S/. 0.00" [ref=f28e106]
+            - cell "S/. 0.00" [ref=f28e108]
+            - cell "S/. 0.00" [ref=f28e110]
+          - row [ref=f28e112] [cursor=pointer]:
+            - cell "FACTURAS" [ref=f28e113]
+            - cell "S/. 0.00" [ref=f28e114]
+            - cell "S/. 0.00" [ref=f28e116]
+            - cell "S/. 0.00" [ref=f28e118]
+            - cell "S/. 0.00" [ref=f28e120]
+          - row [ref=f28e122] [cursor=pointer]:
+            - cell "TOTAL" [ref=f28e123]
+            - cell "S/. 0.00" [ref=f28e124]
+            - cell "S/. 0.00" [ref=f28e126]
+            - cell "S/. 0.00" [ref=f28e128]
+            - cell "S/. 0.00" [ref=f28e130]

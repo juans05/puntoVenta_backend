@@ -1,0 +1,121 @@
+- generic [ref=e4]:
+  - navigation [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - link [ref=e10] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=e11]
+          - generic "Ocultar menú" [ref=e12] [cursor=pointer]
+        - heading "Reporte cierre de caja" [level=1] [ref=e15]
+      - generic [ref=e17]:
+        - link [ref=e19] [cursor=pointer]:
+          - /url: /facturacion
+          - paragraph [ref=e22]: Ir a ventas
+        - button "Abrir menú de usuario A" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: Abrir menú de usuario
+          - generic [ref=e26]: A
+  - complementary "Sidebar" [ref=e27]:
+    - generic [ref=e29]:
+      - generic [ref=e30]: A
+      - generic [ref=e31]:
+        - heading "Admin" [level=5] [ref=e32]
+        - paragraph [ref=e33]: ADMIN
+        - generic [ref=e34]: Conectado
+    - list [ref=e37]:
+      - listitem [ref=e38]:
+        - link "Dashboard" [ref=e39] [cursor=pointer]:
+          - /url: /dashboard
+      - listitem [ref=e43]:
+        - link "Productos" [ref=e44] [cursor=pointer]:
+          - /url: /dashboard/productos
+      - listitem [ref=e48]:
+        - link "Ventas del día" [ref=e49] [cursor=pointer]:
+          - /url: /dashboard/ventas-realizadas
+      - listitem [ref=e53]:
+        - link "Clientes / Proveedores" [ref=e54] [cursor=pointer]:
+          - /url: /dashboard/clientes
+      - listitem [ref=e58]:
+        - link "Reporte cierre de caja" [ref=e59] [cursor=pointer]:
+          - /url: /dashboard/reporte-cierre-caja
+      - listitem [ref=e69]:
+        - link "Mi empresa" [ref=e70] [cursor=pointer]:
+          - /url: /dashboard/mi-empresa
+      - listitem [ref=e74]:
+        - link "Documentos Facturados" [ref=e75] [cursor=pointer]:
+          - /url: /dashboard/documentos-facturados
+      - listitem [ref=e81]:
+        - link "Usuarios" [ref=e82] [cursor=pointer]:
+          - /url: /dashboard/usuarios
+      - listitem [ref=e86]:
+        - link "Sucursales" [ref=e87] [cursor=pointer]:
+          - /url: /dashboard/sucursales
+      - listitem [ref=e91]:
+        - link "Cajas" [ref=e92] [cursor=pointer]:
+          - /url: /dashboard/cajas
+      - listitem [ref=e96]:
+        - link "Compras" [ref=e97] [cursor=pointer]:
+          - /url: /dashboard/compras
+      - listitem [ref=e101]:
+        - link "Gastos" [ref=e102] [cursor=pointer]:
+          - /url: /dashboard/gastos
+      - listitem [ref=e106]:
+        - link "Empresas" [ref=e107] [cursor=pointer]:
+          - /url: /dashboard/empresas
+  - generic [ref=e113]:
+    - generic [ref=e116]:
+      - generic [ref=e117] [cursor=pointer]: Reporte Resumido de cierre de caja
+      - generic [ref=e118] [cursor=pointer]: Reporte Detallado de Cierre de Caja
+    - generic [ref=e119]:
+      - generic [ref=e124]:
+        - generic [ref=e125]: Seleccione una usuario
+        - textbox [ref=e126] [cursor=pointer]
+      - generic [ref=e133]:
+        - generic [ref=e134] [cursor=pointer]
+        - generic [ref=e138]:
+          - generic [ref=e139]: Fecha
+          - textbox [ref=e140]: 23/08/2026
+    - generic [ref=e141]:
+      - generic [ref=e147]:
+        - paragraph [ref=e148]: Boletas
+        - heading "0" [level=3] [ref=e149]
+      - generic [ref=e155]:
+        - paragraph [ref=e156]: Facturas
+        - heading "0" [level=3] [ref=e157]
+      - generic [ref=e163]:
+        - paragraph [ref=e164]: Total de Documentos
+        - heading "0" [level=3] [ref=e165]
+      - generic [ref=e171]:
+        - paragraph [ref=e172]: Total (S/.)
+        - heading "S/. 0.00" [level=3] [ref=e173]
+    - generic [ref=e174]:
+      - heading "Reporte Resumido del día 23/08/2026" [level=3] [ref=e175]
+      - table [ref=e177]:
+        - rowgroup [ref=e178]:
+          - row [ref=e179]:
+            - columnheader "Tipo de Documento" [ref=e180]
+            - columnheader "Medio de pago" [ref=e182]
+            - columnheader "Total (S/.)" [ref=e184]
+          - row [ref=e186]:
+            - columnheader "Efectivo" [ref=e187]
+            - columnheader "Tarjeta Visa" [ref=e189]
+            - columnheader "Yape" [ref=e191]
+        - rowgroup [ref=e193]:
+          - row [ref=e194] [cursor=pointer]:
+            - cell "BOLETAS" [ref=e195]
+            - cell "S/. 0.00" [ref=e196]
+            - cell "S/. 0.00" [ref=e198]
+            - cell "S/. 0.00" [ref=e200]
+            - cell "S/. 0.00" [ref=e202]
+          - row [ref=e204] [cursor=pointer]:
+            - cell "FACTURAS" [ref=e205]
+            - cell "S/. 0.00" [ref=e206]
+            - cell "S/. 0.00" [ref=e208]
+            - cell "S/. 0.00" [ref=e210]
+            - cell "S/. 0.00" [ref=e212]
+          - row [ref=e214] [cursor=pointer]:
+            - cell "TOTAL" [ref=e215]
+            - cell "S/. 0.00" [ref=e216]
+            - cell "S/. 0.00" [ref=e218]
+            - cell "S/. 0.00" [ref=e220]
+            - cell "S/. 0.00" [ref=e222]

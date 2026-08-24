@@ -1,0 +1,50 @@
+[    1084ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/chunk-GYWC62UC.js?v=96cc1621:21535
+[    3616ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[    3617ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/user/listar-usuarios:0
+[    3632ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[    3632ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:82:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:92
+[    3632ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/autenticacion/@me:0
+[  244570ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/chunk-GYWC62UC.js?v=96cc1621:21535
+[  247025ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[  247025ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/user/listar-usuarios:0
+[  247025ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[  247025ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:82:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:92
+[  247025ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/autenticacion/@me:0
+[  380802ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3001/node_modules/.vite/deps/chunk-GYWC62UC.js?v=96cc1621:21535
+[  383251ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[  383252ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/user/listar-usuarios:0
+[  383252ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[  383252ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3001/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:82:24 @ http://restaurant21.lobytech.test:3001/src/redux/reducers/auth/auth.reducer.ts:92
+[  383252ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/autenticacion/@me:0
+[  425482ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Facturacion/ProductosFiltradosByCard/index.tsx?t=1786999058889:0
+[  425484ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Facturacion/ProductosFiltradosByCard/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  503765ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/index.tsx?t=1786999136957:0
+[  503766ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  509680ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/index.tsx?t=1786999142683:0
+[  509681ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/DocumentosFacturados/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  509681ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  509681ms] [ERROR] [hmr] Failed to reload /src/components/Modal/Admin/Producto/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  509681ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  523265ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[  523266ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/user/listar-usuarios:0
+[  524955ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Admin/Views/Usuarios/index.tsx?t=1786999158409:0
+[  524956ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/Usuarios/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  531713ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3001/src/utils/axios.ts:19
+[  531714ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5001/api/user/listar-usuarios:0
+[  539340ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  543585ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  551012ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  560381ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/DocumentosFacturados/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  565215ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/DocumentosFacturados/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  569234ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/DocumentosFacturados/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  573326ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  577585ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  585202ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296
+[  620918ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://restaurant21.lobytech.test:3001/src/presentation/views/Modules/Admin/Views/Sucursales/index.tsx?t=1786999254364:0
+[  620920ms] [ERROR] [hmr] Failed to reload /src/presentation/views/Modules/Admin/Views/Sucursales/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://restaurant21.lobytech.test:3001/@vite/client:296

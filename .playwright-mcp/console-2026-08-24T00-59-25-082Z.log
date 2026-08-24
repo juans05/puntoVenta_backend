@@ -1,0 +1,742 @@
+[     546ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     762ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[   39083ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  212158ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  218975ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  218978ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `ClientesProveedores`.  
+    at http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/@tremor_react.js?v=23710b64:42520:17
+    at ClientesProveedores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ClientesProveedores/index.tsx?t=1787533109539:86:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[  218983ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  220192ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  220193ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  220517ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/clientes/listar?Value=&Page=1&Amount=50:0
+[  220517ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  220518ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:285
+[  220520ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  220525ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[  220525ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[  220526ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  220973ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  226341ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  231809ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  244407ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  244408ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244408ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244408ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244408ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244411ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  244411ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  244411ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  244411ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  244416ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  244428ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244428ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244428ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244428ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244430ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  244430ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  244430ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  244430ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  244432ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244432ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244432ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244432ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244667ms] [LOG] {code: 1, message: Succeeded, data: Array(6), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:559
+[  244667ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244667ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244667ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244667ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244668ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  244668ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  244668ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  244668ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  244669ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  244670ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244671ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244671ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244671ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244672ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  244672ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  244672ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  244673ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  244674ms] [LOG] {code: 1, message: Succeeded, data: Array(6), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:578
+[  244674ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244674ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244674ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244674ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244676ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  244676ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  244676ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  244676ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  244677ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244677ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244677ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244677ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  244678ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  244678ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  244678ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  244678ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  244679ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  244679ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  244679ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  244679ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  245912ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=0&Value=&Page=1&Amount=12:0
+[  245913ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  245913ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[  245914ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  245914ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  245914ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  245914ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  245916ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  245916ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  245916ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  245916ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  245917ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  245918ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  245918ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  245918ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  245918ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  245921ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  245921ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  245921ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  245921ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  245926ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  245926ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  245926ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  245926ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  254823ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  256495ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:43
+[  259902ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  260349ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/compras/listar?Page=1&Amount=10:0
+[  260350ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  260350ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/compras/compra.reducer.ts:46
+[  261761ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:43
+[  261982ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=0&Value=&Page=1&Amount=200:0
+[  261982ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  261997ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/proveedor/listar?Page=1&Amount=100:0
+[  261998ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  656479ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  656486ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  656486ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  656487ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  656487ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  656503ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  656506ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  656506ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  656507ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  656516ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  656545ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  656545ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  656546ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  656546ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  656547ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  656547ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  656547ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  656547ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  656548ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  656549ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  656549ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  656549ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  658880ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  658881ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:345:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[  658882ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  658882ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  658882ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  658882ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  658883ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  658883ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  658883ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  658883ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  658884ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  658885ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/productos/listar?CategoriaId=0&Value=&Page=1&Amount=12:0
+[  658886ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  658886ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:379:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:387
+[  658886ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Category/listar:0
+[  658886ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  658886ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:556:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:567
+[  658886ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Grupo/listar?CategoriaId=0:0
+[  658886ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  658886ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:575:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:586
+[  658887ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Grupo/listar:0
+[  658887ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  658887ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  658887ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  658887ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  658890ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  658890ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  658890ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  658890ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  658891ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  658891ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  658891ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  658891ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  659305ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  659309ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:174
+[  659313ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `Indicadores`.  
+    at Indicador (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/Indicadores/Indicador.tsx:20:3)
+    at Indicadores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/Indicadores/Indicadores.tsx:20:3)
+    at div
+    at div
+    at div
+    at div
+    at div
+    at VentasRealizadas (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:70:41)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[  659321ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[  659321ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[  659322ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[  659322ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[  659322ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[  659322ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[  659322ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[  659323ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[  659323ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[  659323ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[  659323ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[  659323ms] [LOG] 900 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[  659323ms] [LOG] 1440 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[  659323ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[  659323ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[  659349ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:174
+[  659351ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[  659351ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[  659351ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[  659351ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[  659351ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[  659351ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[  659351ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[  659351ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[  659352ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[  659352ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[  659352ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[  659352ms] [LOG] 900 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[  659352ms] [LOG] 1440 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[  659352ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[  659352ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[  660378ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  660386ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  661688ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  661688ms] [LOG] error TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:119:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:138
+[  661689ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/facturacion/listar?Page=1&Amount=10000&StartDate=23/08/2026&EndDate=23/08/2026:0
+[  661689ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  661690ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:75:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:83
+[  661690ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/extensiones/nacionalidad:0
+[  661951ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  661951ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:266:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:285
+[  661954ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  661955ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/clientes/listar?Value=&Page=1&Amount=50:0
+[  661959ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[  661960ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[  661961ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Clientes/index.tsx?t=1787493067224:63
+[  662306ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  662308ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:174
+[  662312ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[  662312ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[  662312ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[  662312ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[  662312ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[  662312ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[  662313ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[  662313ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[  662313ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[  662313ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[  662313ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[  662313ms] [LOG] 900 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[  662313ms] [LOG] 1440 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[  662313ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[  662313ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[  662331ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:174
+[  662333ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[  662333ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[  662334ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[  662334ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[  662334ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[  662334ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[  662334ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[  662334ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[  662335ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[  662335ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[  662335ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[  662335ms] [LOG] 900 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[  662335ms] [LOG] 1440 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[  662335ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[  662335ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[  662738ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  662739ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:108:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:116
+[  662739ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/extensiones/ubigeos:0
+[  662739ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  662740ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:59:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:67
+[  662740ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/extensiones/tipo-documento:0
+[  662740ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  662740ms] [LOG] error TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:119:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:138
+[  662741ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:174
+[  662743ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[  662743ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[  662743ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[  662743ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[  662743ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[  662743ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[  662743ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[  662743ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[  662743ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[  662743ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[  662743ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[  662743ms] [LOG] 900 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[  662743ms] [LOG] 1440 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[  662743ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[  662744ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[  662744ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/facturacion/listar?Page=1&Amount=10000&StartDate=23/08/2026&EndDate=23/08/2026:0
+[  662744ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787533109539:174
+[  662745ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[  662745ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[  662745ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[  662745ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[  662745ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[  662745ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[  662745ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[  662745ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[  662746ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[  662746ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[  662746ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[  662746ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[  662746ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[  662746ms] [LOG] 900 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[  662746ms] [LOG] 1440 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[  662746ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[  662746ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[  662833ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787533109539:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787533145028:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[  662836ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  662836ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  662836ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  662836ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  662840ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  662840ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  662840ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  662840ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  662844ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  662861ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  662861ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  662862ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  662862ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  662864ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  662864ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  662864ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  662865ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  662869ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  662870ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  662870ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  662870ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  664675ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  664676ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:75:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:83
+[  664676ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/extensiones/nacionalidad:0
+[  664677ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  664677ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:345:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[  664678ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  664678ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  664678ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  664678ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  664680ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  664681ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  664681ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  664681ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  664683ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[  664683ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/productos/listar?CategoriaId=0&Value=&Page=1&Amount=12:0
+[  664683ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  664683ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  664684ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  664684ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  664687ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  664687ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  664687ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  664687ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  664696ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  664696ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  664696ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  664696ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  665202ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  665203ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:379:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:387
+[  665203ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Category/listar:0
+[  665203ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  665203ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:556:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:567
+[  665204ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Grupo/listar?CategoriaId=0:0
+[  665204ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[  665204ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:575:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:586
+[  665204ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Grupo/listar:0
+[  667304ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  667304ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  667304ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  667304ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  667306ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  667307ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  667307ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  667307ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  667313ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[  667313ms] [LOG] () => setCheckedPrecio(!checkedPrecio) @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[  668967ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  668967ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  668967ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  668967ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  668969ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  668969ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  668969ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  668969ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  668970ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[  668971ms] [LOG] () => setCheckedPrecio(!checkedPrecio) @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[  669170ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[  669170ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[  669171ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[  669171ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[  669172ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  669172ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  669172ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  669172ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[  669173ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[  669174ms] [LOG] () => setCheckedPrecio(!checkedPrecio) @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[  669175ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[  669175ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[  669175ms] [LOG] [Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[  669175ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[ 5561158ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[ 5561570ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[ 5561571ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[ 5561571ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[ 5561571ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[ 5561616ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[ 5561619ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[ 5561620ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[ 5561620ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[ 5561655ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[ 5561715ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: http://restaurant21.lobytech.test:3002/src/assets/fonts/sf-ui-display-medium.otf @ http://restaurant21.lobytech.test:3002/dashboard/productos:0
+[ 5561798ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[ 5561798ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[ 5561799ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[ 5561799ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[ 5561813ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[ 5561820ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[ 5561821ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[ 5561826ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[ 5561896ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[ 5561896ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[ 5561897ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[ 5561897ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[ 5564023ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[ 5564024ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:345:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[ 5564027ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[ 5564027ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[ 5564027ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[ 5564027ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[ 5564032ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[ 5564032ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[ 5564032ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[ 5564033ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[ 5564036ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:92
+[ 5564038ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/productos/listar?CategoriaId=0&Value=&Page=1&Amount=12:0
+[ 5564038ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[ 5564040ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:379:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:387
+[ 5564040ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Category/listar:0
+[ 5564040ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[ 5564040ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:556:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:567
+[ 5564041ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Grupo/listar?CategoriaId=0:0
+[ 5564041ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[ 5564041ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:575:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:586
+[ 5564042ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/Grupo/listar:0
+[ 5564042ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[ 5564042ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[ 5564043ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[ 5564043ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195
+[ 5564052ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[ 5564052ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[ 5564052ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[ 5564053ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[ 5564056ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[ 5564057ms] [LOG] TypeError: Cannot read properties of undefined (reading 'status')
+    at http://restaurant21.lobytech.test:3002/src/utils/axios.ts:21:26
+    at async http://restaurant21.lobytech.test:3002/src/redux/reducers/auth/auth.reducer.ts:82:24 @ http://restaurant21.lobytech.test:3002/src/redux/reducers/auth/auth.reducer.ts:92
+[ 5564057ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:5002/api/autenticacion/@me:0
+[ 5564058ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:59
+[ 5564058ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:95
+[ 5564058ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:190
+[ 5564058ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787533109539:195

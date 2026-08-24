@@ -1,0 +1,112 @@
+- generic [ref=f15e4]:
+  - navigation [ref=f15e5]:
+    - generic [ref=f15e7]:
+      - generic [ref=f15e8]:
+        - button "Abrir Sidebar" [ref=f15e9] [cursor=pointer]
+        - generic [ref=f15e13]:
+          - link [ref=f15e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f15e15]
+          - generic "Ocultar menú" [ref=f15e16] [cursor=pointer]
+      - button "Abrir menú de usuario A" [ref=f15e22] [cursor=pointer]:
+        - generic [ref=f15e23]: Abrir menú de usuario
+        - generic [ref=f15e24]: A
+  - generic [ref=f15e29]:
+    - heading "Documentos Facturados" [level=3] [ref=f15e31]
+    - generic [ref=f15e33]:
+      - generic [ref=f15e34]:
+        - generic [ref=f15e40]:
+          - paragraph [ref=f15e41]: Total Vendido
+          - heading "S/. 0" [level=3] [ref=f15e42]
+        - generic [ref=f15e49]:
+          - paragraph [ref=f15e50]: Total de Registros
+          - heading "0" [level=3] [ref=f15e51]
+      - generic [ref=f15e55]:
+        - generic [ref=f15e57]:
+          - generic [ref=f15e58] [cursor=pointer]
+          - generic [ref=f15e62]:
+            - generic [ref=f15e63]: Fecha Inicio
+            - textbox [ref=f15e64]: 23/08/2026
+        - generic [ref=f15e66]:
+          - generic [ref=f15e67] [cursor=pointer]
+          - generic [ref=f15e71]:
+            - generic [ref=f15e72]: Fecha Fin
+            - textbox [ref=f15e73]: 23/08/2026
+        - button "Descargar Excel" [ref=f15e75] [cursor=pointer]
+    - table [ref=f15e78]:
+      - rowgroup [ref=f15e79]:
+        - row [ref=f15e80]:
+          - columnheader "N°" [ref=f15e81]
+          - columnheader "Nombres y Apellidos" [ref=f15e82]
+          - columnheader "TipoDocumento" [ref=f15e83]
+          - columnheader "Serie - Correlativo" [ref=f15e84]
+          - columnheader "Nombre Vendedor" [ref=f15e85]
+          - columnheader "Fecha Registro" [ref=f15e86]
+          - columnheader "Total" [ref=f15e87]
+          - columnheader "Estado" [ref=f15e88]
+          - columnheader "Accion" [ref=f15e89]
+      - rowgroup [ref=f15e90]:
+        - row [ref=f15e91]:
+          - cell [ref=f15e92]:
+            - table [ref=f15e93]:
+              - rowgroup [ref=f15e94]:
+                - row [ref=f15e95]:
+                  - cell [ref=f15e96]
+                  - cell [ref=f15e99]
+                  - cell [ref=f15e102]
+                  - cell [ref=f15e105]
+                  - cell [ref=f15e108]
+                  - cell [ref=f15e111]
+                  - cell [ref=f15e114]
+                  - cell [ref=f15e117]
+                  - cell [ref=f15e120]
+                - row [ref=f15e123]:
+                  - cell [ref=f15e124]
+                  - cell [ref=f15e127]
+                  - cell [ref=f15e130]
+                  - cell [ref=f15e133]
+                  - cell [ref=f15e136]
+                  - cell [ref=f15e139]
+                  - cell [ref=f15e142]
+                  - cell [ref=f15e145]
+                  - cell [ref=f15e148]
+                - row [ref=f15e151]:
+                  - cell [ref=f15e152]
+                  - cell [ref=f15e155]
+                  - cell [ref=f15e158]
+                  - cell [ref=f15e161]
+                  - cell [ref=f15e164]
+                  - cell [ref=f15e167]
+                  - cell [ref=f15e170]
+                  - cell [ref=f15e173]
+                  - cell [ref=f15e176]
+                - row [ref=f15e179]:
+                  - cell [ref=f15e180]
+                  - cell [ref=f15e183]
+                  - cell [ref=f15e186]
+                  - cell [ref=f15e189]
+                  - cell [ref=f15e192]
+                  - cell [ref=f15e195]
+                  - cell [ref=f15e198]
+                  - cell [ref=f15e201]
+                  - cell [ref=f15e204]
+                - row [ref=f15e207]:
+                  - cell [ref=f15e208]
+                  - cell [ref=f15e211]
+                  - cell [ref=f15e214]
+                  - cell [ref=f15e217]
+                  - cell [ref=f15e220]
+                  - cell [ref=f15e223]
+                  - cell [ref=f15e226]
+                  - cell [ref=f15e229]
+                  - cell [ref=f15e232]
+                - row [ref=f15e235]:
+                  - cell [ref=f15e236]
+                  - cell [ref=f15e239]
+                  - cell [ref=f15e242]
+                  - cell [ref=f15e245]
+                  - cell [ref=f15e248]
+                  - cell [ref=f15e251]
+                  - cell [ref=f15e254]
+                  - cell [ref=f15e257]
+                  - cell [ref=f15e260]

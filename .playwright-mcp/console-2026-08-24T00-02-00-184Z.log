@@ -1,0 +1,326 @@
+[     412ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     490ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787493088342:174
+[     495ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `Indicadores`.  
+    at Indicador (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/Indicadores/Indicador.tsx:20:3)
+    at Indicadores (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/Indicadores/Indicadores.tsx:20:3)
+    at div
+    at div
+    at div
+    at div
+    at div
+    at VentasRealizadas (http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787493088342:70:41)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Outlet (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3703:26)
+    at div
+    at div
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787527165311:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787529699701:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=23710b64:63
+[     507ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[     508ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[     508ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[     508ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[     508ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[     509ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[     509ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[     509ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[     509ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[     509ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[     509ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[     510ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[     510ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[     510ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[     510ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[     600ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787493088342:174
+[     607ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[     608ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[     608ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[     608ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[     608ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[     609ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[     609ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[     609ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[     609ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[     610ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[     610ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[     610ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[     610ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[     610ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[     611ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[     622ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787493088342:174
+[     632ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[     632ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[     633ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[     634ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[     634ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[     634ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[     635ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[     635ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[     635ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[     635ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[     635ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[     636ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[     636ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[     636ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[     636ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[     919ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/facturacion/listar?Page=1&Amount=10000&StartDate=23/08/2026&EndDate=23/08/2026:0
+[     920ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[     921ms] [LOG] error AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:138
+[     922ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787493088342:174
+[     927ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[     927ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[     927ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[     927ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[     928ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[     928ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[     928ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[     928ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[     929ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[     929ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[     929ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[     929ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[     930ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[     930ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[     931ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[     934ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787493088342:174
+[     936ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[     937ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[     937ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[     937ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[     937ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[     938ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[     938ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[     938ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[     938ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[     938ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[     939ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[     939ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[     939ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[     939ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[     939ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[     941ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[     941ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   41958ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529761733:174
+[   41962ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   41962ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   41963ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   41963ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   41963ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   41964ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   41965ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   41967ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   41967ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   41968ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   41969ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   41969ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   41969ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   41969ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   41970ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   41970ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   41971ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   41976ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529761733:174
+[   41996ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   41997ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   41997ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   41997ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   41997ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   41998ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   41999ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   41999ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   41999ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   41999ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   42002ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   42003ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   42004ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   42004ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   42004ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   42483ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/facturacion/listar?Page=1&Amount=10000&StartDate=23/08/2026&EndDate=23/08/2026:0
+[   42483ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   42484ms] [LOG] error AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:138
+[   42485ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529761733:174
+[   42494ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   42495ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   42496ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   42498ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   42498ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   42499ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   42499ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   42499ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   42499ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   42499ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   42500ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   42500ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   42500ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   42500ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   42500ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   42503ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529761733:174
+[   42509ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   42509ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   42510ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   42510ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   42510ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   42511ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   42511ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   42511ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   42512ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   42512ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   42512ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   42512ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   42514ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   42514ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   42514ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   42514ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   42515ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   47750ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529767459:174
+[   47751ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   47752ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   47752ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   47752ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   47753ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   47755ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   47756ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   47757ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   47757ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   47757ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   47757ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   47757ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   47757ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   47758ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   47758ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   47759ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   47759ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   47777ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529767459:174
+[   47825ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   47827ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   47827ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   47827ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   47827ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   47827ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   47827ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   47827ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   47828ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   47828ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   47828ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   47828ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   47828ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   47828ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   47828ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   48235ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/facturacion/listar?Page=1&Amount=10000&StartDate=23/08/2026&EndDate=23/08/2026:0
+[   48236ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   48236ms] [LOG] error AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:138
+[   48237ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529767459:174
+[   48241ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   48243ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   48244ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   48244ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   48244ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   48245ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   48245ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   48245ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   48245ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   48245ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   48245ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   48245ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   48245ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   48245ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   48245ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   48248ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529767459:174
+[   48250ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   48250ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   48250ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   48251ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   48251ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   48251ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   48251ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   48252ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   48252ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   48252ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   48252ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   48252ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   48252ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   48253ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   48253ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   48253ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   48255ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   53143ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529772918:174
+[   53145ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   53145ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   53145ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   53146ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   53146ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   53147ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   53147ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   53148ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   53148ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   53148ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   53148ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   53148ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   53148ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   53149ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   53149ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   53150ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   53150ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   53156ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529772918:174
+[   53163ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   53164ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   53165ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   53166ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   53166ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   53167ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   53167ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   53167ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   53168ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   53168ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   53168ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   53169ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   53169ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   53169ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   53169ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   53557ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/facturacion/listar?Page=1&Amount=10000&StartDate=23/08/2026&EndDate=23/08/2026:0
+[   53558ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   53558ms] [LOG] error AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/ventas/ventasRealizadas.reducer.ts:138
+[   53559ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529772918:174
+[   53566ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   53567ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   53567ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   53567ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   53567ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   53567ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   53567ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   53567ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   53567ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   53567ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   53567ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   53567ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   53567ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   53568ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   53568ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142
+[   53568ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/VentasRealizadas/index.tsx?t=1787529772918:174
+[   53571ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:30
+[   53571ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Usuarios/UserTable/UserTableBody/index.tsx:41
+[   53572ms] [LOG] activeVentas null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:39
+[   53572ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:40
+[   53572ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:47
+[   53572ms] [LOG] 23/08/2026 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:53
+[   53572ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:63
+[   53574ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:79
+[   53574ms] [LOG] {habitacionId: 0, habitacion: , anfitrionaId: 0, anfitriona: , turno: } @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:89
+[   53575ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:91
+[   53575ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:99
+[   53579ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:105
+[   53581ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:106
+[   53581ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:121
+[   53583ms] [LOG] 390 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:122
+[   53583ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:133
+[   53584ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Ventas/index.tsx?t=1787493067224:142

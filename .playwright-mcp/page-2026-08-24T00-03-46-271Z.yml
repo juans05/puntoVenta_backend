@@ -1,0 +1,110 @@
+- generic [ref=f11e4]:
+  - navigation [ref=f11e5]:
+    - generic [ref=f11e7]:
+      - generic [ref=f11e8]:
+        - button "Abrir Sidebar" [ref=f11e9] [cursor=pointer]
+        - generic [ref=f11e13]:
+          - link [ref=f11e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f11e15]
+          - generic "Ocultar menú" [ref=f11e16] [cursor=pointer]
+      - generic [ref=f11e20]:
+        - link [ref=f11e22] [cursor=pointer]:
+          - /url: /facturacion
+          - paragraph [ref=f11e25]: Ir a ventas
+        - button "Abrir menú de usuario A" [ref=f11e27] [cursor=pointer]:
+          - generic [ref=f11e28]: Abrir menú de usuario
+          - generic [ref=f11e29]: A
+  - generic [ref=f11e32]:
+    - list [ref=f11e36]:
+      - listitem [ref=f11e37] [cursor=pointer]:
+        - generic [ref=f11e38]: Clientes
+      - listitem [ref=f11e39] [cursor=pointer]:
+        - generic [ref=f11e40]: Proveedores
+    - generic [ref=f11e41]:
+      - generic [ref=f11e42]:
+        - generic [ref=f11e44]:
+          - textbox "Buscar..." [ref=f11e45]
+          - button [ref=f11e46] [cursor=pointer]
+        - button [ref=f11e50] [cursor=pointer]:
+          - paragraph [ref=f11e52]: Nuevo Cliente
+      - generic [ref=f11e53]:
+        - table [ref=f11e55]:
+          - rowgroup [ref=f11e56]:
+            - row [ref=f11e57]:
+              - columnheader "N°" [ref=f11e58]
+              - columnheader "Nombres y Apellidos" [ref=f11e59]
+              - columnheader "Tipo de Documento" [ref=f11e60]
+              - columnheader "Número de Documento" [ref=f11e61]
+              - columnheader "Dirección" [ref=f11e62]
+              - columnheader "Ubigeo" [ref=f11e63]
+              - columnheader "Celular" [ref=f11e64]
+              - columnheader "Accion" [ref=f11e65]
+          - rowgroup [ref=f11e66]:
+            - row [ref=f11e67]:
+              - cell [ref=f11e68]:
+                - table [ref=f11e69]:
+                  - rowgroup [ref=f11e70]:
+                    - row [ref=f11e71]:
+                      - cell [ref=f11e72]
+                      - cell [ref=f11e75]
+                      - cell [ref=f11e78]
+                      - cell [ref=f11e81]
+                      - cell [ref=f11e84]
+                      - cell [ref=f11e87]
+                      - cell [ref=f11e90]
+                      - cell [ref=f11e93]
+                    - row [ref=f11e96]:
+                      - cell [ref=f11e97]
+                      - cell [ref=f11e100]
+                      - cell [ref=f11e103]
+                      - cell [ref=f11e106]
+                      - cell [ref=f11e109]
+                      - cell [ref=f11e112]
+                      - cell [ref=f11e115]
+                      - cell [ref=f11e118]
+                    - row [ref=f11e121]:
+                      - cell [ref=f11e122]
+                      - cell [ref=f11e125]
+                      - cell [ref=f11e128]
+                      - cell [ref=f11e131]
+                      - cell [ref=f11e134]
+                      - cell [ref=f11e137]
+                      - cell [ref=f11e140]
+                      - cell [ref=f11e143]
+                    - row [ref=f11e146]:
+                      - cell [ref=f11e147]
+                      - cell [ref=f11e150]
+                      - cell [ref=f11e153]
+                      - cell [ref=f11e156]
+                      - cell [ref=f11e159]
+                      - cell [ref=f11e162]
+                      - cell [ref=f11e165]
+                      - cell [ref=f11e168]
+                    - row [ref=f11e171]:
+                      - cell [ref=f11e172]
+                      - cell [ref=f11e175]
+                      - cell [ref=f11e178]
+                      - cell [ref=f11e181]
+                      - cell [ref=f11e184]
+                      - cell [ref=f11e187]
+                      - cell [ref=f11e190]
+                      - cell [ref=f11e193]
+                    - row [ref=f11e196]:
+                      - cell [ref=f11e197]
+                      - cell [ref=f11e200]
+                      - cell [ref=f11e203]
+                      - cell [ref=f11e206]
+                      - cell [ref=f11e209]
+                      - cell [ref=f11e212]
+                      - cell [ref=f11e215]
+                      - cell [ref=f11e218]
+        - navigation [ref=f11e221]:
+          - generic [ref=f11e222]:
+            - paragraph [ref=f11e223]: Ver
+            - generic [ref=f11e224]: "50"
+            - paragraph [ref=f11e228]: registros
+          - list [ref=f11e229]:
+            - listitem [ref=f11e230] [cursor=pointer]: Mostrando 1 - 50 de 0
+            - listitem [ref=f11e231] [cursor=pointer]:
+              - generic [ref=f11e232]: »

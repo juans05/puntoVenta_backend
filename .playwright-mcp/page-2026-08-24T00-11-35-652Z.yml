@@ -1,0 +1,32 @@
+- generic [ref=f17e4]:
+  - navigation [ref=f17e5]:
+    - generic [ref=f17e7]:
+      - generic [ref=f17e8]:
+        - button "Abrir Sidebar" [ref=f17e9] [cursor=pointer]
+        - generic [ref=f17e13]:
+          - link [ref=f17e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f17e15]
+          - generic "Ocultar menú" [ref=f17e16] [cursor=pointer]
+      - button "Abrir menú de usuario A" [ref=f17e22] [cursor=pointer]:
+        - generic [ref=f17e23]: Abrir menú de usuario
+        - generic [ref=f17e24]: A
+  - generic [ref=f17e27]:
+    - generic [ref=f17e28]:
+      - generic [ref=f17e29]:
+        - heading "Usuarios" [level=3] [ref=f17e30]
+        - paragraph [ref=f17e31]: Usuarios que pueden iniciar sesión y abrir su caja.
+      - button "Agregar usuario" [ref=f17e32] [cursor=pointer]
+    - table [ref=f17e35]:
+      - rowgroup [ref=f17e36]:
+        - row [ref=f17e37]:
+          - columnheader "N°" [ref=f17e38]
+          - columnheader "Usuario" [ref=f17e39]
+          - columnheader "Nombres" [ref=f17e40]
+          - columnheader "Apellidos" [ref=f17e41]
+          - columnheader "Email" [ref=f17e42]
+          - columnheader "Teléfono" [ref=f17e43]
+          - columnheader "Estado" [ref=f17e44]
+      - rowgroup [ref=f17e45]:
+        - row [ref=f17e46]:
+          - cell "No hay usuarios registrados" [ref=f17e47]

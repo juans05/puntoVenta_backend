@@ -1,0 +1,31 @@
+- generic [ref=f30e4]:
+  - navigation [ref=f30e5]:
+    - generic [ref=f30e7]:
+      - generic [ref=f30e8]:
+        - button "Abrir Sidebar" [ref=f30e9] [cursor=pointer]
+        - generic [ref=f30e13]:
+          - link [ref=f30e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f30e15]
+          - generic "Ocultar menú" [ref=f30e16] [cursor=pointer]
+      - button "Abrir menú de usuario A" [ref=f30e22] [cursor=pointer]:
+        - generic [ref=f30e23]: Abrir menú de usuario
+        - generic [ref=f30e24]: A
+  - generic [ref=f30e27]:
+    - generic [ref=f30e28]:
+      - heading "Compras" [level=3] [ref=f30e29]
+      - button "+ Nueva compra" [ref=f30e30] [cursor=pointer]
+    - table [ref=f30e32]:
+      - rowgroup [ref=f30e33]:
+        - row [ref=f30e34]:
+          - columnheader "N° Compra" [ref=f30e35]
+          - columnheader "Fecha" [ref=f30e36]
+          - columnheader "Proveedor" [ref=f30e37]
+          - columnheader "Método de pago" [ref=f30e38]
+          - columnheader "Total" [ref=f30e39]
+          - columnheader "Estado" [ref=f30e40]
+          - columnheader "Usuario" [ref=f30e41]
+          - columnheader [ref=f30e42]
+      - rowgroup [ref=f30e43]:
+        - row [ref=f30e44]:
+          - cell "No hay compras registradas todavía." [ref=f30e45]

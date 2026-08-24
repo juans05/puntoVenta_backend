@@ -1,0 +1,39 @@
+- generic [ref=f4e4]:
+  - navigation [ref=f4e5]:
+    - generic [ref=f4e7]:
+      - generic [ref=f4e8]:
+        - generic [ref=f4e9]:
+          - link [ref=f4e10] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f4e11]
+          - generic "Ocultar menú" [ref=f4e12] [cursor=pointer]
+        - heading "Productos" [level=1] [ref=f4e13]
+      - generic [ref=f4e15]:
+        - link [ref=f4e17] [cursor=pointer]:
+          - /url: /facturacion
+          - paragraph [ref=f4e18]: Ir a ventas
+        - button "Abrir menú de usuario A" [ref=f4e20] [cursor=pointer]:
+          - generic [ref=f4e21]: Abrir menú de usuario
+          - generic [ref=f4e22]: A
+  - complementary "Sidebar" [ref=f4e23]:
+    - generic [ref=f4e25]:
+      - generic [ref=f4e26]: A
+      - generic [ref=f4e27]:
+        - heading "Admin" [level=5] [ref=f4e28]
+        - paragraph [ref=f4e29]: ADMIN
+        - generic [ref=f4e30]: Conectado
+    - generic [ref=f4e32]:
+      - list
+  - generic [ref=f4e36]:
+    - generic [ref=f4e39]:
+      - list
+    - generic [ref=f4e40]:
+      - generic [ref=f4e41]:
+        - heading "Productos" [level=4] [ref=f4e42]
+        - generic [ref=f4e43]:
+          - button "Nueva Categoría" [ref=f4e44] [cursor=pointer]
+          - button "Nuevo Grupo" [ref=f4e46] [cursor=pointer]
+          - button "Nuevo Producto" [ref=f4e48] [cursor=pointer]
+      - generic [ref=f4e52]:
+        - textbox "Buscar..." [ref=f4e53]
+        - button [ref=f4e54] [cursor=pointer]

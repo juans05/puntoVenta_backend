@@ -1,0 +1,115 @@
+- generic [ref=f10e4]:
+  - navigation [ref=f10e5]:
+    - generic [ref=f10e7]:
+      - generic [ref=f10e8]:
+        - button "Abrir Sidebar" [ref=f10e9] [cursor=pointer]
+        - generic [ref=f10e13]:
+          - link [ref=f10e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f10e15]
+          - generic "Ocultar menú" [ref=f10e16] [cursor=pointer]
+      - generic [ref=f10e20]:
+        - link [ref=f10e22] [cursor=pointer]:
+          - /url: /facturacion
+          - paragraph [ref=f10e25]: Ir a ventas
+        - button "Abrir menú de usuario A" [ref=f10e27] [cursor=pointer]:
+          - generic [ref=f10e28]: Abrir menú de usuario
+          - generic [ref=f10e29]: A
+  - generic [ref=f10e34]:
+    - heading "Ventas Realizadas" [level=3] [ref=f10e36]
+    - generic [ref=f10e38]:
+      - generic [ref=f10e39]:
+        - generic [ref=f10e45]:
+          - paragraph [ref=f10e46]: Total Vendido
+          - heading "S/. 0" [level=3] [ref=f10e47]
+        - generic [ref=f10e54]:
+          - paragraph [ref=f10e55]: Total de Registros
+          - heading "0" [level=3] [ref=f10e56]
+      - generic [ref=f10e60]:
+        - generic [ref=f10e62]:
+          - generic [ref=f10e63] [cursor=pointer]
+          - generic [ref=f10e67]:
+            - generic [ref=f10e68]: Fecha Inicio
+            - textbox [ref=f10e69]: 23/08/2026
+        - generic [ref=f10e71]:
+          - generic [ref=f10e72] [cursor=pointer]
+          - generic [ref=f10e76]:
+            - generic [ref=f10e77]: Fecha Fin
+            - textbox [ref=f10e78]: 23/08/2026
+    - table [ref=f10e80]:
+      - rowgroup [ref=f10e81]:
+        - row [ref=f10e82]:
+          - columnheader "N°" [ref=f10e83]
+          - columnheader "Nombres y Apellidos" [ref=f10e84]
+          - columnheader "TipoDocumento" [ref=f10e85]
+          - columnheader "Serie - Correlativo" [ref=f10e86]
+          - columnheader "Nombre Vendedor" [ref=f10e87]
+          - columnheader "Fecha Registro" [ref=f10e88]
+          - columnheader "Total" [ref=f10e89]
+          - columnheader "Estado" [ref=f10e90]
+          - columnheader "Accion" [ref=f10e91]
+      - rowgroup [ref=f10e92]:
+        - row [ref=f10e93]:
+          - cell [ref=f10e94]:
+            - table [ref=f10e95]:
+              - rowgroup [ref=f10e96]:
+                - row [ref=f10e97]:
+                  - cell [ref=f10e98]
+                  - cell [ref=f10e101]
+                  - cell [ref=f10e104]
+                  - cell [ref=f10e107]
+                  - cell [ref=f10e110]
+                  - cell [ref=f10e113]
+                  - cell [ref=f10e116]
+                  - cell [ref=f10e119]
+                  - cell [ref=f10e122]
+                - row [ref=f10e125]:
+                  - cell [ref=f10e126]
+                  - cell [ref=f10e129]
+                  - cell [ref=f10e132]
+                  - cell [ref=f10e135]
+                  - cell [ref=f10e138]
+                  - cell [ref=f10e141]
+                  - cell [ref=f10e144]
+                  - cell [ref=f10e147]
+                  - cell [ref=f10e150]
+                - row [ref=f10e153]:
+                  - cell [ref=f10e154]
+                  - cell [ref=f10e157]
+                  - cell [ref=f10e160]
+                  - cell [ref=f10e163]
+                  - cell [ref=f10e166]
+                  - cell [ref=f10e169]
+                  - cell [ref=f10e172]
+                  - cell [ref=f10e175]
+                  - cell [ref=f10e178]
+                - row [ref=f10e181]:
+                  - cell [ref=f10e182]
+                  - cell [ref=f10e185]
+                  - cell [ref=f10e188]
+                  - cell [ref=f10e191]
+                  - cell [ref=f10e194]
+                  - cell [ref=f10e197]
+                  - cell [ref=f10e200]
+                  - cell [ref=f10e203]
+                  - cell [ref=f10e206]
+                - row [ref=f10e209]:
+                  - cell [ref=f10e210]
+                  - cell [ref=f10e213]
+                  - cell [ref=f10e216]
+                  - cell [ref=f10e219]
+                  - cell [ref=f10e222]
+                  - cell [ref=f10e225]
+                  - cell [ref=f10e228]
+                  - cell [ref=f10e231]
+                  - cell [ref=f10e234]
+                - row [ref=f10e237]:
+                  - cell [ref=f10e238]
+                  - cell [ref=f10e241]
+                  - cell [ref=f10e244]
+                  - cell [ref=f10e247]
+                  - cell [ref=f10e250]
+                  - cell [ref=f10e253]
+                  - cell [ref=f10e256]
+                  - cell [ref=f10e259]
+                  - cell [ref=f10e262]

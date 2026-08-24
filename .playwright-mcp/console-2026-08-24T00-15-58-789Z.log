@@ -1,0 +1,733 @@
+[     581ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     658ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[     659ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     659ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[     659ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     659ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     659ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[     660ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[     660ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[     664ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[     676ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[     676ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[     676ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[     676ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[     676ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[     749ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[     749ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     749ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[     750ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     750ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     750ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[     751ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[     751ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[     755ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[     761ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[     761ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[     762ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[     762ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[     762ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[     783ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[     783ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     784ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[     784ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     784ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     784ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[     785ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[     785ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[     787ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[     791ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[     792ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[     792ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[     792ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[     793ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[     809ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[     870ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/facturacion/listar-fichas?fecha=23/08/2026:0
+[     871ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[     871ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:374
+[     872ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[     873ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     873ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[     873ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     873ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[     873ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[     874ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[     874ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[     875ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[     878ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[     878ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[     878ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[     879ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[     879ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[     888ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[    1076ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:334
+[    1077ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[    1077ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1078ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[    1078ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1078ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1078ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[    1079ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[    1079ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[    1080ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[    1083ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[    1083ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[    1084ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[    1084ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[    1084ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[    1096ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[    1096ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1097ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[    1097ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1097ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1097ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[    1098ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[    1098ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[    1099ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[    1100ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[    1101ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[    1102ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[    1102ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[    1102ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[    1102ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[    1102ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[    1110ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[    1112ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[    1112ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[    1268ms] [LOG] {code: 1, message: Success, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:250
+[    1271ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=2&GrupoId=16&Value=&Page=1&Amount=100:0
+[    1272ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[    1272ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[    1467ms] [LOG] {code: 1, message: Success, data: Array(66), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:222
+[    1468ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:155
+[    1468ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1468ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:189
+[    1468ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1469ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:175
+[    1469ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787493088342:203
+[    1470ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[    1470ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[    1472ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[    1473ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[    1473ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[    1473ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[    1474ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[    1474ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[    1474ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[    1474ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[    1477ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[    1479ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[    1479ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   16881ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:155
+[   16882ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16882ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:189
+[   16882ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16882ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16882ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:203
+[   16883ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   16883ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   16884ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   16885ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   16885ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   16885ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   16886ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   16886ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   16886ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   16886ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   16890ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:155
+[   16891ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16891ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:189
+[   16891ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16891ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16891ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:203
+[   16891ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   16892ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   16893ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   16897ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   16898ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   16898ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   16898ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   16898ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   16918ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   16922ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/facturacion/listar-fichas?fecha=23/08/2026:0
+[   16922ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   16922ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:374
+[   16923ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:155
+[   16924ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16924ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:189
+[   16924ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16924ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   16924ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:203
+[   16925ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   16925ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   16925ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   16928ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   16928ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   16928ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   16928ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   16929ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   16933ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   17118ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:334
+[   17119ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:155
+[   17119ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17119ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:189
+[   17119ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17119ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17120ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:203
+[   17120ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   17120ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   17121ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   17124ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   17124ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   17124ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   17124ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   17125ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   17126ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:155
+[   17127ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17127ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:189
+[   17127ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17127ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17127ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:203
+[   17128ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   17128ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   17129ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   17129ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   17129ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   17130ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   17130ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   17130ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   17130ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   17130ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   17133ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   17134ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   17134ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   17283ms] [LOG] {code: 1, message: Success, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:250
+[   17316ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=2&GrupoId=16&Value=&Page=1&Amount=100:0
+[   17317ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   17317ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[   17536ms] [LOG] {code: 1, message: Success, data: Array(66), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:222
+[   17537ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:155
+[   17538ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17538ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:189
+[   17538ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17538ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:175
+[   17538ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530575109:203
+[   17539ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   17539ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   17540ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   17540ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   17540ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   17540ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   17540ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   17541ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   17541ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   17541ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   17543ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   17545ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   17546ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   20153ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:155
+[   20153ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20154ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:189
+[   20154ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20154ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20154ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:203
+[   20155ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   20155ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   20156ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20157ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   20157ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   20157ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   20157ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   20158ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   20158ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   20158ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   20161ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:155
+[   20161ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20161ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:189
+[   20161ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20162ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20162ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:203
+[   20162ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   20162ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   20164ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20168ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   20168ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   20168ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   20168ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   20168ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   20183ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/facturacion/listar-fichas?fecha=23/08/2026:0
+[   20183ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   20184ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:374
+[   20185ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:155
+[   20185ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20185ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:189
+[   20186ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20186ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20186ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:203
+[   20187ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   20187ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   20188ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20190ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   20191ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   20191ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   20191ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   20191ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   20192ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20356ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:334
+[   20357ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:155
+[   20357ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20357ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:189
+[   20357ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20357ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20358ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:203
+[   20358ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   20358ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   20359ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20363ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   20363ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   20363ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   20363ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   20364ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   20365ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:155
+[   20365ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20365ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:189
+[   20366ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20366ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20366ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:203
+[   20366ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   20366ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   20368ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20368ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   20369ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   20370ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   20370ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   20370ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   20370ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   20370ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   20378ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20378ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   20379ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   20547ms] [LOG] {code: 1, message: Success, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:250
+[   20548ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=2&GrupoId=16&Value=&Page=1&Amount=100:0
+[   20548ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   20548ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[   20751ms] [LOG] {code: 1, message: Success, data: Array(66), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:222
+[   20752ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:155
+[   20752ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20752ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:189
+[   20753ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20753ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:175
+[   20753ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530578661:203
+[   20754ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   20754ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   20755ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20756ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   20756ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   20756ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   20756ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   20756ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   20756ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   20756ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   20759ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   20760ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   20761ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   23339ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:155
+[   23339ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23339ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:189
+[   23340ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23340ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23340ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:203
+[   23340ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   23340ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   23341ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23342ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   23342ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   23343ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   23343ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   23343ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   23343ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   23343ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   23346ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:155
+[   23347ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23347ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:189
+[   23347ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23347ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23347ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:203
+[   23347ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   23347ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   23349ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23353ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   23354ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   23354ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   23354ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   23354ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   23371ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23374ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/facturacion/listar-fichas?fecha=23/08/2026:0
+[   23374ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   23375ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:374
+[   23375ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:155
+[   23376ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23376ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:189
+[   23376ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23376ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23377ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:203
+[   23377ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   23377ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   23378ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23381ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   23382ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   23382ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   23382ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   23382ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   23386ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23550ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:334
+[   23551ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:155
+[   23551ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23552ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:189
+[   23552ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23552ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23553ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:203
+[   23553ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   23553ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   23555ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23557ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   23558ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   23558ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   23558ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   23558ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   23559ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:155
+[   23560ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23560ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:189
+[   23560ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23560ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23561ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:203
+[   23561ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   23561ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   23562ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23563ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   23563ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   23564ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   23564ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   23564ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   23564ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   23564ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   23567ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23568ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   23568ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   23739ms] [LOG] {code: 1, message: Success, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:250
+[   23743ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=2&GrupoId=16&Value=&Page=1&Amount=100:0
+[   23744ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   23744ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[   23952ms] [LOG] {code: 1, message: Success, data: Array(66), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:222
+[   23953ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:155
+[   23953ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23954ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:189
+[   23954ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23954ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:175
+[   23954ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530581907:203
+[   23955ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   23955ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   23956ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23956ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   23956ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   23957ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   23957ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   23957ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   23957ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   23957ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   23959ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   23960ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   23961ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   31857ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:155
+[   31858ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31858ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:189
+[   31858ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31859ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31859ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:203
+[   31860ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   31860ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   31861ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   31862ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   31863ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   31863ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   31863ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   31864ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   31864ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   31864ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   31869ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:155
+[   31869ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31869ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:189
+[   31870ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31870ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31870ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:203
+[   31871ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   31871ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   31872ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   31876ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   31876ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   31877ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   31877ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   31877ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   31893ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   31898ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/facturacion/listar-fichas?fecha=23/08/2026:0
+[   31899ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   31899ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:374
+[   31901ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:155
+[   31901ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31901ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:189
+[   31902ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31902ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   31902ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:203
+[   31903ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   31903ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   31905ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   31908ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   31908ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   31909ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   31909ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   31909ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   31913ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   32075ms] [LOG] {code: 1, message: Success, data: Array(0), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:334
+[   32075ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:155
+[   32076ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32076ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:189
+[   32076ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32076ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32076ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:203
+[   32077ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   32077ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   32078ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   32081ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   32082ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   32082ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   32082ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   32082ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   32083ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:155
+[   32084ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32084ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:189
+[   32084ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32085ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32085ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:203
+[   32086ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   32086ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   32087ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   32087ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   32088ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   32088ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   32088ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   32088ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   32089ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   32089ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   32094ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   32095ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   32095ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   32280ms] [LOG] {code: 1, message: Success, data: Object, status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/clientes-proveedores/clientesProveedoresAnfitrionas.reducer.ts:250
+[   32301ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5002/api/productos/listar?CategoriaId=2&GrupoId=16&Value=&Page=1&Amount=100:0
+[   32302ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[   32302ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:364
+[   32508ms] [LOG] {code: 1, message: Success, data: Array(66), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/asistencia/asistencia.reducer.ts:222
+[   32509ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:155
+[   32510ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32510ms] [LOG] {turno: Turno Especial, diaSemana: 0} @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:189
+[   32510ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32510ms] [LOG] Sun Aug 23 2026 00:00:00 GMT-0500 (hora estándar de Perú) @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:175
+[   32510ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/reporte-asistencia/index.tsx?t=1787530590430:203
+[   32511ms] [LOG] false @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:24
+[   32511ms] [LOG] () => {
+    if (diaSemana === 0) {
+      setCheckedTurno(false);
+    } else {
+      setCheckedTurno(!isTurno);
+    }
+  } @ http://restaurant21.lobytech.test:3002/src/components/Toggle/index.tsx:25
+[   32512ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   32513ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   32513ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36
+[   32513ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:37
+[   32513ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:38
+[   32514ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:39
+[   32514ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:47
+[   32514ms] [LOG] 844 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Fichas/index.tsx?t=1787493067224:48
+[   32517ms] [LOG] {column: , asc: true} @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/DataTable.tsx:43
+[   32518ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:35
+[   32518ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Datatable/table/TableBody/TableBody.tsx:36

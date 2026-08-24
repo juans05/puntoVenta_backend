@@ -1,0 +1,31 @@
+- generic [ref=f32e4]:
+  - navigation [ref=f32e5]:
+    - generic [ref=f32e7]:
+      - generic [ref=f32e8]:
+        - button "Abrir Sidebar" [ref=f32e9] [cursor=pointer]
+        - generic [ref=f32e13]:
+          - link [ref=f32e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f32e15]
+          - generic "Ocultar menú" [ref=f32e16] [cursor=pointer]
+      - button "Abrir menú de usuario A" [ref=f32e22] [cursor=pointer]:
+        - generic [ref=f32e23]: Abrir menú de usuario
+        - generic [ref=f32e24]: A
+  - generic [ref=f32e27]:
+    - generic [ref=f32e28]:
+      - generic [ref=f32e29]:
+        - heading "Empresas" [level=3] [ref=f32e30]
+        - paragraph [ref=f32e31]: Empresas registradas en la plataforma. Habilita o deshabilita el acceso de cada una.
+      - button "Nueva empresa" [ref=f32e32] [cursor=pointer]
+    - table [ref=f32e35]:
+      - rowgroup [ref=f32e36]:
+        - row [ref=f32e37]:
+          - columnheader "Tenant" [ref=f32e38]
+          - columnheader "Empresa" [ref=f32e39]
+          - columnheader "RUC" [ref=f32e40]
+          - columnheader "Rubro" [ref=f32e41]
+          - columnheader "Estado" [ref=f32e42]
+          - columnheader [ref=f32e43]
+      - rowgroup [ref=f32e44]:
+        - row [ref=f32e45]:
+          - cell "No hay empresas registradas" [ref=f32e46]

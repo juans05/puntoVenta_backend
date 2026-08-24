@@ -1,0 +1,29 @@
+- generic [ref=f4e5]:
+  - generic [ref=f4e9]:
+    - generic [ref=f4e10]:
+      - heading "Buscador" [level=3] [ref=f4e11]
+      - paragraph [ref=f4e12]: Encuentra tus productos por diferentes opciones
+    - generic [ref=f4e14]:
+      - textbox "Buscar" [ref=f4e16]
+      - generic [ref=f4e17] [cursor=pointer]
+  - generic [ref=f4e23]:
+    - heading [level=3] [ref=f4e25]:
+      - heading "Vendedor -" [level=4] [ref=f4e26]
+    - paragraph [ref=f4e174]: No tienes productos, agrega al menos un producto para poder realizar el pago
+    - generic [ref=f4e175]:
+      - generic [ref=f4e176]:
+        - paragraph [ref=f4e177]: cliente
+        - paragraph [ref=f4e178]: SIN CLIENTE
+      - generic [ref=f4e179]:
+        - paragraph [ref=f4e180]: subtotal
+        - paragraph [ref=f4e181]: "0.00"
+      - generic [ref=f4e182]:
+        - paragraph [ref=f4e183]: impuestos
+        - paragraph [ref=f4e184]: "0.00"
+      - generic [ref=f4e185]:
+        - paragraph [ref=f4e186]: descuento
+        - paragraph [ref=f4e187]: "0.00"
+      - generic [ref=f4e188]:
+        - paragraph [ref=f4e189]: total
+        - paragraph [ref=f4e190]: "0.00"
+      - button "Pagar" [disabled] [ref=f4e191]

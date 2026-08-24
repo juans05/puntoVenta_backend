@@ -1,0 +1,54 @@
+- generic [ref=f18e4]:
+  - navigation [ref=f18e5]:
+    - generic [ref=f18e7]:
+      - generic [ref=f18e8]:
+        - button "Abrir Sidebar" [ref=f18e9] [cursor=pointer]
+        - generic [ref=f18e13]:
+          - link [ref=f18e14] [cursor=pointer]:
+            - /url: /dashboard
+            - img "Logo de la empresa" [ref=f18e15]
+          - generic "Ocultar menú" [ref=f18e16] [cursor=pointer]
+      - button "Abrir menú de usuario A" [ref=f18e22] [cursor=pointer]:
+        - generic [ref=f18e23]: Abrir menú de usuario
+        - generic [ref=f18e24]: A
+  - generic [ref=f18e27]:
+    - generic [ref=f18e28]:
+      - generic [ref=f18e29]:
+        - heading "Cajas del local" [level=3] [ref=f18e30]
+        - paragraph [ref=f18e31]: Puede haber más de una caja por sucursal.
+      - button "Agregar caja" [ref=f18e32] [cursor=pointer]
+    - table [ref=f18e35]:
+      - rowgroup [ref=f18e36]:
+        - row [ref=f18e37]:
+          - columnheader "N°" [ref=f18e38]
+          - columnheader "Nombre" [ref=f18e39]
+          - columnheader "Sucursal" [ref=f18e40]
+      - rowgroup [ref=f18e41]:
+        - row [ref=f18e42]:
+          - cell [ref=f18e43]:
+            - table [ref=f18e44]:
+              - rowgroup [ref=f18e45]:
+                - row [ref=f18e46]:
+                  - cell [ref=f18e47]
+                  - cell [ref=f18e50]
+                  - cell [ref=f18e53]
+                - row [ref=f18e56]:
+                  - cell [ref=f18e57]
+                  - cell [ref=f18e60]
+                  - cell [ref=f18e63]
+                - row [ref=f18e66]:
+                  - cell [ref=f18e67]
+                  - cell [ref=f18e70]
+                  - cell [ref=f18e73]
+                - row [ref=f18e76]:
+                  - cell [ref=f18e77]
+                  - cell [ref=f18e80]
+                  - cell [ref=f18e83]
+                - row [ref=f18e86]:
+                  - cell [ref=f18e87]
+                  - cell [ref=f18e90]
+                  - cell [ref=f18e93]
+                - row [ref=f18e96]:
+                  - cell [ref=f18e97]
+                  - cell [ref=f18e100]
+                  - cell [ref=f18e103]

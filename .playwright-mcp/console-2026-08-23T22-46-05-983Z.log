@@ -1,0 +1,109 @@
+[     228ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     279ms] [LOG] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJub21icmUiOiJBZG1pbiIsImZhbWlseV9uYW1lIjoiQWRtaW4iLCJlbWFpbCI6IiIsInBob25lIjoiIiwiYXZhdGFyIjoiIiwidXNlcm5hbWUiOiJBRE1JTiIsImh0dHBzOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL2lkZW50aXR5L2NsYWltcy90ZW5hbnRpZCI6IlNQQVNPTElTMSIsImVtcHJlc2EiOiJzcGFzb2xpcyIsInNlZGUiOiIxIiwicGFpcyI6IjYwNCIsInJ1YnJvIjoiMSIsIm1vbmVkYSI6IjEiLCJyb2xlIjoiU3VwZXJBZG1pbiIsInJ1dGFzIjoiW3tcIk1vZHVsb1wiOlwiMTAwXCIsXCJNb2R1bG9Ob21icmVcIjpcIkRhc2hib2FyZFwiLFwiU3ViTW9kdWxvc1wiOlt7XCJTdWJNb2R1bG9cIjpcIjEwMVwiLFwiU3ViTW9kdWxvTm9tYnJlXCI6XCJEYXNoYm9hcmRcIn1dfSx7XCJNb2R1bG9cIjpcIjExMDBcIixcIk1vZHVsb05vbWJyZVwiOlwiQ29tcHJhc1wiLFwiU3ViTW9kdWxvc1wiOlt7XCJTdWJNb2R1bG9cIjpcIjExMDFcIixcIlN1Yk1vZHVsb05vbWJyZVwiOlwiQ29tcHJhc1wifV19LHtcIk1vZHVsb1wiOlwiMTMwMFwiLFwiTW9kdWxvTm9tYnJlXCI6XCJHYXN0b3NcIixcIlN1Yk1vZHVsb3NcIjpbe1wiU3ViTW9kdWxvXCI6XCIxMzAxXCIsXCJTdWJNb2R1bG9Ob21icmVcIjpcIkdhc3Rvc1wifV19LHtcIk1vZHVsb1wiOlwiMjAwXCIsXCJNb2R1bG9Ob21icmVcIjpcIlByb2R1Y3Rvc1wiLFwiU3ViTW9kdWxvc1wiOlt7XCJTdWJNb2R1bG9cIjpcIjIwMVwiLFwiU3ViTW9kdWxvTm9tYnJlXCI6XCJQcm9kdWN0b3NcIn1dfSx7XCJNb2R1bG9cIjpcIjMwMFwiLFwiTW9kdWxvTm9tYnJlXCI6XCJWZW50YXMgZGVsIGTDrWFcIixcIlN1Yk1vZHVsb3NcIjpbe1wiU3ViTW9kdWxvXCI6XCIzMDFcIixcIlN1Yk1vZHVsb05vbWJyZVwiOlwiVmVudGFzIGRlbCBkw61hXCJ9XX0se1wiTW9kdWxvXCI6XCI0MDBcIixcIk1vZHVsb05vbWJyZVwiOlwiQ2xpZW50ZXNcIixcIlN1Yk1vZHVsb3NcIjpbe1wiU3ViTW9kdWxvXCI6XCI0MDFcIixcIlN1Yk1vZHVsb05vbWJyZVwiOlwiQ2xpZW50ZXNcIn1dfSx7XCJNb2R1bG9cIjpcIjcwMFwiLFwiTW9kdWxvTm9tYnJlXCI6XCJSZXBvcnRlIGNpZXJyZSBkZSBjYWphXCIsXCJTdWJNb2R1bG9zXCI6W3tcIlN1Yk1vZHVsb1wiOlwiNzAxXCIsXCJTdWJNb2R1bG9Ob21icmVcIjpcIlJlcG9ydGUgY2llcnJlIGRlIGNhamFcIn1dfSx7XCJNb2R1bG9cIjpcIjgwMFwiLFwiTW9kdWxvTm9tYnJlXCI6XCJNaSBlbXByZXNhXCIsXCJTdWJNb2R1bG9zXCI6W3tcIlN1Yk1vZHVsb1wiOlwiODAxXCIsXCJTdWJNb2R1bG9Ob21icmVcIjpcIk1pIGVtcHJlc2FcIn1dfSx7XCJNb2R1bG9cIjpcIjkwMFwiLFwiTW9kdWxvTm9tYnJlXCI6XCJEb2N1bWVudG9zIEZhY3R1cmFkb3NcIixcIlN1Yk1vZHVsb3NcIjpbe1wiU3ViTW9kdWxvXCI6XCI5MDFcIixcIlN1Yk1vZHVsb05vbWJyZVwiOlwiRG9jdW1lbnRvcyBGYWN0dXJhZG9zXCJ9XX1dIiwibmJmIjoxNzg3NTI0OTU1LCJleHAiOjE3ODc2MTEzNTUsImlhdCI6MTc4NzUyNDk1NX0.KKNy_wBL8AP8vA28EEUXOjGp1xqGeE8L9OT3e5ikwXo @ http://restaurant21.lobytech.test:3002/src/presentation/views/Login/index.tsx?t=1787493067224:67
+[     279ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Login/index.tsx?t=1787493067224:68
+[     519ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     563ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     563ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     563ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     563ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     567ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     567ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     567ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     567ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     570ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:92
+[     590ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     590ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     590ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     590ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     591ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     592ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     592ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     592ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     601ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     602ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     602ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     602ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     603ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     603ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     603ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     603ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     611ms] [ERROR] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s 5 
+    at ul
+    at div
+    at aside
+    at div
+    at LayoutView (http://restaurant21.lobytech.test:3002/src/components/Sidebar/index.tsx?t=1787493088342:31:20)
+    at RenderedRoute (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3310:5)
+    at Routes (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3763:5)
+    at div
+    at Router (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:3710:15)
+    at BrowserRouter (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-router-dom.js?v=23710b64:4190:5)
+    at Dashboard
+    at QueryClientProvider2 (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-query.js?v=23710b64:2647:21)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3)
+    at App (http://restaurant21.lobytech.test:3002/src/App.tsx?t=1787493088342:31:7)
+    at Provider (http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/react-redux.js?v=23710b64:1481:3) @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:520
+[     613ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     613ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     613ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     613ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     789ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     789ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     789ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     789ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     790ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     790ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     790ms] [LOG] [Object, Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     791ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     795ms] [LOG] {code: 1, message: Succeeded, data: Array(6), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:559
+[     795ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     796ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     796ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     796ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     797ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     797ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     797ms] [LOG] [Object, Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     797ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     798ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:92
+[     799ms] [LOG] {code: 1, message: Succeeded, data: Array(6), status: 200} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/productos/producto.reducer.ts:578
+[     799ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     800ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     800ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     800ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     802ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     802ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     802ms] [LOG] [Object, Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     802ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     804ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     804ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     804ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     804ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     805ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     806ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     806ms] [LOG] [Object, Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     806ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     807ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     807ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     807ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     807ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     976ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     976ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     976ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     976ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     978ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     978ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     978ms] [LOG] [Object, Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     978ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     979ms] [LOG] here @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:92
+[     981ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     981ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     981ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     981ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195
+[     985ms] [LOG] [Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:63
+[     986ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:84
+[     986ms] [LOG] [Object, Object, Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:111
+[     987ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/components/Modal/Admin/Producto/index.tsx?t=1787493067224:121
+[     992ms] [LOG]  @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:59
+[     992ms] [LOG] 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:95
+[     992ms] [LOG] 1 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:190
+[     992ms] [LOG] undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/Productos/index.tsx?t=1787493088342:195

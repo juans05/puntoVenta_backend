@@ -1,0 +1,50 @@
+[     376ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://restaurant21.lobytech.test:3002/node_modules/.vite/deps/chunk-GYWC62UC.js?v=23710b64:21535
+[     439ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     439ms] [LOG] undefined undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     439ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     481ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     481ms] [LOG] undefined undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     481ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     499ms] [LOG] [] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     500ms] [LOG] undefined undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     500ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     685ms] [LOG] {data: Object, status: 200, statusText: OK, headers: AxiosHeaders, config: Object} @ http://restaurant21.lobytech.test:3002/src/redux/reducers/extensiones/extensiones..reducer.ts:91
+[     685ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     686ms] [LOG] undefined undefined @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     686ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     690ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     690ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     690ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     694ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     694ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     694ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     699ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/caja/reporte-caja?usuario=undefined&fecha=23/08/2026:0
+[     700ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[     701ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/reporte-caja/reporteCaja.reducer.ts:46
+[     701ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     702ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     702ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     705ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/caja/reporte-caja-resumido?usuario=undefined&fecha=23/08/2026:0
+[     706ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[     706ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/reporte-caja/reporteCaja.reducer.ts:74
+[     707ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     707ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     707ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     710ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     711ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     711ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     918ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/caja/reporte-caja-resumido?usuario=TODOS&fecha=23/08/2026:0
+[     919ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[     919ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/reporte-caja/reporteCaja.reducer.ts:74
+[     920ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     920ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     920ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     931ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5002/api/caja/reporte-caja?usuario=TODOS&fecha=23/08/2026:0
+[     932ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/utils/axios.ts:19
+[     932ms] [LOG] AxiosError @ http://restaurant21.lobytech.test:3002/src/redux/reducers/Admin/reporte-caja/reporteCaja.reducer.ts:46
+[     933ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     933ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     933ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
+[     936ms] [LOG] [Object, Object, Object, Object, Object] @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:41
+[     936ms] [LOG] TODOS 0 @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:97
+[     937ms] [LOG] null @ http://restaurant21.lobytech.test:3002/src/presentation/views/Modules/Admin/Views/ReporteCierreCaja/index.tsx?t=1787493088342:133
