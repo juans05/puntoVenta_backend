@@ -194,6 +194,22 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Internal Server Error");
+        }
+    }
+});
 
 var supportedCultures = new[] { new CultureInfo("es-PE") };
 app.UseRequestLocalization(new RequestLocalizationOptions
