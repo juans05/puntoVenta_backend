@@ -158,6 +158,7 @@ builder.Services.AddCors(options =>
             {
                 return origin.EndsWith(".4devscorp.com") ||
                        origin.EndsWith(".amplifyapp.com") ||
+                       origin.EndsWith(".up.railway.app") ||
                        origin.EndsWith("5173") ||
                        origin.EndsWith("5174") ||
                        origin.EndsWith(".lobytech.com") ||
