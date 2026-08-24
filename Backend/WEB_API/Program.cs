@@ -186,9 +186,10 @@ builder.Services.AddControllers()
 
 //DatabaseHelper.EnsureLatestDatabase(builder.Services);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5002";
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(5002); // Cambia el puerto si es necesario
+    serverOptions.ListenAnyIP(int.Parse(port));
 });
 
 var app = builder.Build();
