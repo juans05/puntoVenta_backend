@@ -9,11 +9,13 @@ namespace API.Middlewares.ErrorMiddlewares
     {
         private readonly RequestDelegate _next;
         private readonly IConfiguration configuration;
+        private readonly ILogger<ErrorHandlerMiddleware> _logger;
 
-        public ErrorHandlerMiddleware(RequestDelegate next, IConfiguration configuration)
+        public ErrorHandlerMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<ErrorHandlerMiddleware> logger)
         {
             _next = next;
             this.configuration = configuration;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -34,6 +36,7 @@ namespace API.Middlewares.ErrorMiddlewares
             }
             catch (ErrorHandler ex)
             {
+                _logger.LogError(ex, "Handled error on {Method} {Path}: {Message}", context.Request.Method, context.Request.Path, ex.Message);
                 await ErrorHandlerAsync(context, ex);
             }
         }

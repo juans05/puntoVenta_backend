@@ -26,6 +26,7 @@ namespace Infrastructure.Repositories
         private readonly TokenManagement _tokenSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IMapper _mapper;
+        private readonly ILogger<AuthenticationRepository> _logger;
 
         public AuthenticationRepository(
             SpaContext context,
@@ -33,7 +34,8 @@ namespace Infrastructure.Repositories
             SignInManager<User> signInManager,
             IOptions<TokenManagement> tokenSettings,
             TokenValidationParameters tokenValidationParameters,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<AuthenticationRepository> logger)
         {
             _context = context;
             _userManager = userManager;
@@ -41,6 +43,7 @@ namespace Infrastructure.Repositories
             _tokenSettings = tokenSettings.Value;
             _tokenValidationParameters = tokenValidationParameters;
             _mapper = mapper;
+            _logger = logger;
         }
 
         //--------------------------------------------------------------------
@@ -172,6 +175,7 @@ namespace Infrastructure.Repositories
 
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Token() failed for user {UserName}", model.UserName);
                 authenticationModel.MessageData = ex.Message;
                 return (ServiceStatus.InternalError, 0, authenticationModel);
             }
