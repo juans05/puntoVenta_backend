@@ -7,4 +7,5 @@ namespace Application.Interfaces.IRepository;
 public interface IGastoPublicidadRepository
 {
     Task<(ServiceStatus, ImportarGastoPublicidadResultDto?, string)> Importar(ImportarGastoPublicidadPayload payload);
+    Task<(ServiceStatus, List<RoiPorProductoDto>?, string)> CalcularRoi(GastoPublicidadRoiQueryParams payload);
 }

@@ -17,4 +17,7 @@ public class GastoPublicidadController : ControllerBase
 
     [HttpPost("importar")]
     public async Task<IActionResult> Importar([FromBody] ImportarGastoPublicidadPayload payload) => Ok(await _gastoPublicidadService.Importar(payload));
+
+    [HttpGet("roi")]
+    public async Task<IActionResult> CalcularRoi([FromQuery] GastoPublicidadRoiQueryParams payload) => Ok(await _gastoPublicidadService.CalcularRoi(payload));
 }

@@ -2,6 +2,7 @@ using Application.Interfaces.IRepository;
 using AutoMapper;
 using Domain.DTO;
 using Domain.Entities;
+using Domain.Enumerations;
 using Domain.Models;
 using Domain.Payloads;
 using Infrastructure.Data;
@@ -114,5 +115,78 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         var input = $"{nombreAnuncio}|{fechaInicio:O}|{fechaFin:O}";
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
         return Convert.ToHexString(bytes);
+    }
+
+    public async Task<(ServiceStatus, List<RoiPorProductoDto>?, string)> CalcularRoi(GastoPublicidadRoiQueryParams payload)
+    {
+        try
+        {
+            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Producto).AsQueryable();
+
+            if (payload.Desde.HasValue)
+                query = query.Where(g => g.FechaFin >= payload.Desde.Value);
+
+            if (payload.Hasta.HasValue)
+                query = query.Where(g => g.FechaInicio <= payload.Hasta.Value);
+
+            if (payload.ProductoId.HasValue)
+                query = query.Where(g => g.ProductoId == payload.ProductoId.Value);
+
+            var ads = await query.ToListAsync();
+
+            if (ads.Count == 0)
+                return (ServiceStatus.Ok, new List<RoiPorProductoDto>(), "Sin datos para el rango seleccionado");
+
+            var resultado = new List<RoiPorProductoDto>();
+
+            foreach (var grupo in ads.GroupBy(a => a.ProductoId))
+            {
+                var minFecha = grupo.Min(a => a.FechaInicio);
+                var maxFecha = grupo.Max(a => a.FechaFin);
+
+                var detalles = await _context.ComprobanteDetalle.AsNoTracking()
+                    .Where(d => d.ProductoId == grupo.Key
+                             && d.ComprobanteCabecera.FechaCreacion >= minFecha
+                             && d.ComprobanteCabecera.FechaCreacion <= maxFecha
+                             && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                    .Select(d => new
+                    {
+                        d.Cantidad,
+                        d.ValorUnitarioTotal,
+                        FechaVenta = d.ComprobanteCabecera.FechaCreacion,
+                        CostoUnitario = d.Producto.CostoUnitario
+                    })
+                    .ToListAsync();
+
+                // Cada venta cuenta una sola vez para el producto aunque caiga dentro de
+                // varios anuncios de ese mismo producto que se solapan en fechas —
+                // sumarla más de una vez inflaría el ingreso de una sola fila del reporte.
+                var ventasEnRango = detalles
+                    .Where(d => grupo.Any(a => d.FechaVenta >= a.FechaInicio && d.FechaVenta <= a.FechaFin))
+                    .ToList();
+
+                var gastoAds = grupo.Sum(a => a.ImporteGastado);
+                var ingresos = ventasEnRango.Sum(d => d.ValorUnitarioTotal);
+                var costoProducto = ventasEnRango.Sum(d => d.Cantidad * (d.CostoUnitario ?? 0));
+                var utilidadNeta = ingresos - costoProducto - gastoAds;
+
+                resultado.Add(new RoiPorProductoDto
+                {
+                    ProductoId = grupo.Key,
+                    NombreProducto = grupo.First().Producto.Nombre,
+                    GastoAds = gastoAds,
+                    Ingresos = ingresos,
+                    CostoProducto = costoProducto,
+                    UtilidadNeta = utilidadNeta,
+                    RoiPorcentaje = gastoAds > 0 ? utilidadNeta / gastoAds : (decimal?)null
+                });
+            }
+
+            return (ServiceStatus.Ok, resultado.OrderByDescending(r => r.RoiPorcentaje ?? decimal.MinValue).ToList(), "Succeeded");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error al calcular ROI -> {e.InnerException?.Message ?? e.Message}");
+        }
     }
 }

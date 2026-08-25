@@ -28,4 +28,14 @@ public class GastoPublicidadService : IGastoPublicidadService
 
         return MessageResult<object>.Of(message, result);
     }
+
+    public async Task<MessageResult<object>> CalcularRoi(GastoPublicidadRoiQueryParams payload)
+    {
+        var (estado, result, message) = await _repository.CalcularRoi(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }
