@@ -75,6 +75,16 @@ al parsear.
    como un registro de `GastoPublicidad`. La pantalla permite filtrar por
    producto/rango de fechas sin volver a subir el Excel.
 
+5. **Duplicados: se ignoran automáticamente, no se pide decisión al usuario.**
+   Es común volver a exportar/subir el mismo Excel (o uno que se solapa con
+   una carga anterior). Cada fila se identifica por
+   `HashAnuncio = SHA256(TenantId + NombreAnuncio + FechaInicio + FechaFin)`;
+   si ese hash ya existe, la fila se omite en el import (no se duplica el
+   gasto ni se rompe el cálculo de ROI) y se informa cuántas filas se
+   omitieron. Se prefirió esto sobre un flujo de "actualizar o ignorar" por
+   fila — es más simple y cubre el caso real (re-subir el mismo archivo por
+   error) sin agregar una decisión más a la UI.
+
 ## Modelo de datos
 
 Nueva entidad `GastoPublicidad`, extiende `EntityBase` (ya provee `Id`,
@@ -101,8 +111,13 @@ public class GastoPublicidad : EntityBase
     public decimal? CostoPorResultado { get; set; }
 
     public Guid LoteImportacionId { get; set; }  // agrupa filas de una misma subida
+
+    public string HashAnuncio { get; set; } = null!;  // SHA256(TenantId+NombreAnuncio+FechaInicio+FechaFin), único por fila
 }
 ```
+
+Índice único en `(TenantId, HashAnuncio)` para que la detección de duplicados
+sea a nivel de base de datos, no solo una verificación en memoria.
 
 Migración EF Core nueva (`Infrastructure/Migrations`), siguiendo el patrón de
 las migraciones existentes del proyecto.
@@ -145,8 +160,13 @@ las migraciones existentes del proyecto.
   solo JSON ya validado y con producto asignado.
 
   Validación: `ProductoId` debe existir y pertenecer al tenant actual;
-  `FechaFin >= FechaInicio`; `ImporteGastado >= 0`. Inserta todas las filas
-  del lote en una transacción.
+  `FechaFin >= FechaInicio`; `ImporteGastado >= 0`. Calcula `HashAnuncio` por
+  fila y omite las que ya existen para el tenant (ver Decisión 5). Inserta el
+  resto del lote en una transacción. Responde con conteo de insertadas vs.
+  omitidas por duplicado:
+  ```json
+  { "filasInsertadas": 4, "filasOmitidasPorDuplicado": 1 }
+  ```
 
 - **`GET /api/gastopublicidad/roi?desde=&hasta=&productoId=`**
   `desde`/`hasta` filtran por `GastoPublicidad.FechaInicio`/`FechaFin`;
@@ -235,6 +255,8 @@ Flujo de la pantalla ("Publicidad" o "ROI Publicidad" en el menú de Admin):
   producto con ventas conocidas dentro y fuera del rango, y comprobantes
   anulados que deben excluirse, verificar `ingresos`/`costoProducto` correctos).
   Un test de la validación del import (producto inexistente → rechazado).
+  Un test de duplicados (mismo `HashAnuncio` en dos imports → la segunda fila
+  se omite, no se duplica el gasto).
 - Frontend: test del parser de Excel → payload (dado un Excel de ejemplo con
   las columnas reales de Meta, verificar el mapeo correcto de campos y el
   manejo de filas con columnas faltantes).
@@ -252,3 +274,8 @@ Flujo de la pantalla ("Publicidad" o "ROI Publicidad" en el menú de Admin):
   una iteración futura si el mapeo manual resulta tedioso).
 - Edición/eliminación de un lote importado ya cargado (se puede agregar
   después si hace falta corregir una carga con datos erróneos).
+- Recomendaciones automáticas / detección de anomalías vía IA, y soporte
+  multiplataforma (Google Ads, TikTok Ads): evaluados y descartados por ahora
+  — no hay historial suficiente todavía para que una recomendación tenga
+  sentido, y no hay necesidad real de otra plataforma de ads hoy. La
+  arquitectura no lo bloquea si se necesita después.
