@@ -70,6 +70,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<Compra> Compra => Set<Compra>();
     public DbSet<CompraDetalle> CompraDetalle => Set<CompraDetalle>();
     public DbSet<Gasto> Gasto => Set<Gasto>();
+    public DbSet<GastoPublicidad> GastoPublicidad => Set<GastoPublicidad>();
     public DbSet<CategoriaGasto> CategoriaGasto => Set<CategoriaGasto>();
     public DbSet<Ingreso> Ingreso => Set<Ingreso>();
     public DbSet<CierreDiario> CierreDiario => Set<CierreDiario>();
@@ -119,6 +120,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Compra>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<CompraDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Gasto>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<GastoPublicidad>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<CategoriaGasto>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Ingreso>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<CierreDiario>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
