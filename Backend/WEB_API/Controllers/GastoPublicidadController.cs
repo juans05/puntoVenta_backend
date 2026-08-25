@@ -20,4 +20,7 @@ public class GastoPublicidadController : ControllerBase
 
     [HttpGet("roi")]
     public async Task<IActionResult> CalcularRoi([FromQuery] GastoPublicidadRoiQueryParams payload) => Ok(await _gastoPublicidadService.CalcularRoi(payload));
+
+    [HttpGet("listar")]
+    public async Task<IActionResult> Listar([FromQuery] GastoPublicidadQueryParams payload) => Ok(await _gastoPublicidadService.Listar(payload));
 }

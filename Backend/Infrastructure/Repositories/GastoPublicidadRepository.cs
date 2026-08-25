@@ -1,5 +1,7 @@
 using Application.Interfaces.IRepository;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Domain.Common;
 using Domain.DTO;
 using Domain.Entities;
 using Domain.Enumerations;
@@ -187,6 +189,33 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         catch (Exception e)
         {
             return (ServiceStatus.InternalError, null, $"Error al calcular ROI -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    public async Task<(ServiceStatus, DataCollection<GastoPublicidadDto>?, string)> Listar(GastoPublicidadQueryParams payload)
+    {
+        try
+        {
+            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Producto).AsQueryable();
+
+            if (payload.ProductoId.HasValue)
+                query = query.Where(g => g.ProductoId == payload.ProductoId.Value);
+
+            if (payload.Desde.HasValue)
+                query = query.Where(g => g.FechaFin >= payload.Desde.Value);
+
+            if (payload.Hasta.HasValue)
+                query = query.Where(g => g.FechaInicio <= payload.Hasta.Value);
+
+            var lista = await query.OrderByDescending(g => g.Id)
+                                   .ProjectTo<GastoPublicidadDto>(_mapper.ConfigurationProvider)
+                                   .GetPagedAsync(payload.Page, payload.Amount);
+
+            return (ServiceStatus.Ok, lista, "Succeeded");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error al listar publicidad -> {e.InnerException?.Message ?? e.Message}");
         }
     }
 }
