@@ -52,12 +52,15 @@ namespace Infrastructure.Repositories
         {
             var authenticationModel = new AuthenticationModel();
 
+            _logger.LogInformation("Token() start for user {UserName}", model.UserName);
+
             try
             {
                 var user = await FindByUsername(model.UserName);
 
                 if (user == null)
                 {
+                    _logger.LogWarning("Token() user {UserName} not found", model.UserName);
                     authenticationModel.MessageData = $"El usuario: {model.UserName} no existe";
 
                     return (ServiceStatus.FailedValidation, 1100, authenticationModel);
@@ -65,6 +68,7 @@ namespace Infrastructure.Repositories
 
                 if (user.Tenant != null && !user.Tenant.Activo)
                 {
+                    _logger.LogWarning("Token() user {UserName} tenant {TenantId} disabled", model.UserName, user.Tenant.Identificador);
                     authenticationModel.MessageData = "La empresa se encuentra deshabilitada. Contacte al administrador.";
 
                     return (ServiceStatus.FailedValidation, 1500, authenticationModel);
@@ -72,20 +76,26 @@ namespace Infrastructure.Repositories
 
                 var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, true);
 
+                _logger.LogInformation("Token() PasswordSignInAsync for user {UserName}: Succeeded={Succeeded} IsLockedOut={IsLockedOut} IsNotAllowed={IsNotAllowed} RequiresTwoFactor={RequiresTwoFactor}",
+                    model.UserName, result.Succeeded, result.IsLockedOut, result.IsNotAllowed, result.RequiresTwoFactor);
+
                 if (!user.EmailConfirmed)
                 {
+                    _logger.LogWarning("Token() user {UserName} email not confirmed", model.UserName);
                     authenticationModel.MessageData = $"Por favor, verifique su cuenta a través del enlace enviado a su correo electronico";
                     return (ServiceStatus.FailedValidation, 1400, authenticationModel);
                 }
 
                 if (result.IsLockedOut)
                 {
+                    _logger.LogWarning("Token() user {UserName} locked out", model.UserName);
                     authenticationModel.MessageData = $"Se ha superado el limite de intentos o ha sido vetado del sistema";
                     return (ServiceStatus.FailedValidation, 1300, authenticationModel);
                 }
 
                 if (result.Succeeded)
                 {
+                    _logger.LogInformation("Token() user {UserName} authenticated, issuing token", model.UserName);
                     List<Claim> claims = new List<Claim>();
 
                     var empresa = user.Tenant.TenantKey;
@@ -165,8 +175,12 @@ namespace Infrastructure.Repositories
 
                     await _context.SaveChangesAsync();
 
+                    _logger.LogInformation("Token() user {UserName} login OK", model.UserName);
+
                     return (ServiceStatus.Ok, 1, authenticationModel);
                 }
+
+                _logger.LogWarning("Token() user {UserName} wrong password", model.UserName);
 
                 authenticationModel.MessageData = "La contraseña es incorrecta";
 
