@@ -125,6 +125,9 @@ namespace Domain.Common.Mappings
                 .ForMember(x => x.FechaGasto, y => y.MapFrom(z => z.FechaGasto.ToString("dd/MM/yyyy HH:mm:ss")))
                 .ForMember(x => x.Usuario, y => y.MapFrom(z => z.UsuarioCreacion));
 
+            CreateMap<GastoPublicidad, GastoPublicidadDto>()
+                .ForMember(x => x.NombreProducto, y => y.MapFrom(z => z.Producto != null ? z.Producto.Nombre : null));
+
             CreateMap<Ingreso, IngresoDto>()
                 .ForMember(x => x.MetodoPago, y => y.MapFrom(z => z.Metodopago != null ? z.Metodopago.Descripcion ?? z.Metodopago.Nombre : null))
                 .ForMember(x => x.FechaIngreso, y => y.MapFrom(z => z.FechaIngreso.ToString("dd/MM/yyyy HH:mm:ss")))
