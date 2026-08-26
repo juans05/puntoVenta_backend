@@ -90,8 +90,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Categoria>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Proveedor>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Comentario>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
-        modelBuilder.Entity<TipoDocumento>().HasQueryFilter(e => e.TenantId == _tenant.Name);
-        modelBuilder.Entity<TipoDocumentoVenta>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        // TipoDocumento y TipoDocumentoVenta son catálogos nacionales SUNAT (DNI/RUC/Pasaporte,
+        // Boleta/Factura): idénticos para cualquier negocio, no hay filtro por tenant. Id es la
+        // única PK (no compuesta con TenantId), así que dos tenants no pueden tener cada uno su
+        // propia fila con el mismo Id — deben compartir las mismas filas.
         modelBuilder.Entity<Seriecorrelativo>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Sucursal>().HasQueryFilter(e => e.TenantId == _tenant.Name);
 

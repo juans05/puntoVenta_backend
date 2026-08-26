@@ -185,38 +185,38 @@ namespace Infrastructure.Data
                 await context.AspNetSubModule.AddRangeAsync(subModulosFaltantes);
                 await context.SaveChangesRegularAsync();
             }
-        }
 
-        private static async Task SeedCatalogoTenant(SpaContext context, string tenantId)
-        {
-            // Los catálogos con FK se insertan antes que sus dependientes.
-            // TipoDocumentoVenta se inserta primero porque Seriecorrelativo depende de él.
-            // Chequeo por fila (no por tabla): el catálogo creció (se agregaron RUC y
-            // Partida de Nacimiento) y los tenants ya sembrados no deben perderse esas filas.
+            // TipoDocumento (DNI/RUC/Pasaporte/...) y TipoDocumentoVenta (Boleta/Factura) son
+            // catálogos nacionales SUNAT: iguales para cualquier tenant, sin TenantId ni query
+            // filter (ver SpaContext.OnModelCreating). Id es la única PK de estas tablas, así
+            // que sembrarlas por tenant (como antes) choca con 23505 en cuanto hay un segundo
+            // tenant. Chequeo por fila porque el catálogo crece (se agregaron RUC y Partida de
+            // Nacimiento) y no debe perderse lo ya sembrado.
             var tipoDocumentoData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipodocumento.json"));
             var tipoDocumento = JsonConvert.DeserializeObject<List<TipoDocumento>>(tipoDocumentoData);
-            var tipoDocumentoExistente = await context.TipoDocumento.IgnoreQueryFilters()
-                .Where(x => x.TenantId == tenantId)
-                .Select(x => x.Id)
-                .ToListAsync();
+            var tipoDocumentoExistente = await context.TipoDocumento.Select(x => x.Id).ToListAsync();
             var tipoDocumentoFaltante = tipoDocumento.Where(x => !tipoDocumentoExistente.Contains(x.Id)).ToList();
 
             if (tipoDocumentoFaltante.Count > 0)
             {
-                tipoDocumentoFaltante.ForEach(x => x.TenantId = tenantId);
                 await context.TipoDocumento!.AddRangeAsync(tipoDocumentoFaltante);
                 await context.SaveChangesRegularAsync();
             }
 
-            if (!context.TipoDocumentoVenta.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
+            var tipoDocumentoVentaData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipodocumentoventa.json"));
+            var tipoDocumentoVenta = JsonConvert.DeserializeObject<List<TipoDocumentoVenta>>(tipoDocumentoVentaData);
+            var tipoDocumentoVentaExistente = await context.TipoDocumentoVenta.Select(x => x.Id).ToListAsync();
+            var tipoDocumentoVentaFaltante = tipoDocumentoVenta.Where(x => !tipoDocumentoVentaExistente.Contains(x.Id)).ToList();
+
+            if (tipoDocumentoVentaFaltante.Count > 0)
             {
-                var tipoDocumentoVentaData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipodocumentoventa.json"));
-                var tipoDocumentoVenta = JsonConvert.DeserializeObject<List<TipoDocumentoVenta>>(tipoDocumentoVentaData);
-                tipoDocumentoVenta.ForEach(x => x.TenantId = tenantId);
-                await context.TipoDocumentoVenta!.AddRangeAsync(tipoDocumentoVenta);
+                await context.TipoDocumentoVenta!.AddRangeAsync(tipoDocumentoVentaFaltante);
                 await context.SaveChangesRegularAsync();
             }
+        }
 
+        private static async Task SeedCatalogoTenant(SpaContext context, string tenantId)
+        {
             if (!context.Seriecorrelativo.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
                 var serieCorrelativoData = File.ReadAllText(Path.Combine(DefaultDataPath, "seriecorrelativo.json"));
@@ -228,8 +228,13 @@ namespace Infrastructure.Data
                                              .Select(x => (int?)x.Id)
                                              .FirstOrDefault();
 
+                // Id se resetea a 0 (autogenerado): a diferencia de TipoDocumento/TipoDocumentoVenta,
+                // Seriecorrelativo sí es propio de cada tenant (su propio correlativo de facturación),
+                // así que cada tenant necesita su propia fila con un Id distinto, no reusar el Id fijo
+                // del JSON (que ya puede estar tomado por otro tenant).
                 serieCorrelativo.ForEach(x =>
                 {
+                    x.Id = 0;
                     x.TenantId = tenantId;
                     x.SucursalId = sucursalId;
                 });
@@ -241,7 +246,14 @@ namespace Infrastructure.Data
             {
                 var metodoPagoData = File.ReadAllText(Path.Combine(DefaultDataPath, "metodopago.json"));
                 var metodoPago = JsonConvert.DeserializeObject<List<Metodopago>>(metodoPagoData);
-                metodoPago.ForEach(x => x.TenantId = tenantId);
+                // Igual que Seriecorrelativo: cada tenant es dueño de sus propias filas
+                // (puede editarlas/borrarlas independientemente), así que no puede reusar el
+                // Id fijo del JSON si otro tenant ya lo ocupa.
+                metodoPago.ForEach(x =>
+                {
+                    x.Id = 0;
+                    x.TenantId = tenantId;
+                });
                 await context.Metodopago!.AddRangeAsync(metodoPago);
                 await context.SaveChangesRegularAsync();
             }
