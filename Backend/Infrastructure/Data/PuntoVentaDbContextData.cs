@@ -39,6 +39,13 @@ namespace Infrastructure.Data
 
                 foreach (var tenantName in tenantNames)
                 {
+                    // Catálogos como TipoDocumento comparten los mismos Id numéricos entre
+                    // tenants (el Id no es parte de una clave compuesta con TenantId). El
+                    // change tracker de EF identifica entidades trackeadas solo por Id, así
+                    // que sin limpiarlo, las entidades ya guardadas para un tenant chocan
+                    // ("already being tracked") al intentar trackear el mismo Id para el
+                    // siguiente tenant.
+                    context.ChangeTracker.Clear();
                     await SeedCatalogoTenant(context, tenantName);
                 }
 
