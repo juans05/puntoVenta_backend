@@ -15,6 +15,14 @@ namespace Infrastructure.Data
 {
     public class PuntoVentaDbContextData
     {
+        // Resuelto contra la carpeta del ensamblado en ejecución (no el working directory):
+        // la ruta relativa "../Infrastructure/..." solo existía en el árbol fuente local
+        // (dotnet run desde WEB_API/); en el contenedor de Railway el working directory es
+        // /app y ese "../Infrastructure" nunca existió, así que LoadDataAsync fallaba en el
+        // primer File.ReadAllText no condicionado (module.json) y abortaba todo el seeding,
+        // incluyendo SeedCatalogoTenant, para cualquier tenant, en cada arranque.
+        private static readonly string DefaultDataPath = Path.Combine(AppContext.BaseDirectory, "Data", "Default");
+
         public static async Task LoadDataAsync(
         SpaContext context,
         ILoggerFactory loggerFactory
@@ -44,7 +52,7 @@ namespace Infrastructure.Data
             catch (Exception ex)
             {
                 var logger = loggerFactory.CreateLogger<PuntoVentaDbContextData>();
-                logger.LogError(ex.Message);
+                logger.LogError(ex, "Error en el seeding de datos por defecto");
             }
         }
 
@@ -104,35 +112,35 @@ namespace Infrastructure.Data
             // Catálogos maestros globales compartidos entre tenants (sin query filter por TenantId).
             if (!context.Pais.Any())
             {
-                var paisData = File.ReadAllText("../Infrastructure/Data/Default/pais.json");
+                var paisData = File.ReadAllText(Path.Combine(DefaultDataPath, "pais.json"));
                 await context.Pais.AddRangeAsync(JsonConvert.DeserializeObject<List<Pais>>(paisData));
                 await context.SaveChangesAsync();
             }
 
             if (!context.Moneda.Any())
             {
-                var monedaData = File.ReadAllText("../Infrastructure/Data/Default/moneda.json");
+                var monedaData = File.ReadAllText(Path.Combine(DefaultDataPath, "moneda.json"));
                 await context.Moneda.AddRangeAsync(JsonConvert.DeserializeObject<List<Moneda>>(monedaData));
                 await context.SaveChangesAsync();
             }
 
             if (!context.Impuesto.Any())
             {
-                var impuestoData = File.ReadAllText("../Infrastructure/Data/Default/impuesto.json");
+                var impuestoData = File.ReadAllText(Path.Combine(DefaultDataPath, "impuesto.json"));
                 await context.Impuesto.AddRangeAsync(JsonConvert.DeserializeObject<List<Impuesto>>(impuestoData));
                 await context.SaveChangesAsync();
             }
 
             if (!context.Rubro.Any())
             {
-                var rubroData = File.ReadAllText("../Infrastructure/Data/Default/rubro.json");
+                var rubroData = File.ReadAllText(Path.Combine(DefaultDataPath, "rubro.json"));
                 await context.Rubro.AddRangeAsync(JsonConvert.DeserializeObject<List<Rubro>>(rubroData));
                 await context.SaveChangesAsync();
             }
 
             if (!context.RubroModulo.Any())
             {
-                var rubroModuloData = File.ReadAllText("../Infrastructure/Data/Default/rubromodulo.json");
+                var rubroModuloData = File.ReadAllText(Path.Combine(DefaultDataPath, "rubromodulo.json"));
                 await context.RubroModulo.AddRangeAsync(JsonConvert.DeserializeObject<List<RubroModulo>>(rubroModuloData));
                 await context.SaveChangesAsync();
             }
@@ -140,14 +148,14 @@ namespace Infrastructure.Data
             // Catálogo de ubigeos (INEI/RENIEC): departamentos, provincias y distritos del Perú.
             if (!context.Ubigeo.Any())
             {
-                var ubigeoData = File.ReadAllText("../Infrastructure/Data/Default/ubigeo.json");
+                var ubigeoData = File.ReadAllText(Path.Combine(DefaultDataPath, "ubigeo.json"));
                 await context.Ubigeo.AddRangeAsync(JsonConvert.DeserializeObject<List<Ubigeo>>(ubigeoData));
                 await context.SaveChangesAsync();
             }
 
             // Catálogo de módulos/submódulos: chequeo por fila (no por tabla) porque el catálogo
             // crece con el tiempo (ej. se agregó "Compras") y ya existen filas de antes.
-            var moduloData = File.ReadAllText("../Infrastructure/Data/Default/module.json");
+            var moduloData = File.ReadAllText(Path.Combine(DefaultDataPath, "module.json"));
             var modulos = JsonConvert.DeserializeObject<List<AspNetModule>>(moduloData);
             var modulosExistentes = await context.AspNetModule.Select(m => m.Identificador).ToListAsync();
             var modulosFaltantes = modulos.Where(m => !modulosExistentes.Contains(m.Identificador)).ToList();
@@ -159,7 +167,7 @@ namespace Infrastructure.Data
                 await context.SaveChangesRegularAsync();
             }
 
-            var subModuloData = File.ReadAllText("../Infrastructure/Data/Default/subModule.json");
+            var subModuloData = File.ReadAllText(Path.Combine(DefaultDataPath, "subModule.json"));
             var subModulos = JsonConvert.DeserializeObject<List<AspNetSubModule>>(subModuloData);
             var subModulosExistentes = await context.AspNetSubModule.Select(s => s.Identificador).ToListAsync();
             var subModulosFaltantes = subModulos.Where(s => !subModulosExistentes.Contains(s.Identificador)).ToList();
@@ -178,7 +186,7 @@ namespace Infrastructure.Data
             // TipoDocumentoVenta se inserta primero porque Seriecorrelativo depende de él.
             // Chequeo por fila (no por tabla): el catálogo creció (se agregaron RUC y
             // Partida de Nacimiento) y los tenants ya sembrados no deben perderse esas filas.
-            var tipoDocumentoData = File.ReadAllText("../Infrastructure/Data/Default/tipodocumento.json");
+            var tipoDocumentoData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipodocumento.json"));
             var tipoDocumento = JsonConvert.DeserializeObject<List<TipoDocumento>>(tipoDocumentoData);
             var tipoDocumentoExistente = await context.TipoDocumento.IgnoreQueryFilters()
                 .Where(x => x.TenantId == tenantId)
@@ -195,7 +203,7 @@ namespace Infrastructure.Data
 
             if (!context.TipoDocumentoVenta.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
-                var tipoDocumentoVentaData = File.ReadAllText("../Infrastructure/Data/Default/tipodocumentoventa.json");
+                var tipoDocumentoVentaData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipodocumentoventa.json"));
                 var tipoDocumentoVenta = JsonConvert.DeserializeObject<List<TipoDocumentoVenta>>(tipoDocumentoVentaData);
                 tipoDocumentoVenta.ForEach(x => x.TenantId = tenantId);
                 await context.TipoDocumentoVenta!.AddRangeAsync(tipoDocumentoVenta);
@@ -204,7 +212,7 @@ namespace Infrastructure.Data
 
             if (!context.Seriecorrelativo.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
-                var serieCorrelativoData = File.ReadAllText("../Infrastructure/Data/Default/seriecorrelativo.json");
+                var serieCorrelativoData = File.ReadAllText(Path.Combine(DefaultDataPath, "seriecorrelativo.json"));
                 var serieCorrelativo = JsonConvert.DeserializeObject<List<Seriecorrelativo>>(serieCorrelativoData);
 
                 // Asigna la sede principal del tenant (o null si aún no tiene sucursal) para aislar correlativos por sede.
@@ -224,7 +232,7 @@ namespace Infrastructure.Data
 
             if (!context.Metodopago.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
-                var metodoPagoData = File.ReadAllText("../Infrastructure/Data/Default/metodopago.json");
+                var metodoPagoData = File.ReadAllText(Path.Combine(DefaultDataPath, "metodopago.json"));
                 var metodoPago = JsonConvert.DeserializeObject<List<Metodopago>>(metodoPagoData);
                 metodoPago.ForEach(x => x.TenantId = tenantId);
                 await context.Metodopago!.AddRangeAsync(metodoPago);
@@ -233,7 +241,7 @@ namespace Infrastructure.Data
 
             if (!context.ConfiguracionFiscal.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
-                var configuracionFiscalData = File.ReadAllText("../Infrastructure/Data/Default/configuracionfiscal.json");
+                var configuracionFiscalData = File.ReadAllText(Path.Combine(DefaultDataPath, "configuracionfiscal.json"));
                 var configuracionFiscal = JsonConvert.DeserializeObject<List<ConfiguracionFiscal>>(configuracionFiscalData);
                 configuracionFiscal.ForEach(x =>
                 {
@@ -251,7 +259,7 @@ namespace Infrastructure.Data
             // Requiere los catálogos globales sembrados antes (Pais/Moneda/Rubro).
             if (!context.Sucursal.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
-                var sucursalData = File.ReadAllText("../Infrastructure/Data/Default/sucursal.json");
+                var sucursalData = File.ReadAllText(Path.Combine(DefaultDataPath, "sucursal.json"));
                 var sucursales = JsonConvert.DeserializeObject<List<Sucursal>>(sucursalData);
                 sucursales.ForEach(x => x.TenantId = tenantId);
                 await context.Sucursal!.AddRangeAsync(sucursales);
