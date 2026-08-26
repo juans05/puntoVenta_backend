@@ -30,8 +30,18 @@ namespace Infrastructure.Data
         {
             try
             {
-                // Catálogos maestros globales (sin TenantId): Pais, Moneda, Impuesto, Rubro, RubroModulo.
+                // Catálogos maestros globales (sin TenantId): Pais, Moneda, Impuesto, Rubro, RubroModulo,
+                // TipoDocumento, TipoDocumentoVenta. Insertan con "id" explícito del JSON.
                 await SeedCatalogoGlobal(context);
+
+                // Los JSON de seed traen "id" explícito para tener IDs estables entre entornos.
+                // Insertar con Id explícito no avanza la secuencia identity de Postgres. Se debe
+                // resincronizar ANTES del loop de tenants: Seriecorrelativo/Metodopago (abajo)
+                // insertan con Id=0 confiando en que Postgres autogenere el siguiente valor: si
+                // la secuencia sigue en su posición original (ej. 1), ese autogenerado choca con
+                // filas ya sembradas para otro tenant con el Id fijo del JSON (23505).
+                // Se corre siempre (no solo la primera vez) porque es barata e idempotente.
+                await ResincronizarSecuenciasAsync(context);
 
                 // Catálogos maestros que requieren un TenantId.
                 // Se siembran para cada tenant activo (catálogos por tenant, no globales).
@@ -48,13 +58,6 @@ namespace Infrastructure.Data
                     context.ChangeTracker.Clear();
                     await SeedCatalogoTenant(context, tenantName);
                 }
-
-                // Los JSON de seed traen "id" explícito para tener IDs estables entre entornos.
-                // Insertar con Id explícito no avanza la secuencia identity de Postgres, así que
-                // el próximo insert real (sin Id, ej. un usuario crea un método de pago nuevo)
-                // puede pedir un Id ya usado por el seed y explotar con 23505 (duplicate key).
-                // Se corre siempre (no solo la primera vez) porque es barata e idempotente.
-                await ResincronizarSecuenciasAsync(context);
             }
             catch (Exception ex)
             {
