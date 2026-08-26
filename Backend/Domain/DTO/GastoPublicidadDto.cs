@@ -3,8 +3,8 @@ namespace Domain.DTO;
 public class GastoPublicidadDto
 {
     public int Id { get; set; }
-    public int ProductoId { get; set; }
-    public string? NombreProducto { get; set; }
+    public int GrupoId { get; set; }
+    public string? NombreGrupo { get; set; }
     public string NombreAnuncio { get; set; } = null!;
     public string? NombreConjuntoAnuncios { get; set; }
     public DateTime FechaInicio { get; set; }

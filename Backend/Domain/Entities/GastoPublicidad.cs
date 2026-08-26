@@ -2,8 +2,8 @@ namespace Domain.Entities;
 
 public class GastoPublicidad : EntityBase
 {
-    public int ProductoId { get; set; }
-    public Producto Producto { get; set; } = null!;
+    public int GrupoId { get; set; }
+    public Grupo Grupo { get; set; } = null!;
 
     public string NombreAnuncio { get; set; } = null!;
     public string? NombreConjuntoAnuncios { get; set; }

@@ -30,10 +30,10 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         if (payload.Filas == null || payload.Filas.Count == 0)
             return (ServiceStatus.FailedValidation, null, "No hay filas para importar");
 
-        var productoIds = payload.Filas.Select(f => f.ProductoId).Distinct().ToList();
-        var productosExistentes = await _context.Producto.AsNoTracking()
-            .Where(p => productoIds.Contains(p.Id))
-            .Select(p => p.Id)
+        var grupoIds = payload.Filas.Select(f => f.GrupoId).Distinct().ToList();
+        var gruposExistentes = await _context.Grupo.AsNoTracking()
+            .Where(g => grupoIds.Contains(g.Id))
+            .Select(g => g.Id)
             .ToListAsync();
 
         var errores = new List<string>();
@@ -43,9 +43,9 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         {
             var fila = payload.Filas[i];
 
-            if (!productosExistentes.Contains(fila.ProductoId))
+            if (!gruposExistentes.Contains(fila.GrupoId))
             {
-                errores.Add($"Fila {i + 1}: el producto {fila.ProductoId} no existe");
+                errores.Add($"Fila {i + 1}: el grupo {fila.GrupoId} no existe");
                 continue;
             }
 
@@ -63,7 +63,7 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
 
             candidatas.Add(new GastoPublicidad
             {
-                ProductoId = fila.ProductoId,
+                GrupoId = fila.GrupoId,
                 NombreAnuncio = fila.NombreAnuncio,
                 NombreConjuntoAnuncios = fila.NombreConjuntoAnuncios,
                 FechaInicio = fila.FechaInicio,
@@ -119,11 +119,11 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         return Convert.ToHexString(bytes);
     }
 
-    public async Task<(ServiceStatus, List<RoiPorProductoDto>?, string)> CalcularRoi(GastoPublicidadRoiQueryParams payload)
+    public async Task<(ServiceStatus, List<RoiPorGrupoDto>?, string)> CalcularRoi(GastoPublicidadRoiQueryParams payload)
     {
         try
         {
-            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Producto).AsQueryable();
+            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Grupo).AsQueryable();
 
             if (payload.Desde.HasValue)
                 query = query.Where(g => g.FechaFin >= payload.Desde.Value);
@@ -131,23 +131,25 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
             if (payload.Hasta.HasValue)
                 query = query.Where(g => g.FechaInicio <= payload.Hasta.Value);
 
-            if (payload.ProductoId.HasValue)
-                query = query.Where(g => g.ProductoId == payload.ProductoId.Value);
+            if (payload.GrupoId.HasValue)
+                query = query.Where(g => g.GrupoId == payload.GrupoId.Value);
 
             var ads = await query.ToListAsync();
 
             if (ads.Count == 0)
-                return (ServiceStatus.Ok, new List<RoiPorProductoDto>(), "Sin datos para el rango seleccionado");
+                return (ServiceStatus.Ok, new List<RoiPorGrupoDto>(), "Sin datos para el rango seleccionado");
 
-            var resultado = new List<RoiPorProductoDto>();
+            var resultado = new List<RoiPorGrupoDto>();
 
-            foreach (var grupo in ads.GroupBy(a => a.ProductoId))
+            foreach (var grupo in ads.GroupBy(a => a.GrupoId))
             {
                 var minFecha = grupo.Min(a => a.FechaInicio);
                 var maxFecha = grupo.Max(a => a.FechaFin);
 
+                // Ventas de CUALQUIER producto que pertenezca a este grupo — una campaña
+                // suele promocionar varias variantes/productos del mismo grupo a la vez.
                 var detalles = await _context.ComprobanteDetalle.AsNoTracking()
-                    .Where(d => d.ProductoId == grupo.Key
+                    .Where(d => d.Producto.GrupoId == grupo.Key
                              && d.ComprobanteCabecera.FechaCreacion >= minFecha
                              && d.ComprobanteCabecera.FechaCreacion <= maxFecha
                              && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
@@ -160,8 +162,8 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                     })
                     .ToListAsync();
 
-                // Cada venta cuenta una sola vez para el producto aunque caiga dentro de
-                // varios anuncios de ese mismo producto que se solapan en fechas —
+                // Cada venta cuenta una sola vez para el grupo aunque caiga dentro de
+                // varios anuncios de ese mismo grupo que se solapan en fechas —
                 // sumarla más de una vez inflaría el ingreso de una sola fila del reporte.
                 var ventasEnRango = detalles
                     .Where(d => grupo.Any(a => d.FechaVenta >= a.FechaInicio && d.FechaVenta <= a.FechaFin))
@@ -172,10 +174,10 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                 var costoProducto = ventasEnRango.Sum(d => d.Cantidad * (d.CostoUnitario ?? 0));
                 var utilidadNeta = ingresos - costoProducto - gastoAds;
 
-                resultado.Add(new RoiPorProductoDto
+                resultado.Add(new RoiPorGrupoDto
                 {
-                    ProductoId = grupo.Key,
-                    NombreProducto = grupo.First().Producto.Nombre,
+                    GrupoId = grupo.Key,
+                    NombreGrupo = grupo.First().Grupo.Nombre,
                     GastoAds = gastoAds,
                     Ingresos = ingresos,
                     CostoProducto = costoProducto,
@@ -196,10 +198,10 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
     {
         try
         {
-            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Producto).AsQueryable();
+            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Grupo).AsQueryable();
 
-            if (payload.ProductoId.HasValue)
-                query = query.Where(g => g.ProductoId == payload.ProductoId.Value);
+            if (payload.GrupoId.HasValue)
+                query = query.Where(g => g.GrupoId == payload.GrupoId.Value);
 
             if (payload.Desde.HasValue)
                 query = query.Where(g => g.FechaFin >= payload.Desde.Value);
