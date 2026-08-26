@@ -27,7 +27,7 @@ namespace Infrastructure.Data
 
                 // Catálogos maestros que requieren un TenantId.
                 // Se siembran para cada tenant activo (catálogos por tenant, no globales).
-                var tenantNames = ObtenerTenantsActivos();
+                var tenantNames = await ObtenerTenantsActivosAsync(context);
 
                 foreach (var tenantName in tenantNames)
                 {
@@ -64,8 +64,22 @@ namespace Infrastructure.Data
             }
         }
 
-        private static string[] ObtenerTenantsActivos()
+        private static async Task<string[]> ObtenerTenantsActivosAsync(SpaContext context)
         {
+            // Antes leía SOLO TenantOptions:Tenants (appsettings.json), que trae "SPASOLIS1"
+            // hardcodeado — cualquier empresa real creada vía la app (TenantController) nunca
+            // aparecía ahí, así que su catálogo (TipoDocumento, Metodopago, etc.) nunca se
+            // sembraba. Se lee la tabla Tenant real; el config queda solo como fallback para
+            // el primer arranque en una BD completamente vacía (antes de crear cualquier tenant).
+            var tenantsEnBd = await context.Tenant.IgnoreQueryFilters().AsNoTracking()
+                .Where(t => t.Activo && !string.IsNullOrEmpty(t.Name))
+                .Select(t => t.Name!.ToUpper())
+                .Distinct()
+                .ToArrayAsync();
+
+            if (tenantsEnBd.Length > 0)
+                return tenantsEnBd;
+
             var configuration = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", true)
                 .AddEnvironmentVariables()
