@@ -71,8 +71,11 @@ namespace Infrastructure.Data
             // aparecía ahí, así que su catálogo (TipoDocumento, Metodopago, etc.) nunca se
             // sembraba. Se lee la tabla Tenant real; el config queda solo como fallback para
             // el primer arranque en una BD completamente vacía (antes de crear cualquier tenant).
+            // Sin filtrar por Activo: los tenants nuevos (CreateTenant/AddEmpresaTenant) no
+            // setean esa columna explícitamente, así que no es confiable acá — y sembrar de
+            // más a un tenant inactivo es inofensivo, mientras que saltarse uno activo no lo es.
             var tenantsEnBd = await context.Tenant.IgnoreQueryFilters().AsNoTracking()
-                .Where(t => t.Activo && !string.IsNullOrEmpty(t.Name))
+                .Where(t => !string.IsNullOrEmpty(t.Name))
                 .Select(t => t.Name!.ToUpper())
                 .Distinct()
                 .ToArrayAsync();
