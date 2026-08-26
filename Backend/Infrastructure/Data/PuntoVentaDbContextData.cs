@@ -33,11 +33,34 @@ namespace Infrastructure.Data
                 {
                     await SeedCatalogoTenant(context, tenantName);
                 }
+
+                // Los JSON de seed traen "id" explícito para tener IDs estables entre entornos.
+                // Insertar con Id explícito no avanza la secuencia identity de Postgres, así que
+                // el próximo insert real (sin Id, ej. un usuario crea un método de pago nuevo)
+                // puede pedir un Id ya usado por el seed y explotar con 23505 (duplicate key).
+                // Se corre siempre (no solo la primera vez) porque es barata e idempotente.
+                await ResincronizarSecuenciasAsync(context);
             }
             catch (Exception ex)
             {
                 var logger = loggerFactory.CreateLogger<PuntoVentaDbContextData>();
                 logger.LogError(ex.Message);
+            }
+        }
+
+        private static readonly string[] TablasConIdDeSeedExplicito =
+        {
+            "Categoria", "Grupo", "Impuesto", "Metodopago", "Moneda", "Pais",
+            "Producto", "Proveedor", "Rubro", "RubroModulo", "Seriecorrelativo",
+            "TipoDocumento", "TipoDocumentoVenta"
+        };
+
+        private static async Task ResincronizarSecuenciasAsync(SpaContext context)
+        {
+            foreach (var tabla in TablasConIdDeSeedExplicito)
+            {
+                await context.Database.ExecuteSqlRawAsync(
+                    $"SELECT setval(pg_get_serial_sequence('\"{tabla}\"', 'Id'), COALESCE((SELECT MAX(\"Id\") FROM \"{tabla}\"), 1))");
             }
         }
 
