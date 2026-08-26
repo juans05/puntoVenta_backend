@@ -18,5 +18,15 @@
     "id": 4,
     "nombre": "Libre",
     "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 5,
+    "nombre": "RUC",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 6,
+    "nombre": "Partida de Nacimiento",
+    "usuarioCreacion": "Admin"
   }
 ]

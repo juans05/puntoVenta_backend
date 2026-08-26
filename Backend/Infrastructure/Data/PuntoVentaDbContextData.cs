@@ -159,12 +159,20 @@ namespace Infrastructure.Data
         {
             // Los catálogos con FK se insertan antes que sus dependientes.
             // TipoDocumentoVenta se inserta primero porque Seriecorrelativo depende de él.
-            if (!context.TipoDocumento.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
+            // Chequeo por fila (no por tabla): el catálogo creció (se agregaron RUC y
+            // Partida de Nacimiento) y los tenants ya sembrados no deben perderse esas filas.
+            var tipoDocumentoData = File.ReadAllText("../Infrastructure/Data/Default/tipodocumento.json");
+            var tipoDocumento = JsonConvert.DeserializeObject<List<TipoDocumento>>(tipoDocumentoData);
+            var tipoDocumentoExistente = await context.TipoDocumento.IgnoreQueryFilters()
+                .Where(x => x.TenantId == tenantId)
+                .Select(x => x.Id)
+                .ToListAsync();
+            var tipoDocumentoFaltante = tipoDocumento.Where(x => !tipoDocumentoExistente.Contains(x.Id)).ToList();
+
+            if (tipoDocumentoFaltante.Count > 0)
             {
-                var tipoDocumentoData = File.ReadAllText("../Infrastructure/Data/Default/tipodocumento.json");
-                var tipoDocumento = JsonConvert.DeserializeObject<List<TipoDocumento>>(tipoDocumentoData);
-                tipoDocumento.ForEach(x => x.TenantId = tenantId);
-                await context.TipoDocumento!.AddRangeAsync(tipoDocumento);
+                tipoDocumentoFaltante.ForEach(x => x.TenantId = tenantId);
+                await context.TipoDocumento!.AddRangeAsync(tipoDocumentoFaltante);
                 await context.SaveChangesRegularAsync();
             }
 
