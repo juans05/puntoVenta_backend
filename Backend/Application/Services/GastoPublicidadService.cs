@@ -48,4 +48,14 @@ public class GastoPublicidadService : IGastoPublicidadService
 
         return MessageResult<object>.Of(message, result);
     }
+
+    public async Task<MessageResult<object>> ObtenerMapeosAnuncios(ObtenerMapeosAnunciosPayload payload)
+    {
+        var (estado, result, message) = await _repository.ObtenerMapeosAnuncios(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }

@@ -2,7 +2,7 @@ namespace Domain.DTO;
 
 public class RoiPorGrupoDto
 {
-    public int GrupoId { get; set; }
+    public int? GrupoId { get; set; }
     public string? NombreGrupo { get; set; }
     public decimal GastoAds { get; set; }
     public decimal Ingresos { get; set; }

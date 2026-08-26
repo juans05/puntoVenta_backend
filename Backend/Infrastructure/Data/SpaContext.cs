@@ -88,6 +88,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Pago>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Producto>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Categoria>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<Grupo>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Proveedor>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Comentario>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         // TipoDocumento y TipoDocumentoVenta son catálogos nacionales SUNAT (DNI/RUC/Pasaporte,

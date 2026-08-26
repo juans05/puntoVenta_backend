@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SpaContext))]
-    partial class SpaContextModelSnapshot : ModelSnapshot
+    [Migration("20260826021853_AddGrupoQueryFilterGlobalTipoDocumento")]
+    partial class AddGrupoQueryFilterGlobalTipoDocumento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1022,12 +1024,6 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("Alcance")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("Clics")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal?>("CostoPorClic")
-                        .HasColumnType("numeric(13,2)");
-
                     b.Property<decimal?>("CostoPorResultado")
                         .HasColumnType("numeric(13,2)");
 
@@ -1043,7 +1039,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("FechaInicio")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int?>("GrupoId")
+                    b.Property<int>("GrupoId")
                         .HasColumnType("integer");
 
                     b.Property<string>("HashAnuncio")
@@ -2713,7 +2709,9 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Grupo", "Grupo")
                         .WithMany()
-                        .HasForeignKey("GrupoId");
+                        .HasForeignKey("GrupoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Grupo");
                 });

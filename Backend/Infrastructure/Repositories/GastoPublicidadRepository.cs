@@ -30,7 +30,7 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         if (payload.Filas == null || payload.Filas.Count == 0)
             return (ServiceStatus.FailedValidation, null, "No hay filas para importar");
 
-        var grupoIds = payload.Filas.Select(f => f.GrupoId).Distinct().ToList();
+        var grupoIds = payload.Filas.Where(f => f.GrupoId.HasValue).Select(f => f.GrupoId!.Value).Distinct().ToList();
         var gruposExistentes = await _context.Grupo.AsNoTracking()
             .Where(g => grupoIds.Contains(g.Id))
             .Select(g => g.Id)
@@ -43,7 +43,8 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         {
             var fila = payload.Filas[i];
 
-            if (!gruposExistentes.Contains(fila.GrupoId))
+            // GrupoId null = "No aplica" (ad sin grupo de productos asociado), es válido.
+            if (fila.GrupoId.HasValue && !gruposExistentes.Contains(fila.GrupoId.Value))
             {
                 errores.Add($"Fila {i + 1}: el grupo {fila.GrupoId} no existe");
                 continue;
@@ -73,6 +74,8 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                 Alcance = fila.Alcance,
                 Resultados = fila.Resultados,
                 CostoPorResultado = fila.CostoPorResultado,
+                Clics = fila.Clics,
+                CostoPorClic = fila.CostoPorClic,
                 LoteImportacionId = payload.LoteImportacionId,
                 HashAnuncio = CalcularHash(fila.NombreAnuncio, fila.FechaInicio, fila.FechaFin)
             });
@@ -177,7 +180,7 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                 resultado.Add(new RoiPorGrupoDto
                 {
                     GrupoId = grupo.Key,
-                    NombreGrupo = grupo.First().Grupo.Nombre,
+                    NombreGrupo = grupo.Key.HasValue ? grupo.First().Grupo?.Nombre : "Sin grupo asignado",
                     GastoAds = gastoAds,
                     Ingresos = ingresos,
                     CostoProducto = costoProducto,
@@ -191,6 +194,36 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         catch (Exception e)
         {
             return (ServiceStatus.InternalError, null, $"Error al calcular ROI -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    public async Task<(ServiceStatus, List<MapeoAnuncioDto>?, string)> ObtenerMapeosAnuncios(ObtenerMapeosAnunciosPayload payload)
+    {
+        try
+        {
+            if (payload.NombresAnuncio == null || payload.NombresAnuncio.Count == 0)
+                return (ServiceStatus.Ok, new List<MapeoAnuncioDto>(), "Succeeded");
+
+            var nombres = payload.NombresAnuncio.Distinct().ToList();
+
+            // Para cada anuncio, el Grupo (o "No aplica") que se le asignó la última vez
+            // que se importó — evita que el usuario tenga que remapear anuncios recurrentes
+            // cada vez que sube un Excel nuevo.
+            var mapeos = await _context.GastoPublicidad.AsNoTracking()
+                .Where(g => nombres.Contains(g.NombreAnuncio))
+                .GroupBy(g => g.NombreAnuncio)
+                .Select(g => new MapeoAnuncioDto
+                {
+                    NombreAnuncio = g.Key,
+                    GrupoId = g.OrderByDescending(x => x.FechaFin).ThenByDescending(x => x.Id).First().GrupoId
+                })
+                .ToListAsync();
+
+            return (ServiceStatus.Ok, mapeos, "Succeeded");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error al obtener mapeos de anuncios -> {e.InnerException?.Message ?? e.Message}");
         }
     }
 

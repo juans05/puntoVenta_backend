@@ -23,4 +23,7 @@ public class GastoPublicidadController : ControllerBase
 
     [HttpGet("listar")]
     public async Task<IActionResult> Listar([FromQuery] GastoPublicidadQueryParams payload) => Ok(await _gastoPublicidadService.Listar(payload));
+
+    [HttpPost("mapeos-anuncios")]
+    public async Task<IActionResult> ObtenerMapeosAnuncios([FromBody] ObtenerMapeosAnunciosPayload payload) => Ok(await _gastoPublicidadService.ObtenerMapeosAnuncios(payload));
 }
