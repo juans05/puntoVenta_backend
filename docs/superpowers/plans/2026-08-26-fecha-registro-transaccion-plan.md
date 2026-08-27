@@ -856,6 +856,15 @@ export const actualizarFechaGasto = (id: number, fecha: string) => {
 
 En `Frontend/src/components/Modal/Admin/Gasto/index.tsx`:
 
+Agregar, fuera del componente (junto a `Modal.setAppElement("#root");`), un helper de fecha local — **no usar `toISOString()`**: es UTC, y Perú es UTC-5, así que entre las 19:00 y medianoche locales devolvería la fecha de mañana:
+
+```typescript
+const fechaHoyLocal = () => {
+  const hoy = new Date();
+  return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+};
+```
+
 Agregar el estado (junto a los demás `useState`, después de `observacion`):
 
 ```typescript
@@ -865,7 +874,7 @@ Agregar el estado (junto a los demás `useState`, después de `observacion`):
 En el `useEffect` que resetea el formulario (donde se hace `setObservacion("")`), agregar:
 
 ```typescript
-      setFechaGasto(new Date().toISOString().slice(0, 10));
+      setFechaGasto(fechaHoyLocal());
 ```
 
 En `handleSubmit`, agregar `fechaGasto` al payload de `crearGasto`:
@@ -1082,6 +1091,15 @@ export const actualizarFechaCompra = (id: number, fecha: string) => {
 
 En `Frontend/src/components/Modal/Admin/Compra/index.tsx`:
 
+Agregar, fuera del componente (junto a `Modal.setAppElement("#root");`), el mismo helper de fecha local que Task 5 — **no usar `toISOString()`**: es UTC, y Perú es UTC-5, así que entre las 19:00 y medianoche locales devolvería la fecha de mañana:
+
+```typescript
+const fechaHoyLocal = () => {
+  const hoy = new Date();
+  return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+};
+```
+
 Agregar el estado (junto a `observacion`):
 
 ```typescript
@@ -1091,7 +1109,7 @@ Agregar el estado (junto a `observacion`):
 En el `useEffect` que resetea el formulario, agregar:
 
 ```typescript
-      setFechaCompra(new Date().toISOString().slice(0, 10));
+      setFechaCompra(fechaHoyLocal());
 ```
 
 En `handleSubmit`, agregar `fechaCompra` al payload de `crearCompra`:
