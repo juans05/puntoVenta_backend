@@ -9,6 +9,8 @@ public interface IGastoService
 
     Task<MessageResult<object>> AnularGasto(int id);
 
+    Task<MessageResult<bool>> ActualizarFechaGasto(int id, DateTime fecha);
+
     Task<MessageResult<object>> ListarGastos(GastoQueryParams payload);
 
     Task<MessageResult<object>> ListarCategorias();

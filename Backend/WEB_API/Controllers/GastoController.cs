@@ -21,6 +21,9 @@ public class GastoController : ControllerBase
     [HttpPut("anular")]
     public async Task<IActionResult> AnularGasto([FromQuery] int id) => Ok(await _gastoService.AnularGasto(id));
 
+    [HttpPut("modificar-fecha/{id}")]
+    public async Task<IActionResult> ActualizarFechaGasto(int id, [FromBody] ActualizarFechaPayload payload) => Ok(await _gastoService.ActualizarFechaGasto(id, payload.Fecha));
+
     [HttpGet("listar")]
     public async Task<IActionResult> ListarGastos([FromQuery] GastoQueryParams payload) => Ok(await _gastoService.ListarGastos(payload));
 

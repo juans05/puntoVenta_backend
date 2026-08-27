@@ -100,6 +100,23 @@ public class GastoRepository : IGastoRepository
         }
     }
 
+    public async Task<(ServiceStatus, string)> ActualizarFechaGasto(int id, DateTime fecha)
+    {
+        var gasto = await _context.Gasto.AsTracking().FirstOrDefaultAsync(g => g.Id == id);
+
+        if (gasto == null)
+            return (ServiceStatus.NotFound, $"No se encontro el gasto {id}");
+
+        if (gasto.Estado == "ANULADO")
+            return (ServiceStatus.FailedValidation, "No se puede modificar la fecha de un gasto anulado");
+
+        gasto.FechaGasto = fecha;
+
+        await _context.SaveChangesAsync();
+
+        return (ServiceStatus.Ok, "Fecha actualizada correctamente");
+    }
+
     public async Task<(ServiceStatus, object?, string)> ListarCategorias()
     {
         try

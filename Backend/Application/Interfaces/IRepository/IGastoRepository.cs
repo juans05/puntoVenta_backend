@@ -11,6 +11,8 @@ public interface IGastoRepository
 
     Task<(ServiceStatus, GastoDto?, string)> AnularGasto(int id);
 
+    Task<(ServiceStatus, string)> ActualizarFechaGasto(int id, DateTime fecha);
+
     Task<(ServiceStatus, DataCollection<GastoDto>?, string)> ListarGastos(GastoQueryParams payload);
 
     Task<(ServiceStatus, object?, string)> ListarCategorias();

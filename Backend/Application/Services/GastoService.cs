@@ -45,6 +45,22 @@ public class GastoService : IGastoService
         return MessageResult<object>.Of(message, result);
     }
 
+    public async Task<MessageResult<bool>> ActualizarFechaGasto(int id, DateTime fecha)
+    {
+        var (estado, message) = await _gastoRepository.ActualizarFechaGasto(id, fecha);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<bool>.Of(message, true);
+    }
+
     public async Task<MessageResult<object>> ListarGastos(GastoQueryParams payload)
     {
         var (estado, result, message) = await _gastoRepository.ListarGastos(payload);

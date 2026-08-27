@@ -10,6 +10,7 @@ public class GastoDto
     public string? MetodoPago { get; set; }
     public string? Observacion { get; set; }
     public string Estado { get; set; } = null!;
+    public string FechaRegistro { get; set; } = null!;
     public string FechaGasto { get; set; } = null!;
     public string? Usuario { get; set; }
 }
