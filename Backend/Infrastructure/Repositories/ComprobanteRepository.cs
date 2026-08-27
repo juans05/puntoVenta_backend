@@ -527,22 +527,57 @@ namespace Infrastructure.Repositories
         }
         public async Task<(ServiceStatus, object?, string)> AnularVenta(int IdComprobante, string motivo)
         {
+            var entity = await _context.ComprobanteCabecera.AsTracking()
+                                                            .Include(c => c.ComprobanteDetalles)
+                                                            .FirstOrDefaultAsync(p => p.Id == IdComprobante);
+
+            if (entity == null)
+                return (ServiceStatus.FailedValidation, null, $"No se encontro el comprobante {IdComprobante}");
+
+            if (entity.EstadoComprobante == EstatusComprobante.Anulado)
+                return (ServiceStatus.FailedValidation, null, "La venta ya se encuentra anulada");
+
+            await _context.Database.BeginTransactionAsync();
+
             try
             {
-                var entity = await _context.ComprobanteCabecera.AsNoTracking().FirstAsync(p => p.Id == IdComprobante);
+                foreach (var item in entity.ComprobanteDetalles)
+                {
+                    var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
+
+                    if (producto == null) continue;
+
+                    var stockAnterior = producto.Stock ?? 0;
+                    var stockNuevo = stockAnterior + item.Cantidad;
+
+                    producto.Stock = stockNuevo;
+
+                    _context.InventoryMovement.Add(new InventoryMovement
+                    {
+                        ProductoId = producto.Id,
+                        TipoMovimiento = (int)TipoMovimientoInventario.DevolucionVenta,
+                        Cantidad = item.Cantidad,
+                        StockAnterior = stockAnterior,
+                        StockPosterior = stockNuevo,
+                        ReferenciaTipo = "VentaAnulada",
+                        ReferenciaId = entity.Id
+                    });
+                }
 
                 entity.EstadoComprobante = EstatusComprobante.Anulado;
 
                 entity.MotivoAnulacion = motivo;
 
-                _context.Entry(entity).State = EntityState.Modified;
-
                 await _context.SaveChangesAsync();
+
+                await _context.Database.CommitTransactionAsync();
 
                 return (ServiceStatus.Ok, null, "Success");
             }
             catch (Exception ex)
             {
+                await _context.Database.RollbackTransactionAsync();
+
                 return (ServiceStatus.FailedValidation, null, $"Error en Anular Venta -> {ex.InnerException?.Message ?? ex.Message}");
             }
 
