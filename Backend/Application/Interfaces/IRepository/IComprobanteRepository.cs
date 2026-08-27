@@ -34,4 +34,6 @@ public interface IComprobanteRepository
     Task<(ServiceStatus, List<ConfiguracionFiscal>?)> ObtenerConfiguracionesFiscalesActivas();
 
     Task<(ServiceStatus, ConfiguracionFiscal?)> ObtenerConfiguracionFiscalPorTenant(string tenant);
+
+    Task<(ServiceStatus, string)> ActualizarFechaVenta(int id, DateTime fecha);
 }

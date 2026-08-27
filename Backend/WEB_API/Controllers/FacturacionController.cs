@@ -35,6 +35,9 @@ public class FacturacionController : ControllerBase
     [HttpGet("listar-fichas")]
     public async Task<IActionResult> ListarFichas([FromQuery] string fecha) => Ok(await _rentaService.ListarFichas(fecha));
 
+    [HttpPut("modificar-fecha-venta/{id}")]
+    public async Task<IActionResult> ActualizarFechaVenta(int id, [FromBody] ActualizarFechaPayload payload) => Ok(await _comprobanteService.ActualizarFechaVenta(id, payload.Fecha));
+
 }
 
 

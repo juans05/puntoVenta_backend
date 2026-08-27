@@ -18,6 +18,7 @@ public class ComprobanteCabecera : EntityBase
     public decimal PorcentajeImpuesto { get; set; }
     public string? TotalLetras { get; set; } = null!;
     public char EstadoComprobante { get; set; } = EstatusComprobante.Creado;
+    public DateTime? FechaVenta { get; set; }
     public char EnviadoSunat { get; set; } = EstatusEnvioSunat.Pendiente;
     public string? MensajeSunat { get; set; }
     public string? MotivoAnulacion { get; set; }

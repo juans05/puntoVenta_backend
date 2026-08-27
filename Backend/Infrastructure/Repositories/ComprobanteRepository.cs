@@ -72,6 +72,8 @@ namespace Infrastructure.Repositories
 
                 var cabecera = _mapper.Map<ComprobanteCabecera>(payload);
 
+                cabecera.FechaVenta = DateTime.UtcNow.AddHours(-5);
+
                 var (_, config) = await ObtenerConfiguracionFiscalPorTenant(_context.CurrentTenantName);
 
                 var paisId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimConstants.Pais) is { } paisClaim
@@ -212,6 +214,7 @@ namespace Infrastructure.Repositories
 
 
             lista = await _context.ComprobanteCabecera.AsNoTracking()
+                                                      .Where(x => x.EstadoComprobante != EstatusComprobante.Anulado)
                                                       .WhereIf(string.IsNullOrEmpty(queryparam.StartDate) && string.IsNullOrEmpty(queryparam.EndDate), s => s.FechaCreacion.Date >= DateTime.UtcNow.AddHours(-5).AddDays(-7).Date)
                                                       .WhereIf(isValidStartDate && isValidEndDate, p => p.FechaCreacion.Date >= start.Date && p.FechaCreacion.Date <= end.Date)
                                                       .OrderByDescending(x => x.FechaCreacion)
@@ -543,6 +546,23 @@ namespace Infrastructure.Repositories
                 return (ServiceStatus.FailedValidation, null, $"Error en Anular Venta -> {ex.InnerException?.Message ?? ex.Message}");
             }
 
+        }
+
+        public async Task<(ServiceStatus, string)> ActualizarFechaVenta(int id, DateTime fecha)
+        {
+            var comprobante = await _context.ComprobanteCabecera.AsTracking().FirstOrDefaultAsync(c => c.Id == id);
+
+            if (comprobante == null)
+                return (ServiceStatus.NotFound, $"No se encontro el comprobante {id}");
+
+            if (comprobante.EstadoComprobante == EstatusComprobante.Anulado)
+                return (ServiceStatus.FailedValidation, "No se puede modificar la fecha de un comprobante anulado");
+
+            comprobante.FechaVenta = fecha;
+
+            await _context.SaveChangesAsync();
+
+            return (ServiceStatus.Ok, "Fecha de venta actualizada correctamente");
         }
 
         private InvoiceRequest ArmarInvoice(ComprobanteCabecera comprobanteCabecera, ConfiguracionFiscal? config)

@@ -185,4 +185,20 @@ public class ComprobanteService : IComprobanteService
 
         return MessageResult<ConfiguracionFiscal>.Of("SUCCESS", resp);
     }
+
+    public async Task<MessageResult<bool>> ActualizarFechaVenta(int id, DateTime fecha)
+    {
+        var (estado, message) = await _comprobanteRepository.ActualizarFechaVenta(id, fecha);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<bool>.Of(message, true);
+    }
 }

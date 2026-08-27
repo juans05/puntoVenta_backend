@@ -34,4 +34,6 @@ public interface IComprobanteService
     Task<MessageResult<List<ConfiguracionFiscal>>> ObtenerConfiguracionesFiscalesActivas();
 
     Task<MessageResult<ConfiguracionFiscal>> ObtenerConfiguracionFiscalPorTenant(string tenant);
+
+    Task<MessageResult<bool>> ActualizarFechaVenta(int id, DateTime fecha);
 }

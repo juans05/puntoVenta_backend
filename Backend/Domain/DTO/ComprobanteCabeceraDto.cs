@@ -17,6 +17,7 @@ public class ComprobanteCabeceraDTO
     public string Correlativo { get; set; }
     public string NombreVendedor { get; set; }
     public string Fecha { get; set; }
+    public string FechaVenta { get; set; }
     public string EstadoComprobante { get; set; }
     public string EstadoEnvioSunat { get; set; }
     public bool? EsEcommerce { get; set; }
