@@ -50,4 +50,19 @@ public static class TestDbContextFactory
 
         return (context, connection);
     }
+
+    /// <summary>
+    /// EF Core InMemory provider: for read-only repositories that never call
+    /// BeginTransactionAsync. Needed because the SQLite provider can't translate
+    /// a decimal SUM over an arithmetic expression (Cantidad * CostoUnitario) -
+    /// a provider quirk, not a bug in the query (Npgsql handles it fine).
+    /// </summary>
+    public static SpaContext CreateInMemoryContext(ITenantResolver? tenantResolver = null)
+    {
+        var options = new DbContextOptionsBuilder<SpaContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new SpaContext(options, tenantResolver ?? new FakeTenantResolver());
+    }
 }

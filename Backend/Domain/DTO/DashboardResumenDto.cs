@@ -30,4 +30,16 @@ public class ProductoTopDto
     public decimal Total { get; set; }
     public decimal Costo { get; set; }
     public decimal Utilidad => Total - Costo;
+    public decimal MargenPorcentaje => Total == 0 ? 0 : Math.Round(Utilidad / Total * 100, 2);
+}
+
+public class ReporteMargenDto
+{
+    public string FechaInicio { get; set; } = null!;
+    public string FechaFin { get; set; } = null!;
+    public decimal TotalVentas { get; set; }
+    public decimal TotalCosto { get; set; }
+    public decimal TotalUtilidad => TotalVentas - TotalCosto;
+    public decimal MargenPorcentaje => TotalVentas == 0 ? 0 : Math.Round(TotalUtilidad / TotalVentas * 100, 2);
+    public List<ProductoTopDto> Productos { get; set; } = new();
 }

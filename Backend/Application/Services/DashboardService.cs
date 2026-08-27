@@ -27,4 +27,20 @@ public class DashboardService : IDashboardService
 
         return MessageResult<object>.Of(message, result);
     }
+
+    public async Task<MessageResult<object>> ReporteMargen(string? startDate, string? endDate)
+    {
+        var (estado, result, message) = await _dashboardRepository.ReporteMargen(startDate, endDate);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }

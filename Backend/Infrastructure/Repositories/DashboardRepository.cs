@@ -149,4 +149,53 @@ public class DashboardRepository : IDashboardRepository
             return (ServiceStatus.InternalError, null, $"Error al consultar dashboard -> {e.InnerException?.Message ?? e.Message}");
         }
     }
+
+    public async Task<(ServiceStatus, ReporteMargenDto?, string)> ReporteMargen(string? startDate, string? endDate)
+    {
+        try
+        {
+            var today = NowLocal().Date;
+
+            DateTime start = today.AddDays(-29); // por defecto, ultimos 30 dias
+            DateTime end = today;
+
+            if (!string.IsNullOrEmpty(startDate) && !DateTime.TryParse(startDate, out start))
+                return (ServiceStatus.FailedValidation, null, $"Error en formato de fecha - {startDate}");
+
+            if (!string.IsNullOrEmpty(endDate) && !DateTime.TryParse(endDate, out end))
+                return (ServiceStatus.FailedValidation, null, $"Error en formato de fecha - {endDate}");
+
+            var productos = await _context.ComprobanteDetalle.AsNoTracking()
+                .Include(d => d.Producto)
+                .Where(d => d.ComprobanteCabecera.FechaCreacion.Date >= start.Date
+                            && d.ComprobanteCabecera.FechaCreacion.Date <= end.Date
+                            && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                .GroupBy(d => new { d.ProductoId, Nombre = d.Producto != null ? d.Producto.Nombre : "N/A" })
+                .Select(g => new ProductoTopDto
+                {
+                    ProductoId = g.Key.ProductoId,
+                    Producto = g.Key.Nombre,
+                    Cantidad = g.Sum(x => x.Cantidad),
+                    Total = g.Sum(x => x.ValorUnitarioTotal),
+                    Costo = g.Sum(x => x.Cantidad * (x.Producto != null ? (x.Producto.CostoUnitario ?? 0) : 0))
+                })
+                .OrderByDescending(p => p.Total)
+                .ToListAsync();
+
+            var reporte = new ReporteMargenDto
+            {
+                FechaInicio = start.ToString("dd/MM/yyyy"),
+                FechaFin = end.ToString("dd/MM/yyyy"),
+                TotalVentas = productos.Sum(p => p.Total),
+                TotalCosto = productos.Sum(p => p.Costo),
+                Productos = productos
+            };
+
+            return (ServiceStatus.Ok, reporte, "Reporte de margen por producto");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error al consultar reporte de margen -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
 }

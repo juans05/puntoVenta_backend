@@ -16,4 +16,7 @@ public class DashboardController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> Resumen() => Ok(await _dashboardService.Resumen());
+
+    [HttpGet("reporte-margen")]
+    public async Task<IActionResult> ReporteMargen([FromQuery] string? startDate, [FromQuery] string? endDate) => Ok(await _dashboardService.ReporteMargen(startDate, endDate));
 }
