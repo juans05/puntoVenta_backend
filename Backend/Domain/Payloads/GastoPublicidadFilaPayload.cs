@@ -3,6 +3,7 @@ namespace Domain.Payloads;
 public class GastoPublicidadFilaPayload
 {
     public int? GrupoId { get; set; }
+    public bool Descartado { get; set; }
     public string NombreAnuncio { get; set; } = null!;
     public string? NombreConjuntoAnuncios { get; set; }
     public DateTime FechaInicio { get; set; }

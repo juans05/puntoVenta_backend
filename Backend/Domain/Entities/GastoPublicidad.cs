@@ -7,6 +7,9 @@ public class GastoPublicidad : EntityBase
     public int? GrupoId { get; set; }
     public Grupo? Grupo { get; set; }
 
+    // true = el anuncio fue marcado como "No va" por el usuario → se excluye del cálculo de ROI.
+    public bool Descartado { get; set; }
+
     public string NombreAnuncio { get; set; } = null!;
     public string? NombreConjuntoAnuncios { get; set; }
 

@@ -92,14 +92,15 @@ namespace Infrastructure.Repositories
                 cabecera.TotalLetras = DecimalExtensions.ConvertirNumeroALetras(payload.Total);
 
                 if (payload.TipoDocumentoVentaId == 1)
-                    cabecera.Serie = config?.SerieFactura ?? "FAC";
+                    cabecera.Serie = config?.SerieFactura ?? "F001";
                 else if (payload.TipoDocumentoVentaId == 2)
-                    cabecera.Serie = config?.SerieBoleta ?? "BOL";
+                    cabecera.Serie = config?.SerieBoleta ?? "B001";
                 else
-                    cabecera.Serie = config?.SerieNota ?? "TIN";
+                    cabecera.Serie = config?.SerieNota ?? "RC01";
 
 
-                var serieCorrelativo = await _context.Seriecorrelativo.Where(x => x.Serie == cabecera.Serie)
+                var serieCorrelativo = await _context.Seriecorrelativo.Where(x => x.Serie == cabecera.Serie
+                                                                              && x.TipoDocumentoVentaId == payload.TipoDocumentoVentaId)
                                                                       .AsTracking()
                                                                       .FirstOrDefaultAsync();
 

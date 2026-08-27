@@ -65,6 +65,7 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
             candidatas.Add(new GastoPublicidad
             {
                 GrupoId = fila.GrupoId,
+                Descartado = fila.Descartado,
                 NombreAnuncio = fila.NombreAnuncio,
                 NombreConjuntoAnuncios = fila.NombreConjuntoAnuncios,
                 FechaInicio = fila.FechaInicio,
@@ -77,7 +78,7 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                 Clics = fila.Clics,
                 CostoPorClic = fila.CostoPorClic,
                 LoteImportacionId = payload.LoteImportacionId,
-                HashAnuncio = CalcularHash(fila.NombreAnuncio, fila.FechaInicio, fila.FechaFin)
+                HashAnuncio = CalcularHash(fila.NombreAnuncio, fila.FechaInicio, fila.FechaFin, fila.GrupoId, fila.Descartado)
             });
         }
 
@@ -115,9 +116,9 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
         }
     }
 
-    private static string CalcularHash(string nombreAnuncio, DateTime fechaInicio, DateTime fechaFin)
+    private static string CalcularHash(string nombreAnuncio, DateTime fechaInicio, DateTime fechaFin, int? grupoId, bool descartado)
     {
-        var input = $"{nombreAnuncio}|{fechaInicio:O}|{fechaFin:O}";
+        var input = $"{nombreAnuncio}|{fechaInicio:O}|{fechaFin:O}|{grupoId?.ToString() ?? "null"}|{descartado}";
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
         return Convert.ToHexString(bytes);
     }
@@ -126,7 +127,10 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
     {
         try
         {
-            var query = _context.GastoPublicidad.AsNoTracking().Include(g => g.Grupo).AsQueryable();
+            var query = _context.GastoPublicidad.AsNoTracking()
+                .Include(g => g.Grupo)
+                .Where(g => !g.Descartado)
+                .AsQueryable();
 
             if (payload.Desde.HasValue)
                 query = query.Where(g => g.FechaFin >= payload.Desde.Value);
@@ -173,6 +177,10 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                     .ToList();
 
                 var gastoAds = grupo.Sum(a => a.ImporteGastado);
+                var impresiones = grupo.Sum(a => a.Impresiones ?? 0);
+                var alcance = grupo.Sum(a => a.Alcance ?? 0);
+                var clics = grupo.Sum(a => a.Clics ?? 0);
+                var costoPorClic = clics > 0 ? gastoAds / clics : (decimal?)null;
                 var ingresos = ventasEnRango.Sum(d => d.ValorUnitarioTotal);
                 var costoProducto = ventasEnRango.Sum(d => d.Cantidad * (d.CostoUnitario ?? 0));
                 var utilidadNeta = ingresos - costoProducto - gastoAds;
@@ -182,6 +190,10 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                     GrupoId = grupo.Key,
                     NombreGrupo = grupo.Key.HasValue ? grupo.First().Grupo?.Nombre : "Sin grupo asignado",
                     GastoAds = gastoAds,
+                    Impresiones = impresiones > 0 ? impresiones : null,
+                    Alcance = alcance > 0 ? alcance : null,
+                    Clics = clics > 0 ? clics : null,
+                    CostoPorClic = costoPorClic,
                     Ingresos = ingresos,
                     CostoProducto = costoProducto,
                     UtilidadNeta = utilidadNeta,
@@ -215,7 +227,8 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                 .Select(g => new MapeoAnuncioDto
                 {
                     NombreAnuncio = g.Key,
-                    GrupoId = g.OrderByDescending(x => x.FechaFin).ThenByDescending(x => x.Id).First().GrupoId
+                    GrupoId = g.OrderByDescending(x => x.FechaFin).ThenByDescending(x => x.Id).First().GrupoId,
+                    Descartado = g.OrderByDescending(x => x.FechaFin).ThenByDescending(x => x.Id).First().Descartado
                 })
                 .ToListAsync();
 
