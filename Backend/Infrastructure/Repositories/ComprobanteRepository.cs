@@ -104,9 +104,18 @@ namespace Infrastructure.Repositories
                                                                       .AsTracking()
                                                                       .FirstOrDefaultAsync();
 
-
                 if (serieCorrelativo == null)
-                    return (ServiceStatus.FailedValidation, null, "No se encontro correlativo");
+                {
+                    // Falta si el tenant/sucursal no llegó a sembrarse (tenant nuevo, sucursal
+                    // creada luego del seed inicial): se crea aquí en vez de bloquear la venta.
+                    serieCorrelativo = new Seriecorrelativo
+                    {
+                        Serie = cabecera.Serie,
+                        TipoDocumentoVentaId = payload.TipoDocumentoVentaId,
+                        Correlativo = 0
+                    };
+                    await _context.Seriecorrelativo.AddAsync(serieCorrelativo);
+                }
 
                 serieCorrelativo.Correlativo++;
 

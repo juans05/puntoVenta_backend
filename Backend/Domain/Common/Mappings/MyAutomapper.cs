@@ -29,7 +29,8 @@ namespace Domain.Common.Mappings
                                                                                      src.EstadoComprobante == EstatusComprobante.Facturado ? "FACTURADO" : "ANULADO"))
 
                 .ForMember(dest => dest.Correlativo, opt => opt.MapFrom(src => src.Correlativo.ToString().PadLeft(7, '0')))
-                .ForMember(dest => dest.Fecha, opt => opt.MapFrom(src => src.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")));
+                .ForMember(dest => dest.Fecha, opt => opt.MapFrom(src => src.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")))
+                .ForMember(dest => dest.FechaVenta, opt => opt.MapFrom(src => (src.FechaVenta ?? src.FechaCreacion).ToString("dd/MM/yyyy HH:mm:ss")));
 
 
             CreateMap<ComprobanteDetalle, ComprobanteDetalleDTO>()
@@ -42,7 +43,7 @@ namespace Domain.Common.Mappings
 
             CreateMap<Cliente, ClienteDto>()
                 .ForMember(dest => dest.Sexo, opt => opt.MapFrom(src => src.Sexo == "M" ? "MASCULINO" : "FEMENINO"))
-                .ForMember(dest => dest.FechaNacimiento, opt => opt.MapFrom(src => src.FechaNacimiento.Value.ToString("dd/MM/yyyy")));
+                .ForMember(dest => dest.FechaNacimiento, opt => opt.MapFrom(src => src.FechaNacimiento.HasValue ? src.FechaNacimiento.Value.ToString("dd/MM/yyyy") : null));
 
             CreateMap<Retiros, RetiroDto>();
 
