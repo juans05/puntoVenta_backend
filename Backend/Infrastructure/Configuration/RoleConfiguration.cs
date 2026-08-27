@@ -10,7 +10,12 @@ namespace Infrastructure.Configuration
         {
             entityBuilder.HasKey(x => x.Id);
 
-            entityBuilder.Property(x => x.Prioridad).HasDefaultValue(100);
+            // Sin HasDefaultValue: con ese annotation, EF Core omite la columna del INSERT
+            // cuando el valor en memoria coincide con el default de CLR para el tipo (0 para
+            // int), y deja que la BD aplique su propio default (100) - lo que pisa en
+            // silencio cualquier rol creado con Prioridad = 0 (la maxima prioridad posible).
+            // El default de aplicacion ya vive en CreateRolePayload/UpdateRolePayload.
+            entityBuilder.Property(x => x.Prioridad);
 
             entityBuilder.HasMany(e => e.UserRoles)
                          .WithOne(e => e.Role)
