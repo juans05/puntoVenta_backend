@@ -26,4 +26,7 @@ public class CompraController : ControllerBase
 
     [HttpGet("{id}")]
     public async Task<IActionResult> ObtenerCompra(int id) => Ok(await _compraService.ObtenerCompra(id));
+
+    [HttpPut("modificar-fecha/{id}")]
+    public async Task<IActionResult> ActualizarFechaCompra(int id, [FromBody] ActualizarFechaPayload payload) => Ok(await _compraService.ActualizarFechaCompra(id, payload.Fecha));
 }

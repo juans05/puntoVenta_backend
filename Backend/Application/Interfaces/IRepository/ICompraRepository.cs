@@ -14,4 +14,6 @@ public interface ICompraRepository
     Task<(ServiceStatus, DataCollection<CompraDto>?, string)> ListarCompras(CompraQueryParams payload);
 
     Task<(ServiceStatus, CompraDto?, string)> ObtenerCompra(int id);
+
+    Task<(ServiceStatus, string)> ActualizarFechaCompra(int id, DateTime fecha);
 }

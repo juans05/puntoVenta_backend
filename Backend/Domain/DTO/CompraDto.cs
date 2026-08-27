@@ -10,6 +10,7 @@ public class CompraDto
     public int? MetodoPagoId { get; set; }
     public string? MetodoPago { get; set; }
     public string Estado { get; set; } = null!;
+    public string FechaRegistro { get; set; } = null!;
     public string FechaCompra { get; set; } = null!;
     public string? Observacion { get; set; }
     public string? Usuario { get; set; }

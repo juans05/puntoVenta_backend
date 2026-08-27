@@ -72,4 +72,20 @@ public class CompraService : ICompraService
 
         return MessageResult<object>.Of(message, result);
     }
+
+    public async Task<MessageResult<bool>> ActualizarFechaCompra(int id, DateTime fecha)
+    {
+        var (estado, message) = await _compraRepository.ActualizarFechaCompra(id, fecha);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<bool>.Of(message, true);
+    }
 }

@@ -12,4 +12,6 @@ public interface ICompraService
     Task<MessageResult<object>> ListarCompras(CompraQueryParams payload);
 
     Task<MessageResult<object>> ObtenerCompra(int id);
+
+    Task<MessageResult<bool>> ActualizarFechaCompra(int id, DateTime fecha);
 }

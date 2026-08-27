@@ -60,7 +60,7 @@ public class CompraRepository : ICompraRepository
                 MetodoPagoId = payload.MetodoPagoId,
                 Observacion = payload.Observacion,
                 Estado = "CONFIRMADO",
-                FechaCompra = NowLocal()
+                FechaCompra = payload.FechaCompra ?? NowLocal()
             };
 
             await _context.Compra.AddAsync(compra);
@@ -177,7 +177,7 @@ public class CompraRepository : ICompraRepository
     {
         try
         {
-            var query = _context.Compra.AsNoTracking().AsQueryable();
+            var query = _context.Compra.AsNoTracking().Where(c => c.Estado != "ANULADO").AsQueryable();
 
             if (payload.ProveedorId.HasValue)
                 query = query.Where(c => c.ProveedorId == payload.ProveedorId);
@@ -221,5 +221,22 @@ public class CompraRepository : ICompraRepository
             return (ServiceStatus.NotFound, null, $"No se encontro la compra {id}");
 
         return (ServiceStatus.Ok, dto, "Success");
+    }
+
+    public async Task<(ServiceStatus, string)> ActualizarFechaCompra(int id, DateTime fecha)
+    {
+        var compra = await _context.Compra.AsTracking().FirstOrDefaultAsync(c => c.Id == id);
+
+        if (compra == null)
+            return (ServiceStatus.NotFound, $"No se encontro la compra {id}");
+
+        if (compra.Estado == "ANULADO")
+            return (ServiceStatus.FailedValidation, "No se puede modificar la fecha de una compra anulada");
+
+        compra.FechaCompra = fecha;
+
+        await _context.SaveChangesAsync();
+
+        return (ServiceStatus.Ok, "Fecha actualizada correctamente");
     }
 }
