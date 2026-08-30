@@ -72,7 +72,7 @@ namespace Infrastructure.Repositories
 
                 var cabecera = _mapper.Map<ComprobanteCabecera>(payload);
 
-                cabecera.FechaVenta = DateTime.UtcNow.AddHours(-5);
+                cabecera.FechaVenta = payload.FechaVenta ?? DateTime.UtcNow.AddHours(-5);
 
                 var (_, config) = await ObtenerConfiguracionFiscalPorTenant(_context.CurrentTenantName);
 

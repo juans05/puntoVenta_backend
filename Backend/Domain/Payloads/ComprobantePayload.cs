@@ -8,6 +8,7 @@ namespace Domain.Payloads
         public string? RazonSocial { get; set; }
 
         public decimal Total { get; set; }
+        public DateTime? FechaVenta { get; set; }
         public bool? EsEcommerce { get; set; }
         public string? TipoEnvio { get; set; }
         public string? Distrito { get; set; }
