@@ -49,8 +49,9 @@ namespace Infrastructure.Repositories
             {
                 var sumatoria = payload.DetalleComprobante.Sum(q => q.ValorUnitario * q.Cantidad);
 
-
-                if (payload.Total != sumatoria)
+                // El total llega desde JS (suma en punto flotante, ej. 121.80000000000001) --
+                // se redondea a centimos antes de comparar contra la suma exacta en decimal.
+                if (Math.Round(payload.Total, 2) != Math.Round(sumatoria, 2))
                     return (ServiceStatus.FailedValidation, null, "El total no coincide con la suma de los detalles");
 
 
