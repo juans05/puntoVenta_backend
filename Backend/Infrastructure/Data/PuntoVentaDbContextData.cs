@@ -268,9 +268,19 @@ namespace Infrastructure.Data
                 configuracionFiscal.ForEach(x =>
                 {
                     x.TenantId = tenantId;
-                    if (tenantId == "SPASOLIS1" && string.IsNullOrEmpty(x.Ruc))
+                    if (tenantId != "SPASOLIS1")
                     {
-                        // solo seed de demostración; se rellenará vía UI/onboarding
+                        // El JSON solo trae la identidad de demostración (SPASOLIS1).
+                        // Para cualquier otro tenant no se hereda: se completa desde "Mi Negocio",
+                        // que sincroniza este registro al guardar (ver TenantRepository.UpdateTenant).
+                        x.Ruc = null;
+                        x.RazonSocial = null;
+                        x.NombreComercial = null;
+                        x.Direccion = null;
+                        x.UbigeoId = null;
+                        x.Departamento = null;
+                        x.Provincia = null;
+                        x.Distrito = null;
                     }
                 });
                 await context.ConfiguracionFiscal!.AddRangeAsync(configuracionFiscal);

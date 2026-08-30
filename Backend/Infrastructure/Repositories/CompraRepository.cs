@@ -239,4 +239,107 @@ public class CompraRepository : ICompraRepository
 
         return (ServiceStatus.Ok, "Fecha actualizada correctamente");
     }
+
+    public async Task<(ServiceStatus, CompraDto?, string)> ActualizarCompra(int id, CreateCompraPayload payload)
+    {
+        if (payload.Detalle == null || payload.Detalle.Count == 0)
+            return (ServiceStatus.FailedValidation, null, "La compra debe incluir al menos un producto");
+
+        var compra = await _context.Compra.AsTracking()
+                                    .Include(c => c.CompraDetalles)
+                                    .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (compra == null)
+            return (ServiceStatus.NotFound, null, $"No se encontro la compra {id}");
+
+        if (compra.Estado == "ANULADO")
+            return (ServiceStatus.FailedValidation, null, "No se puede editar una compra anulada");
+
+        await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            // Revertir el stock de los productos de la compra tal como estaba registrada.
+            foreach (var item in compra.CompraDetalles)
+            {
+                var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
+
+                if (producto == null) continue;
+
+                var stockAnterior = producto.Stock ?? 0;
+                var stockNuevo = stockAnterior - item.Cantidad;
+
+                if (stockNuevo < 0)
+                    return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para editar la compra: el producto {producto.Nombre} ya no tiene suficiente stock para revertir la cantidad original");
+
+                producto.Stock = stockNuevo;
+
+                _context.InventoryMovement.Add(new InventoryMovement
+                {
+                    ProductoId = producto.Id,
+                    TipoMovimiento = (int)TipoMovimientoInventario.DevolucionCompra,
+                    Cantidad = item.Cantidad,
+                    StockAnterior = stockAnterior,
+                    StockPosterior = stockNuevo,
+                    ReferenciaTipo = "CompraEditada",
+                    ReferenciaId = compra.Id
+                });
+            }
+
+            _context.CompraDetalle.RemoveRange(compra.CompraDetalles);
+
+            var nuevoDetalle = payload.Detalle.Select(d => new CompraDetalle
+            {
+                CompraId = compra.Id,
+                ProductoId = d.ProductoId,
+                Cantidad = d.Cantidad,
+                CostoUnitario = d.CostoUnitario
+            }).ToList();
+
+            compra.ProveedorId = payload.ProveedorId;
+            compra.MetodoPagoId = payload.MetodoPagoId;
+            compra.Observacion = payload.Observacion;
+            compra.FechaCompra = payload.FechaCompra ?? compra.FechaCompra;
+            compra.Total = nuevoDetalle.Sum(d => d.Cantidad * d.CostoUnitario);
+
+            await _context.CompraDetalle.AddRangeAsync(nuevoDetalle);
+            await _context.SaveChangesAsync();
+
+            // Aplicar el stock de los productos con la nueva composición de la compra.
+            foreach (var item in nuevoDetalle)
+            {
+                var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
+
+                if (producto == null)
+                    return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
+
+                var stockAnterior = producto.Stock ?? 0;
+                producto.Stock = stockAnterior + item.Cantidad;
+                producto.CostoUnitario = item.CostoUnitario;
+
+                _context.InventoryMovement.Add(new InventoryMovement
+                {
+                    ProductoId = producto.Id,
+                    TipoMovimiento = (int)TipoMovimientoInventario.Compra,
+                    Cantidad = item.Cantidad,
+                    StockAnterior = stockAnterior,
+                    StockPosterior = producto.Stock.Value,
+                    ReferenciaTipo = "CompraEditada",
+                    ReferenciaId = compra.Id
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await _context.Database.CommitTransactionAsync();
+
+            var (_, dto, _) = await ObtenerCompra(compra.Id);
+
+            return (ServiceStatus.Ok, dto, "Compra actualizada correctamente");
+        }
+        catch (Exception e)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            return (ServiceStatus.FailedValidation, null, $"Error al editar compra -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
 }

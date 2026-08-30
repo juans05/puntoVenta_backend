@@ -203,4 +203,79 @@ public class GastoRepository : IGastoRepository
             return (ServiceStatus.InternalError, null, $"Error al listar gastos -> {e.InnerException?.Message ?? e.Message}");
         }
     }
+
+    public async Task<(ServiceStatus, ImportarGastoResultDto?, string)> Importar(ImportarGastoPayload payload)
+    {
+        if (payload.Filas == null || payload.Filas.Count == 0)
+            return (ServiceStatus.FailedValidation, null, "No hay filas para importar");
+
+        var metodosPago = await _context.Metodopago.AsNoTracking().ToListAsync();
+
+        var errores = new List<string>();
+        var candidatas = new List<Gasto>();
+
+        for (var i = 0; i < payload.Filas.Count; i++)
+        {
+            var fila = payload.Filas[i];
+
+            if (string.IsNullOrWhiteSpace(fila.Categoria))
+            {
+                errores.Add($"Fila {i + 1}: la categoría es obligatoria");
+                continue;
+            }
+
+            if (fila.Monto <= 0)
+            {
+                errores.Add($"Fila {i + 1}: el monto debe ser mayor a 0");
+                continue;
+            }
+
+            if (fila.FechaGasto == default)
+            {
+                errores.Add($"Fila {i + 1}: la fecha es obligatoria");
+                continue;
+            }
+
+            int? metodoPagoId = null;
+            if (!string.IsNullOrWhiteSpace(fila.MetodoPago))
+            {
+                var metodo = metodosPago.FirstOrDefault(m =>
+                    string.Equals(m.Nombre, fila.MetodoPago, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(m.Descripcion, fila.MetodoPago, StringComparison.OrdinalIgnoreCase));
+
+                if (metodo == null)
+                {
+                    errores.Add($"Fila {i + 1}: el método de pago '{fila.MetodoPago}' no existe");
+                    continue;
+                }
+
+                metodoPagoId = metodo.Id;
+            }
+
+            candidatas.Add(new Gasto
+            {
+                Categoria = fila.Categoria.Trim(),
+                Descripcion = fila.Descripcion?.Trim() ?? string.Empty,
+                Monto = fila.Monto,
+                MetodoPagoId = metodoPagoId,
+                Estado = "CONFIRMADO",
+                FechaGasto = fila.FechaGasto
+            });
+        }
+
+        if (errores.Count > 0)
+            return (ServiceStatus.FailedValidation, null, string.Join(" | ", errores));
+
+        try
+        {
+            await _context.Gasto.AddRangeAsync(candidatas);
+            await _context.SaveChangesAsync();
+
+            return (ServiceStatus.Ok, new ImportarGastoResultDto { FilasInsertadas = candidatas.Count }, "Importación completada");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error al importar gastos -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
 }

@@ -53,6 +53,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<AspNetModule> AspNetModule => Set<AspNetModule>();
     public DbSet<AspNetSubModule> AspNetSubModule => Set<AspNetSubModule>();
     public DbSet<AspNetUserSubModule> AspNetUserSubModule => Set<AspNetUserSubModule>();
+    public DbSet<RoleSubmodule> RoleSubmodule => Set<RoleSubmodule>();
     public DbSet<Nacionalidad> Nacionalidad => Set<Nacionalidad>();
     public DbSet<Caja> Caja => Set<Caja>();
     public DbSet<CajaFisica> CajaFisica => Set<CajaFisica>();
@@ -102,6 +103,8 @@ public class SpaContext : IdentityDbContext<User, Role, string>
 
         //modelBuilder.Entity<AspNetSubModule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<AspNetUserSubModule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<Role>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<RoleSubmodule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Nacionalidad>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Caja>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<CajaFisica>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
@@ -134,6 +137,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         new RoleConfiguration(modelBuilder.Entity<Role>());
         new ComprobanteCabeceraConfiguration(modelBuilder.Entity<ComprobanteCabecera>());
         new UserSubmoduleConfiguration(modelBuilder.Entity<AspNetUserSubModule>());
+        new RoleSubmoduleConfiguration(modelBuilder.Entity<RoleSubmodule>());
         new SubmoduleConfiguration(modelBuilder.Entity<AspNetSubModule>());
         new ModuleConfiguration(modelBuilder.Entity<AspNetModule>());
         new UbigeoConfiguration(modelBuilder.Entity<Ubigeo>());

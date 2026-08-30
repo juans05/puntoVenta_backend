@@ -35,4 +35,7 @@ public class GastoController : ControllerBase
 
     [HttpPut("categorias/{id}/estado")]
     public async Task<IActionResult> CambiarEstadoCategoria(int id, [FromBody] SetEstadoPayload payload) => Ok(await _gastoService.CambiarEstadoCategoria(id, payload.Estado));
+
+    [HttpPost("importar")]
+    public async Task<IActionResult> Importar([FromBody] ImportarGastoPayload payload) => Ok(await _gastoService.Importar(payload));
 }
