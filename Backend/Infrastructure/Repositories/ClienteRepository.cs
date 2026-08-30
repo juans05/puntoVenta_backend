@@ -134,7 +134,7 @@ public class ClienteRepository :  IClienteRepository
                 {
                     lista = await dbContext.Cliente.AsNoTracking()
                         .Include(i => i.Ubigeo)
-                        .Where(p => p.Nombre.Contains(payload.Value))
+                        .Where(p => EF.Functions.ILike(p.Nombre, $"%{payload.Value}%"))
                         .ProjectTo<ClienteDto>(mapper.ConfigurationProvider)
                         .GetPagedAsync(payload.Page, payload.Amount);
                 }
