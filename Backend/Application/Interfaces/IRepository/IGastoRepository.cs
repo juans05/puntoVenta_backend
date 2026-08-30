@@ -20,4 +20,6 @@ public interface IGastoRepository
     Task<(ServiceStatus, object?, string)> CrearCategoria(CreateCategoriaGastoPayload payload);
 
     Task<(ServiceStatus, string)> CambiarEstadoCategoria(int id, bool estado);
+
+    Task<(ServiceStatus, ImportarGastoResultDto?, string)> Importar(ImportarGastoPayload payload);
 }

@@ -88,4 +88,20 @@ public class CompraService : ICompraService
 
         return MessageResult<bool>.Of(message, true);
     }
+
+    public async Task<MessageResult<object>> ActualizarCompra(int id, CreateCompraPayload payload)
+    {
+        var (estado, result, message) = await _compraRepository.ActualizarCompra(id, payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }

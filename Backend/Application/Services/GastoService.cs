@@ -112,4 +112,18 @@ public class GastoService : IGastoService
 
         return MessageResult<bool>.Of(message, true);
     }
+
+    public async Task<MessageResult<object>> Importar(ImportarGastoPayload payload)
+    {
+        var (estado, result, message) = await _gastoRepository.Importar(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }

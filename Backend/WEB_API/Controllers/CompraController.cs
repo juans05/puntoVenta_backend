@@ -29,4 +29,7 @@ public class CompraController : ControllerBase
 
     [HttpPut("modificar-fecha/{id}")]
     public async Task<IActionResult> ActualizarFechaCompra(int id, [FromBody] ActualizarFechaPayload payload) => Ok(await _compraService.ActualizarFechaCompra(id, payload.Fecha));
+
+    [HttpPut("actualizar/{id}")]
+    public async Task<IActionResult> ActualizarCompra(int id, [FromBody] CreateCompraPayload payload) => Ok(await _compraService.ActualizarCompra(id, payload));
 }

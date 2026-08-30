@@ -1,0 +1,9 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - heading "Caja" [level=5] [ref=e5]
+    - paragraph [ref=e6]: Upps !!! Aún no haz abierto tu caja para poder operar las ventas
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]: Monto de apertura
+      - spinbutton [ref=e12]: "0"
+    - button "Aperturar Caja" [ref=e13] [cursor=pointer]

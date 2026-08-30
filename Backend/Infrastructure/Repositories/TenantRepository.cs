@@ -436,6 +436,28 @@ public class TenantRepository : ITenantRepository
 
             await dbContext.SaveChangesAsync();
 
+            // Mantiene la identidad fiscal (la que se usa para emitir comprobantes ante SUNAT)
+            // sincronizada con los datos del negocio que el usuario acaba de guardar aquí.
+            var configFiscal = await dbContext.ConfiguracionFiscal.FirstOrDefaultAsync(c => c.EmpresaId == entity.Id);
+            if (configFiscal != null)
+            {
+                var ubigeo = entity.UbigeoId != null
+                    ? await dbContext.Ubigeo.FirstOrDefaultAsync(u => u.UbigeoId == entity.UbigeoId)
+                    : null;
+
+                configFiscal.Ruc = entity.Ruc;
+                configFiscal.RazonSocial = entity.RazonSocial;
+                configFiscal.NombreComercial = entity.NombreComercial;
+                configFiscal.Direccion = entity.Direccion;
+                configFiscal.UbigeoId = entity.UbigeoId;
+                configFiscal.Departamento = ubigeo?.Departamento;
+                configFiscal.Provincia = ubigeo?.Provincia;
+                configFiscal.Distrito = ubigeo?.Distrito;
+
+                dbContext.Entry(configFiscal).State = EntityState.Modified;
+                await dbContext.SaveChangesAsync();
+            }
+
             return (ServiceStatus.Ok, entity, "Success");
         }
         catch (Exception ex)

@@ -18,4 +18,6 @@ public interface IGastoService
     Task<MessageResult<object>> CrearCategoria(CreateCategoriaGastoPayload payload);
 
     Task<MessageResult<bool>> CambiarEstadoCategoria(int id, bool estado);
+
+    Task<MessageResult<object>> Importar(ImportarGastoPayload payload);
 }
