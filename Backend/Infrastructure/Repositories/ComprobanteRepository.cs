@@ -267,12 +267,16 @@ namespace Infrastructure.Repositories
 
             try
             {
+                // La Nota de venta no es un comprobante fiscal (no tiene tipoDoc SUNAT propio) y
+                // nunca debe enviarse a SUNAT -- solo Boleta/Factura pasan por este job.
                 var lista = await _context.ComprobanteCabecera.Include(x => x.ComprobanteDetalles).ThenInclude(x => x.Producto)
                                                               .AsNoTracking()
                                                               .IgnoreQueryFilters()
                                                               .Where(x => x.TenantId == tenant &&
                                                                           x.EstadoComprobante == EstatusComprobante.Creado &&
-                                                                          x.EnviadoSunat == EstatusEnvioSunat.Pendiente)
+                                                                          x.EnviadoSunat == EstatusEnvioSunat.Pendiente &&
+                                                                          (x.TipoDocumentoVentaId == (int)TipoComprobante.Factura ||
+                                                                           x.TipoDocumentoVentaId == (int)TipoComprobante.Boleta))
                                                               .OrderByDescending(x => x.FechaCreacion)
                                                               .ToListAsync();
 

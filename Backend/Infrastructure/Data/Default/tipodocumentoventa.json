@@ -8,6 +8,11 @@
     "id": 2,
     "nombre": "Factura",
     "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 3,
+    "nombre": "Nota de venta",
+    "usuarioCreacion": "Admin"
   }
 
 ]
