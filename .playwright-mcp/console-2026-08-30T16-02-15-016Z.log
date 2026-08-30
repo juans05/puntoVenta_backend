@@ -1,7 +1,0 @@
-[    8361ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-GVSLPJMJ.js?v=d385a6ea:21535
-[    8824ms] [LOG] null @ http://localhost:3000/src/presentation/views/Login/index.tsx:67
-[    8824ms] [LOG] null @ http://localhost:3000/src/presentation/views/Login/index.tsx:68
-[    8824ms] [LOG] null @ http://localhost:3000/src/presentation/views/Login/index.tsx:100
-[    8852ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/:0
-[    9267ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://puntoventabackend-production.up.railway.app/api/tenant/recursos:0
-[    9269ms] [LOG] AxiosError @ http://localhost:3000/src/redux/reducers/Admin/my-business/myBusiness.reducer.ts:183
