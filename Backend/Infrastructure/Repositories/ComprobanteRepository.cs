@@ -71,6 +71,10 @@ namespace Infrastructure.Repositories
                     return (ServiceStatus.FailedValidation, null, "Por favor, ingrese el nombre");
 
 
+                // Normaliza a centimos una sola vez: payload.Total llega desde JS (puede traer
+                // ruido de punto flotante) y todo lo que sigue se calcula a partir de este valor.
+                payload.Total = Math.Round(payload.Total, 2);
+
                 var cabecera = _mapper.Map<ComprobanteCabecera>(payload);
 
                 cabecera.FechaVenta = payload.FechaVenta ?? DateTime.UtcNow.AddHours(-5);

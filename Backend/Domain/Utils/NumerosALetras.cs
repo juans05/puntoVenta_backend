@@ -11,8 +11,10 @@ public static class DecimalExtensions
 
     public static string ConvertirNumeroALetras(decimal numero)
     {
+        numero = Math.Round(numero, 2);
+
         int parteEntera = (int)numero;
-        int parteDecimal = (int)((numero - parteEntera) * 100);
+        int parteDecimal = (int)Math.Round((numero - parteEntera) * 100);
 
         StringBuilder resultado = new StringBuilder();
 
