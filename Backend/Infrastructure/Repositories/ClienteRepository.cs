@@ -132,9 +132,16 @@ public class ClienteRepository :  IClienteRepository
                 }
                 else
                 {
+                    // Escapar los comodines de LIKE/ILIKE (%, _ y el propio escape \) para que
+                    // se busquen como texto literal y no alteren el patron de busqueda.
+                    var searchTerm = payload.Value
+                        .Replace("\\", "\\\\")
+                        .Replace("%", "\\%")
+                        .Replace("_", "\\_");
+
                     lista = await dbContext.Cliente.AsNoTracking()
                         .Include(i => i.Ubigeo)
-                        .Where(p => EF.Functions.ILike(p.Nombre, $"%{payload.Value}%"))
+                        .Where(p => EF.Functions.ILike(p.Nombre, $"%{searchTerm}%"))
                         .ProjectTo<ClienteDto>(mapper.ConfigurationProvider)
                         .GetPagedAsync(payload.Page, payload.Amount);
                 }
