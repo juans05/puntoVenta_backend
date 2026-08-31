@@ -14,9 +14,9 @@ public class DashboardService : IDashboardService
         _dashboardRepository = dashboardRepository;
     }
 
-    public async Task<MessageResult<object>> Resumen()
+    public async Task<MessageResult<object>> Resumen(int dias = 7)
     {
-        var (estado, result, message) = await _dashboardRepository.Resumen();
+        var (estado, result, message) = await _dashboardRepository.Resumen(dias);
 
         if (estado != ServiceStatus.Ok)
             throw new ErrorHandler(

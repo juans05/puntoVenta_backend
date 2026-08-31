@@ -29,12 +29,14 @@ public class DashboardRepository : IDashboardRepository
 
     private DateTime NowLocal() => DateTimeHelper.LocalNow(PaisIdClaim);
 
-    public async Task<(ServiceStatus, DashboardResumenDto?, string)> Resumen()
+    public async Task<(ServiceStatus, DashboardResumenDto?, string)> Resumen(int dias = 7)
     {
         try
         {
+            dias = Math.Clamp(dias, 1, 365);
+
             var today = NowLocal().Date;
-            var start7 = today.AddDays(-6);
+            var start7 = today.AddDays(-(dias - 1));
             var usernameHoy = _httpContextAccessor?.HttpContext?.User.FindFirstValue("username")?.ToUpper();
 
             var ventasHoy = await _context.ComprobanteCabecera.AsNoTracking()
@@ -82,7 +84,7 @@ public class DashboardRepository : IDashboardRepository
                 .OrderBy(g => g.Fecha)
                 .ToListAsync();
 
-            var ventasUltimos7Dias = Enumerable.Range(0, 7)
+            var ventasUltimos7Dias = Enumerable.Range(0, dias)
                 .Select(offset =>
                 {
                     var dia = start7.AddDays(offset);
