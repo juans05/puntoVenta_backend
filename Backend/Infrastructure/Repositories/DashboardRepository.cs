@@ -68,7 +68,27 @@ public class DashboardRepository : IDashboardRepository
                             && x.FechaCreacion.Date == today && x.FechaHoraCierre == null)
                 .SumAsync(x => (decimal?)x.MontoInicio) ?? 0;
 
-            var saldoEsperado = saldoInicial + ventasHoy + otrosIngresosHoy - gastosHoy - comprasHoy;
+            // Saldo esperado en caja = efectivo que realmente entro/salio hoy, asi que va por
+            // FechaCreacion (cuando se registro el movimiento) y no por la fecha de venta/gasto/
+            // compra (que puede estar backdateada). Usar ventasHoy/gastosHoy/comprasHoy aqui
+            // desalinea el saldo del efectivo real cuando alguien corrige esas fechas.
+            var cobrosHoy = await _context.Pago.AsNoTracking()
+                .Where(p => p.FechaCreacion.Date == today && p.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                .SumAsync(p => (decimal?)p.Monto) ?? 0;
+
+            var gastosRegistradosHoy = await _context.Gasto.AsNoTracking()
+                .Where(g => g.Estado == "CONFIRMADO" && g.FechaCreacion.Date == today)
+                .SumAsync(g => (decimal?)g.Monto) ?? 0;
+
+            var comprasRegistradasHoy = await _context.Compra.AsNoTracking()
+                .Where(c => c.Estado == "CONFIRMADO" && c.FechaCreacion.Date == today)
+                .SumAsync(c => (decimal?)c.Total) ?? 0;
+
+            var otrosIngresosRegistradosHoy = await _context.Ingreso.AsNoTracking()
+                .Where(i => i.Estado == "CONFIRMADO" && i.FechaCreacion.Date == today)
+                .SumAsync(i => (decimal?)i.Monto) ?? 0;
+
+            var saldoEsperado = saldoInicial + cobrosHoy + otrosIngresosRegistradosHoy - gastosRegistradosHoy - comprasRegistradasHoy;
 
             var stockTotal = await _context.Producto.AsNoTracking()
                 .Where(p => p.Estado)
