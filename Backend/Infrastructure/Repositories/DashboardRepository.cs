@@ -39,20 +39,24 @@ public class DashboardRepository : IDashboardRepository
             var start7 = today.AddDays(-(dias - 1));
             var usernameHoy = _httpContextAccessor?.HttpContext?.User.FindFirstValue("username")?.ToUpper();
 
+            // "Hoy" en estos indicadores en realidad cubre el periodo elegido (start7..today, 1 dia
+            // por defecto) para que Gastos/Compras que se registran hoy con fecha real backdateada
+            // (ej. importados por Excel) se reflejen al ampliar el periodo, igual que el grafico de
+            // ventas. Van por la fecha real de la transaccion (venta/gasto/compra), no de registro.
             var ventasHoy = await _context.ComprobanteCabecera.AsNoTracking()
-                .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date == today && c.EstadoComprobante != EstatusComprobante.Anulado)
+                .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date >= start7 && (c.FechaVenta ?? c.FechaCreacion).Date <= today && c.EstadoComprobante != EstatusComprobante.Anulado)
                 .SumAsync(c => (decimal?)c.ValorTotal) ?? 0;
 
             var gastosHoy = await _context.Gasto.AsNoTracking()
-                .Where(g => g.Estado == "CONFIRMADO" && g.FechaGasto.Date == today)
+                .Where(g => g.Estado == "CONFIRMADO" && g.FechaGasto.Date >= start7 && g.FechaGasto.Date <= today)
                 .SumAsync(g => (decimal?)g.Monto) ?? 0;
 
             var comprasHoy = await _context.Compra.AsNoTracking()
-                .Where(c => c.Estado == "CONFIRMADO" && c.FechaCompra.Date == today)
+                .Where(c => c.Estado == "CONFIRMADO" && c.FechaCompra.Date >= start7 && c.FechaCompra.Date <= today)
                 .SumAsync(c => (decimal?)c.Total) ?? 0;
 
             var otrosIngresosHoy = await _context.Ingreso.AsNoTracking()
-                .Where(i => i.Estado == "CONFIRMADO" && i.FechaIngreso.Date == today)
+                .Where(i => i.Estado == "CONFIRMADO" && i.FechaIngreso.Date >= start7 && i.FechaIngreso.Date <= today)
                 .SumAsync(i => (decimal?)i.Monto) ?? 0;
 
             // Costo real (CompraDetalle.CostoUnitario, guardado en Producto.CostoUnitario en cada compra),
@@ -60,7 +64,7 @@ public class DashboardRepository : IDashboardRepository
             // estimada saliera siempre negativa (≈ -gastosHoy), sin reflejar el margen real.
             var costoVentasHoy = await _context.ComprobanteDetalle.AsNoTracking()
                 .Include(d => d.Producto)
-                .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date == today && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date >= start7 && (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date <= today && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
                 .SumAsync(d => (decimal?)(d.Cantidad * (d.Producto != null ? (d.Producto.CostoUnitario ?? 0) : 0))) ?? 0;
 
             var saldoInicial = await _context.Caja.AsNoTracking()
@@ -146,7 +150,7 @@ public class DashboardRepository : IDashboardRepository
                 alertas.Add("Tienes la caja abierta pendiente de cierre");
 
             if (gastosHoy > ventasHoy && ventasHoy > 0)
-                alertas.Add("Los gastos de hoy superan las ventas");
+                alertas.Add(dias == 1 ? "Los gastos de hoy superan las ventas" : $"Los gastos de los últimos {dias} días superan las ventas");
 
             var resumen = new DashboardResumenDto
             {
