@@ -220,9 +220,9 @@ namespace Infrastructure.Repositories
 
             lista = await _context.ComprobanteCabecera.AsNoTracking()
                                                       .Where(x => x.EstadoComprobante != EstatusComprobante.Anulado)
-                                                      .WhereIf(string.IsNullOrEmpty(queryparam.StartDate) && string.IsNullOrEmpty(queryparam.EndDate), s => s.FechaCreacion.Date >= DateTime.UtcNow.AddHours(-5).AddDays(-7).Date)
-                                                      .WhereIf(isValidStartDate && isValidEndDate, p => p.FechaCreacion.Date >= start.Date && p.FechaCreacion.Date <= end.Date)
-                                                      .OrderByDescending(x => x.FechaCreacion)
+                                                      .WhereIf(string.IsNullOrEmpty(queryparam.StartDate) && string.IsNullOrEmpty(queryparam.EndDate), s => (s.FechaVenta ?? s.FechaCreacion).Date >= DateTime.UtcNow.AddHours(-5).AddDays(-7).Date)
+                                                      .WhereIf(isValidStartDate && isValidEndDate, p => (p.FechaVenta ?? p.FechaCreacion).Date >= start.Date && (p.FechaVenta ?? p.FechaCreacion).Date <= end.Date)
+                                                      .OrderByDescending(x => x.FechaVenta ?? x.FechaCreacion)
                                                       .ProjectTo<ComprobanteCabeceraDTO>(_mapper.ConfigurationProvider)
                                                       .GetPagedAsync(queryparam.Page, queryparam.Amount);
 
@@ -514,11 +514,11 @@ namespace Infrastructure.Repositories
             {
 
                 var rentas = await _context.ComprobanteCabecera.AsNoTracking()
-                                                           .WhereIf(user != null, rc => rc.FechaCreacion.Date == start.Date && rc.UsuarioCreacion == user)
+                                                           .WhereIf(user != null, rc => (rc.FechaVenta ?? rc.FechaCreacion).Date == start.Date && rc.UsuarioCreacion == user)
                                                            .Select(q => new
                                                            {
                                                                monto = q.ValorTotal,
-                                                               fecha = q.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss"),
+                                                               fecha = (q.FechaVenta ?? q.FechaCreacion).ToString("dd/MM/yyyy HH:mm:ss"),
                                                                totalMasCuarto = string.Empty,
                                                            })
                                                          .ToListAsync();

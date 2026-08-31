@@ -40,7 +40,7 @@ public class DashboardRepository : IDashboardRepository
             var usernameHoy = _httpContextAccessor?.HttpContext?.User.FindFirstValue("username")?.ToUpper();
 
             var ventasHoy = await _context.ComprobanteCabecera.AsNoTracking()
-                .Where(c => c.FechaCreacion.Date == today && c.EstadoComprobante != EstatusComprobante.Anulado)
+                .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date == today && c.EstadoComprobante != EstatusComprobante.Anulado)
                 .SumAsync(c => (decimal?)c.ValorTotal) ?? 0;
 
             var gastosHoy = await _context.Gasto.AsNoTracking()
@@ -60,7 +60,7 @@ public class DashboardRepository : IDashboardRepository
             // estimada saliera siempre negativa (≈ -gastosHoy), sin reflejar el margen real.
             var costoVentasHoy = await _context.ComprobanteDetalle.AsNoTracking()
                 .Include(d => d.Producto)
-                .Where(d => d.ComprobanteCabecera.FechaCreacion.Date == today && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date == today && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
                 .SumAsync(d => (decimal?)(d.Cantidad * (d.Producto != null ? (d.Producto.CostoUnitario ?? 0) : 0))) ?? 0;
 
             var saldoInicial = await _context.Caja.AsNoTracking()
@@ -78,8 +78,8 @@ public class DashboardRepository : IDashboardRepository
                 .CountAsync(p => p.Estado && p.StockMinimo.HasValue && p.Stock.HasValue && p.Stock < p.StockMinimo);
 
             var ventas7 = await _context.ComprobanteCabecera.AsNoTracking()
-                .Where(c => c.FechaCreacion.Date >= start7 && c.FechaCreacion.Date <= today && c.EstadoComprobante != EstatusComprobante.Anulado)
-                .GroupBy(c => c.FechaCreacion.Date)
+                .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date >= start7 && (c.FechaVenta ?? c.FechaCreacion).Date <= today && c.EstadoComprobante != EstatusComprobante.Anulado)
+                .GroupBy(c => (c.FechaVenta ?? c.FechaCreacion).Date)
                 .Select(g => new { Fecha = g.Key, Total = g.Sum(x => x.ValorTotal) })
                 .OrderBy(g => g.Fecha)
                 .ToListAsync();
@@ -99,7 +99,7 @@ public class DashboardRepository : IDashboardRepository
 
             var topProductos = await _context.ComprobanteDetalle.AsNoTracking()
                 .Include(d => d.Producto)
-                .Where(d => d.ComprobanteCabecera.FechaCreacion.Date >= start7 && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date >= start7 && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
                 .GroupBy(d => new { d.ProductoId, Nombre = d.Producto != null ? d.Producto.Nombre : "N/A" })
                 .Select(g => new ProductoTopDto
                 {
@@ -169,8 +169,8 @@ public class DashboardRepository : IDashboardRepository
 
             var productos = await _context.ComprobanteDetalle.AsNoTracking()
                 .Include(d => d.Producto)
-                .Where(d => d.ComprobanteCabecera.FechaCreacion.Date >= start.Date
-                            && d.ComprobanteCabecera.FechaCreacion.Date <= end.Date
+                .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date >= start.Date
+                            && (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date <= end.Date
                             && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
                 .GroupBy(d => new { d.ProductoId, Nombre = d.Producto != null ? d.Producto.Nombre : "N/A" })
                 .Select(g => new ProductoTopDto

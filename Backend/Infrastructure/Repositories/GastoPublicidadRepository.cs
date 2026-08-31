@@ -157,14 +157,14 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                 // suele promocionar varias variantes/productos del mismo grupo a la vez.
                 var detalles = await _context.ComprobanteDetalle.AsNoTracking()
                     .Where(d => d.Producto.GrupoId == grupo.Key
-                             && d.ComprobanteCabecera.FechaCreacion >= minFecha
-                             && d.ComprobanteCabecera.FechaCreacion <= maxFecha
+                             && (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion) >= minFecha
+                             && (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion) <= maxFecha
                              && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
                     .Select(d => new
                     {
                         d.Cantidad,
                         d.ValorUnitarioTotal,
-                        FechaVenta = d.ComprobanteCabecera.FechaCreacion,
+                        FechaVenta = d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion,
                         CostoUnitario = d.Producto.CostoUnitario
                     })
                     .ToListAsync();
