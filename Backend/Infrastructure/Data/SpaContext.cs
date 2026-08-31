@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Npgsql;
 using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Tenant;
@@ -25,7 +26,21 @@ public class SpaContext : IdentityDbContext<User, Role, string>
 
         if (_tenant.ConnectionString is { } connectionString)
 
-            Database.SetConnectionString(connectionString);
+            Database.SetConnectionString(LimitarPool(connectionString));
+    }
+
+    // ponytail: casi todos los tenants comparten TenantOptions:DefaultConnection,
+    // y sin este limite cada instancia deja el pool de Npgsql en su default (100).
+    // Unas pocas instancias bastan para agotar el max_connections de Postgres
+    // ("53300: too many clients already"). Subir si Railway sube el plan de Postgres.
+    private static string LimitarPool(string connectionString)
+    {
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
+
+        if (!builder.ContainsKey("Maximum Pool Size"))
+            builder.MaxPoolSize = 20;
+
+        return builder.ConnectionString;
     }
 
     public DbSet<Cliente> Cliente => Set<Cliente>();

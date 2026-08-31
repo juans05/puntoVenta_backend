@@ -59,8 +59,8 @@ public class CategoriaRepository : ICategoryRepository
         //{
         //    return await dbContext.Producto.ToListAsync();
         //}
-        public async Task<(ServiceStatus, List<CategoriaDto>?, string)> GetCategoria(CategoryPayload payload)
-        {
+    public async Task<(ServiceStatus, List<CategoriaDto>?, string)> GetCategoria(CategoryPayload payload)
+    {
 
         //List<CategoriaDto> lista = null;
         List<Categoria> lista = null;
@@ -70,7 +70,6 @@ public class CategoriaRepository : ICategoryRepository
         try
         {
                 //var index = (payload.Page * payload.Amount) - payload.Amount + 1;
-
                 if (payload.Value is null)
                 {
 
@@ -117,7 +116,7 @@ public class CategoriaRepository : ICategoryRepository
             {
                 return (ServiceStatus.InternalError, null, $"Error al consultar Categoria -> {ex.InnerException?.Message ?? ex.Message}");
             }
-    }
+        }
 
     public async Task<(ServiceStatus, CategoriaDto?, string)> UpdateCategory(UpdateCategoryPayload payload)
     {
