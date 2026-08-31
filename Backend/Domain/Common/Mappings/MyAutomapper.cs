@@ -81,7 +81,8 @@ namespace Domain.Common.Mappings
 
             CreateMap<CreateComentarioPayload, Comentario>();
 
-            CreateMap<UpdateProductPayload, Producto>();
+            CreateMap<UpdateProductPayload, Producto>()
+                .ForMember(x => x.Stock, y => y.Ignore());
             //.ForMember(x => x.Comentarios, y => y.MapFrom(z => z.Comentarios));
 
             CreateMap<Producto, ProductoDto>()

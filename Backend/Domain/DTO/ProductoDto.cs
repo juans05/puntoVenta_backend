@@ -25,6 +25,7 @@ public record class ProductoDto
     public decimal MargenGanancia { get; set; }
     public bool CambioPrecioPermitido { get; set; }
     public int Stock { get; set; }
+    public int? StockMinimo { get; set; }
     public string? RutaImagen { get; set; }
     public string? CloudinaryPublicId { get; set; }
     public string? Comentario { get; set; }
