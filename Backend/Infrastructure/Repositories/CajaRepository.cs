@@ -342,14 +342,14 @@ namespace Infrastructure.Repositories
                 if (usuario == "TODOS")
                 {
                     ventasRealizadas = await _context.ComprobanteCabecera.AsNoTracking()
-                                                                      .Where(x => x.FechaCreacion.Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
+                                                                      .Where(x => (x.FechaVenta ?? x.FechaCreacion).Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
                                                                       .ProjectTo<ComprobanteCabeceraDTO>(_mapper.ConfigurationProvider)
                                                                       .ToListAsync();
                 }
                 else
                 {
                     ventasRealizadas = await _context.ComprobanteCabecera.AsNoTracking()
-                                                                   .Where(x => x.UsuarioCreacion == usuarioUpper && x.FechaCreacion.Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
+                                                                   .Where(x => x.UsuarioCreacion == usuarioUpper && (x.FechaVenta ?? x.FechaCreacion).Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
                                                                    .ProjectTo<ComprobanteCabeceraDTO>(_mapper.ConfigurationProvider)
                                                                    .ToListAsync();
                 }
@@ -434,14 +434,14 @@ namespace Infrastructure.Repositories
                 if (usuario == "TODOS")
                 {
                     comprobanteCabeceraDTO = await _context.ComprobanteCabecera.AsNoTracking()
-                                                                       .Where(x => x.FechaCreacion.Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
+                                                                       .Where(x => (x.FechaVenta ?? x.FechaCreacion).Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
                                                                        .ProjectTo<ComprobanteCabeceraDTO>(_mapper.ConfigurationProvider)
                                                                        .ToListAsync();
                 }
                 else
                 {
                     comprobanteCabeceraDTO = await _context.ComprobanteCabecera.AsNoTracking()
-                                                                       .Where(x => x.UsuarioCreacion == usuarioUpper && x.FechaCreacion.Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
+                                                                       .Where(x => x.UsuarioCreacion == usuarioUpper && (x.FechaVenta ?? x.FechaCreacion).Date == start.Date && x.EstadoComprobante != EstatusComprobante.Anulado && (x.SucursalId == null || x.SucursalId == sucursalId))
                                                                        .ProjectTo<ComprobanteCabeceraDTO>(_mapper.ConfigurationProvider)
                                                                        .ToListAsync();
                 }
