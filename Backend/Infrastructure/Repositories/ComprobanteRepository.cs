@@ -75,6 +75,39 @@ namespace Infrastructure.Repositories
                 // ruido de punto flotante) y todo lo que sigue se calcula a partir de este valor.
                 payload.Total = Math.Round(payload.Total, 2);
 
+                // El frontend a veces solo envia NumeroDocumento/RazonSocial como texto libre
+                // (sin buscar ni seleccionar un Cliente existente), asi que el ComprobanteCabecera
+                // quedaba sin ClienteId aunque el nombre/DNI si se hubiera guardado -- por eso se
+                // veia "sin especificar" en pantallas que dependen del Cliente vinculado. Se
+                // resuelve/crea el Cliente aqui, una sola vez, para que cualquier flujo de venta
+                // (Facturacion, Venta rapida, Nueva Factura) quede siempre vinculado.
+                if (payload.ClienteId == null && !string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+                {
+                    var clienteExistente = await _context.Cliente.AsTracking()
+                        .FirstOrDefaultAsync(c => c.NumeroDocumento == payload.NumeroDocumento);
+
+                    if (clienteExistente != null)
+                    {
+                        payload.ClienteId = clienteExistente.Id;
+                        if (string.IsNullOrWhiteSpace(payload.RazonSocial))
+                            payload.RazonSocial = clienteExistente.Nombre;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(payload.RazonSocial))
+                    {
+                        var clienteNuevo = new Cliente
+                        {
+                            NumeroDocumento = payload.NumeroDocumento,
+                            Nombre = payload.RazonSocial,
+                            TipoDocumentoId = payload.NumeroDocumento.Length == 11 ? 5 : 1 // RUC : DNI (ver tipodocumento.json)
+                        };
+
+                        await _context.Cliente.AddAsync(clienteNuevo);
+                        await _context.SaveChangesAsync();
+
+                        payload.ClienteId = clienteNuevo.Id;
+                    }
+                }
+
                 var cabecera = _mapper.Map<ComprobanteCabecera>(payload);
 
                 cabecera.FechaVenta = payload.FechaVenta ?? DateTime.UtcNow.AddHours(-5);
