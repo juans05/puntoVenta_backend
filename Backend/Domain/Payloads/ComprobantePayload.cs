@@ -22,6 +22,7 @@ namespace Domain.Payloads
         public int ProductoId { get; set; }
         public int Cantidad { get; set; }
         public decimal ValorUnitario { get; set; }
+        public decimal? CostoReal { get; set; }
     }
 
     public class PagoPayload

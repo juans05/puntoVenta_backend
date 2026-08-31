@@ -65,7 +65,7 @@ public class DashboardRepository : IDashboardRepository
             var costoVentasHoy = await _context.ComprobanteDetalle.AsNoTracking()
                 .Include(d => d.Producto)
                 .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date >= start7 && (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date <= today && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
-                .SumAsync(d => (decimal?)(d.Cantidad * (d.Producto != null ? (d.Producto.CostoUnitario ?? 0) : 0))) ?? 0;
+                .SumAsync(d => (decimal?)(d.Cantidad * (d.CostoReal ?? (d.Producto != null ? (d.Producto.CostoUnitario ?? 0) : 0)))) ?? 0;
 
             var saldoInicial = await _context.Caja.AsNoTracking()
                 .Where(x => x.UsuarioCreacion == usernameHoy
@@ -131,7 +131,7 @@ public class DashboardRepository : IDashboardRepository
                     Producto = g.Key.Nombre,
                     Cantidad = g.Sum(x => x.Cantidad),
                     Total = g.Sum(x => x.ValorUnitarioTotal),
-                    Costo = g.Sum(x => x.Cantidad * (x.Producto != null ? (x.Producto.CostoUnitario ?? 0) : 0))
+                    Costo = g.Sum(x => x.Cantidad * (x.CostoReal ?? (x.Producto != null ? (x.Producto.CostoUnitario ?? 0) : 0)))
                 })
                 .OrderByDescending(p => p.Cantidad)
                 .Take(5)
@@ -203,7 +203,7 @@ public class DashboardRepository : IDashboardRepository
                     Producto = g.Key.Nombre,
                     Cantidad = g.Sum(x => x.Cantidad),
                     Total = g.Sum(x => x.ValorUnitarioTotal),
-                    Costo = g.Sum(x => x.Cantidad * (x.Producto != null ? (x.Producto.CostoUnitario ?? 0) : 0))
+                    Costo = g.Sum(x => x.Cantidad * (x.CostoReal ?? (x.Producto != null ? (x.Producto.CostoUnitario ?? 0) : 0)))
                 })
                 .OrderByDescending(p => p.Total)
                 .ToListAsync();

@@ -165,7 +165,7 @@ public class GastoPublicidadRepository : IGastoPublicidadRepository
                         d.Cantidad,
                         d.ValorUnitarioTotal,
                         FechaVenta = d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion,
-                        CostoUnitario = d.Producto.CostoUnitario
+                        CostoUnitario = d.CostoReal ?? d.Producto.CostoUnitario
                     })
                     .ToListAsync();
 
