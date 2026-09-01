@@ -105,21 +105,69 @@ public class DashboardRepository : IDashboardRepository
                 .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date >= start7 && (c.FechaVenta ?? c.FechaCreacion).Date <= today && c.EstadoComprobante != EstatusComprobante.Anulado)
                 .GroupBy(c => (c.FechaVenta ?? c.FechaCreacion).Date)
                 .Select(g => new { Fecha = g.Key, Total = g.Sum(x => x.ValorTotal) })
-                .OrderBy(g => g.Fecha)
                 .ToListAsync();
 
-            var ventasUltimos7Dias = Enumerable.Range(0, dias)
+            var compras7 = await _context.Compra.AsNoTracking()
+                .Where(c => c.Estado == "CONFIRMADO" && c.FechaCompra.Date >= start7 && c.FechaCompra.Date <= today)
+                .GroupBy(c => c.FechaCompra.Date)
+                .Select(g => new { Fecha = g.Key, Total = g.Sum(x => x.Total) })
+                .ToListAsync();
+
+            var gastos7 = await _context.Gasto.AsNoTracking()
+                .Where(g => g.Estado == "CONFIRMADO" && g.FechaGasto.Date >= start7 && g.FechaGasto.Date <= today)
+                .GroupBy(g => g.FechaGasto.Date)
+                .Select(g => new { Fecha = g.Key, Total = g.Sum(x => x.Monto) })
+                .ToListAsync();
+
+            var costoVentas7 = await _context.ComprobanteDetalle.AsNoTracking()
+                .Include(d => d.Producto)
+                .Where(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date >= start7 && (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date <= today && d.ComprobanteCabecera.EstadoComprobante != EstatusComprobante.Anulado)
+                .GroupBy(d => (d.ComprobanteCabecera.FechaVenta ?? d.ComprobanteCabecera.FechaCreacion).Date)
+                .Select(g => new { Fecha = g.Key, Total = g.Sum(x => x.Cantidad * (x.CostoReal ?? (x.Producto != null ? (x.Producto.CostoUnitario ?? 0) : 0))) })
+                .ToListAsync();
+
+            var tendenciaDiaria = Enumerable.Range(0, dias)
                 .Select(offset =>
                 {
                     var dia = start7.AddDays(offset);
-                    var registro = ventas7.FirstOrDefault(v => v.Fecha.Date == dia);
-                    return new VentaDiaDto
+                    return new TendenciaDiaDto
                     {
                         Fecha = dia.ToString("dd/MM"),
-                        Total = registro?.Total ?? 0
+                        Ventas = ventas7.FirstOrDefault(v => v.Fecha.Date == dia)?.Total ?? 0,
+                        Compras = compras7.FirstOrDefault(v => v.Fecha.Date == dia)?.Total ?? 0,
+                        Gastos = gastos7.FirstOrDefault(v => v.Fecha.Date == dia)?.Total ?? 0,
+                        CostoVentas = costoVentas7.FirstOrDefault(v => v.Fecha.Date == dia)?.Total ?? 0
                     };
                 })
                 .ToList();
+
+            var gastosPorCategoria = await _context.Gasto.AsNoTracking()
+                .Where(g => g.Estado == "CONFIRMADO" && g.FechaGasto.Date >= start7 && g.FechaGasto.Date <= today)
+                .GroupBy(g => g.Categoria)
+                .Select(g => new CategoriaMontoDto { Categoria = g.Key, Total = g.Sum(x => x.Monto) })
+                .OrderByDescending(g => g.Total)
+                .ToListAsync();
+
+            // Distrito/TipoEnvio los llena el cajero al vender (ComprobantePayload.Distrito/TipoEnvio,
+            // ver ModalPay), no son datos fijos del negocio. Vacios = venta local sin domicilio
+            // registrado, no cuentan para el ranking de distritos.
+            var ventasPorDistrito = await _context.ComprobanteCabecera.AsNoTracking()
+                .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date >= start7 && (c.FechaVenta ?? c.FechaCreacion).Date <= today
+                            && c.EstadoComprobante != EstatusComprobante.Anulado
+                            && c.Distrito != null && c.Distrito != "")
+                .GroupBy(c => c.Distrito!)
+                .Select(g => new DistritoVentaDto { Distrito = g.Key, Total = g.Sum(x => x.ValorTotal), Cantidad = g.Count() })
+                .OrderByDescending(g => g.Total)
+                .Take(8)
+                .ToListAsync();
+
+            var ventasPorTipoEnvio = await _context.ComprobanteCabecera.AsNoTracking()
+                .Where(c => (c.FechaVenta ?? c.FechaCreacion).Date >= start7 && (c.FechaVenta ?? c.FechaCreacion).Date <= today
+                            && c.EstadoComprobante != EstatusComprobante.Anulado)
+                .GroupBy(c => c.TipoEnvio ?? "LOCAL")
+                .Select(g => new CategoriaMontoDto { Categoria = g.Key, Total = g.Sum(x => x.ValorTotal) })
+                .OrderByDescending(g => g.Total)
+                .ToListAsync();
 
             var topProductos = await _context.ComprobanteDetalle.AsNoTracking()
                 .Include(d => d.Producto)
@@ -160,11 +208,15 @@ public class DashboardRepository : IDashboardRepository
                 OtrosIngresosHoy = otrosIngresosHoy,
                 CostoVentasHoy = costoVentasHoy,
                 UtilidadEstimada = ventasHoy - costoVentasHoy - gastosHoy,
+                FlujoCaja = ventasHoy - comprasHoy - gastosHoy,
                 SaldoEsperado = saldoEsperado,
                 StockTotal = stockTotal,
                 ProductosStockBajo = productosStockBajo,
-                VentasUltimos7Dias = ventasUltimos7Dias,
+                TendenciaDiaria = tendenciaDiaria,
                 ProductosMasVendidos = topProductos,
+                GastosPorCategoria = gastosPorCategoria,
+                VentasPorDistrito = ventasPorDistrito,
+                VentasPorTipoEnvio = ventasPorTipoEnvio,
                 Alertas = alertas
             };
 
