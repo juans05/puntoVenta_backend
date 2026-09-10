@@ -125,7 +125,13 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(x =>
+.AddJwtBearer("Staff", x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = tokenValidationParameters;
+})
+.AddJwtBearer("Cliente", x =>
 {
     x.RequireHttpsMetadata = false;
     x.SaveToken = true;
@@ -138,6 +144,21 @@ builder.Services.AddScoped<ITenantResolver, TenantResolver>();
 builder.Services.AddScoped<ITenantContextAccessor, TenantContextAccessor>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Cliente", policy =>
+    {
+        policy.AuthenticationSchemes = new[] { "Cliente" };
+        policy.RequireAuthenticatedUser();
+    });
+    
+    options.AddPolicy("Staff", policy =>
+    {
+        policy.AuthenticationSchemes = new[] { "Staff" };
+        policy.RequireAuthenticatedUser();
+    });
+});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

@@ -16,6 +16,25 @@ namespace Domain.Common.Mappings
             CreateMap<ComprobanteDetallePayload, ComprobanteDetalle>();
             CreateMap<PagoPayload, Pago>();
 
+            CreateMap<CreatePedidoPayload, Pedido>();
+            CreateMap<CreatePedidoDetallePayload, PedidoDetalle>();
+
+            CreateMap<Pedido, PedidoDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.EstadoPedidoDescripcion, opt => opt.MapFrom(src => src.EstadoPedido == EstatusPedido.Enviado ? "Enviado (esperando datos)" :
+                                                                               src.EstadoPedido == EstatusPedido.DatosCompletos ? "Datos completados" :
+                                                                               src.EstadoPedido == EstatusPedido.EnPreparacion ? "En preparación" :
+                                                                               src.EstadoPedido == EstatusPedido.Despachado ? "Despachado" :
+                                                                               src.EstadoPedido == EstatusPedido.EnCamino ? "En camino" :
+                                                                               src.EstadoPedido == EstatusPedido.Entregado ? "Entregado" :
+                                                                               src.EstadoPedido == EstatusPedido.Cancelado ? "Cancelado" : "Desconocido"))
+                .ForMember(dest => dest.FechaCreacion, opt => opt.MapFrom(src => src.FechaCreacion.ToString("dd/MM/yyyy HH:mm")))
+                .ForMember(dest => dest.UbigeoNombre, opt => opt.MapFrom(src => src.Ubigeo != null ? $"{src.Ubigeo.Departamento} - {src.Ubigeo.Provincia} - {src.Ubigeo.Distrito}" : null));
+
+            CreateMap<PedidoDetalle, PedidoDetalleDTO>()
+                .ForMember(dest => dest.ProductoNombre, opt => opt.MapFrom(src => src.Producto != null ? src.Producto.Nombre : ""))
+                .ForMember(dest => dest.ProductoImagen, opt => opt.MapFrom(src => src.Producto != null ? src.Producto.RutaImagen : null));
+
             CreateMap<ComprobanteCabecera, ComprobanteCabeceraDTO>()
                 .ForMember(dest => dest.IdComprobante, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.NombreVendedor, opt => opt.MapFrom(src => src.UsuarioCreacion))

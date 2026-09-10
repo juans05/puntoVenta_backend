@@ -38,7 +38,9 @@ namespace Identity.Infrastructure
                     .AddScoped<IIngresoRepository, IngresoRepository>()
                     .AddScoped<ICierreDiarioRepository, CierreDiarioRepository>()
                     .AddScoped<IDashboardRepository, DashboardRepository>()
-                    .AddScoped<IWhatsappRepository, WhatsappRepository>();
+                    .AddScoped<IWhatsappRepository, WhatsappRepository>()
+            .AddScoped<IPedidoRepository, PedidoRepository>()
+            .AddScoped<IClienteCuentaRepository, ClienteCuentaRepository>();
 
 
             services.AddTransient<IProductRepository, ProductRepository>()
@@ -67,6 +69,9 @@ namespace Identity.Infrastructure
                     .AddScoped<IDashboardService, DashboardService>()
                     .AddScoped<IAIService, AIService>()
                     .AddScoped<IWhatsappService, WhatsappService>()
+                    .AddScoped<IPedidoService, PedidoService>()
+                    .AddScoped<IWhatsappOutboundService, WhatsappOutboundService>()
+                    .AddScoped<IClienteAuthService, ClienteAuthService>()
 
 
                     .AddTransient<IClienteRepository, ClienteRepository>();

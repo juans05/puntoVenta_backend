@@ -92,6 +92,9 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<CierreDiario> CierreDiario => Set<CierreDiario>();
     public DbSet<WhatsappMessage> WhatsappMessage => Set<WhatsappMessage>();
     public DbSet<WhatsappConversation> WhatsappConversation => Set<WhatsappConversation>();
+    public DbSet<Pedido> Pedido => Set<Pedido>();
+    public DbSet<PedidoDetalle> PedidoDetalle => Set<PedidoDetalle>();
+    public DbSet<ClienteCuenta> ClienteCuenta => Set<ClienteCuenta>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -147,6 +150,9 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<CierreDiario>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<WhatsappMessage>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<WhatsappConversation>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<Pedido>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<PedidoDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<ClienteCuenta>().HasQueryFilter(e => e.TenantId == _tenant.Name);
 
         new UserConfiguration(modelBuilder.Entity<User>());
         new RoleConfiguration(modelBuilder.Entity<Role>());
@@ -172,6 +178,9 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         new SucursalConfiguration(modelBuilder.Entity<Sucursal>());
         new RubroModuloConfiguration(modelBuilder.Entity<RubroModulo>());
         new AuditLogConfiguration(modelBuilder.Entity<AuditLog>());
+        new PedidoConfiguration(modelBuilder.Entity<Pedido>());
+        new PedidoDetalleConfiguration(modelBuilder.Entity<PedidoDetalle>());
+        new ClienteCuentaConfiguration(modelBuilder.Entity<ClienteCuenta>());
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
