@@ -121,9 +121,9 @@ builder.Services.AddIdentity<User, Role>()
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = "Staff";
+    options.DefaultChallengeScheme = "Staff";
+    options.DefaultScheme = "Staff";
 })
 .AddJwtBearer("Staff", x =>
 {

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.IServices;
@@ -23,7 +22,7 @@ public class AuthController : ControllerBase
     [HttpPost("token")]
     public async Task<IActionResult> GetTokenAsync([FromBody] LoginPayload model) => Ok(await _authService.GetTokenAsync(model));
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = "Staff")]
     [HttpGet("@me")]
     public IActionResult MeData() => Ok(User.GetUser());
 
