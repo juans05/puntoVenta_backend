@@ -154,9 +154,6 @@ public class PedidoRepository : IPedidoRepository
                 item.EstadoPedidoDescripcion = ObtenerDescripcionEstado(item.EstadoPedido);
             }
 
-            if (!lista.HasItems)
-                return (ServiceStatus.NotFound, null, "No hay pedidos para mostrar");
-
             return (ServiceStatus.Ok, lista, "Succeeded");
         }
         catch (Exception ex)
@@ -388,9 +385,6 @@ public class PedidoRepository : IPedidoRepository
                 item.EstadoPedidoDescripcion = ObtenerDescripcionEstado(item.EstadoPedido);
                 item.UbigeoNombre = item.UbigeoId != null ? "" : null; // Se llenará en el mapper
             }
-
-            if (!lista.HasItems)
-                return (ServiceStatus.NotFound, null, "No hay pedidos para mostrar");
 
             return (ServiceStatus.Ok, lista, "Succeeded");
         }
