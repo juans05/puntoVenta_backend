@@ -17,11 +17,13 @@ public class PedidoRepository : IPedidoRepository
 {
     private readonly SpaContext _context;
     private readonly IMapper _mapper;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
 
-    public PedidoRepository(SpaContext context, IMapper mapper)
+    public PedidoRepository(SpaContext context, IMapper mapper, ITenantContextAccessor tenantContextAccessor)
     {
         _context = context;
         _mapper = mapper;
+        _tenantContextAccessor = tenantContextAccessor;
     }
 
     public async Task<(ServiceStatus, PedidoDTO?, string)> CrearPedido(CreatePedidoPayload payload)
@@ -29,10 +31,15 @@ public class PedidoRepository : IPedidoRepository
         try
         {
             var token = GenerarTokenUnico();
-            
+
+            // Se ignora payload.SucursalId como fuente de verdad: el filtro global de
+            // Pedido exige SucursalId == tenant.SucursalId, así que un valor errado del
+            // frontend deja el pedido invisible para cualquier lectura posterior.
+            var sucursalId = _tenantContextAccessor.CurrentContext?.SucursalId ?? payload.SucursalId;
+
             var pedido = new Pedido
             {
-                SucursalId = payload.SucursalId,
+                SucursalId = sucursalId,
                 Token = token,
                 EstadoPedido = EstatusPedido.Enviado,
                 Total = payload.Total,

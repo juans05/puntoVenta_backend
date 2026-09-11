@@ -85,7 +85,9 @@ public class PedidoService : IPedidoService
             throw new ErrorHandler(
                 estado == ServiceStatus.FailedValidation
                 ? HttpStatusCode.BadRequest
-                : HttpStatusCode.InternalServerError
+                : estado == ServiceStatus.NotFound
+                    ? HttpStatusCode.NotFound
+                    : HttpStatusCode.InternalServerError
             , "Error al actualizar estado", message);
 
         return MessageResult<PedidoDTO>.Of(message, result);
