@@ -44,6 +44,9 @@ public class ExtensionesController : ControllerBase
     [HttpGet("sucursales")]
     public async Task<IActionResult> sucursales() => Ok(await _extensionesService.ListarSucursales());
 
+    // AllowAnonymous: catálogo nacional de ubigeos (sin TenantId/SucursalId), lo necesita
+    // el formulario del pedido público (/pedido/{token}) donde el cliente aún no tiene sesión.
+    [AllowAnonymous]
     [HttpGet("ubigeos")]
     public async Task<IActionResult> ubigeos() => Ok(await _extensionesService.ListarUbigeos());
 
