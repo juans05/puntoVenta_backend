@@ -3,6 +3,7 @@ using Application.Interfaces.IServices;
 using Domain.Entities;
 using Domain.Models;
 using Domain.Payloads;
+using Domain.Tenant;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -99,7 +100,11 @@ public class ClienteAuthService : IClienteAuthService
             {
                 new Claim("clienteId", clienteCuenta.ClienteId.ToString()),
                 new Claim(ClaimTypes.Email, clienteCuenta.Email),
-                new Claim("tenantId", clienteCuenta.TenantId)
+                // TenantResolver.GetCurrentTenant() lee ClaimConstants.TenantId (mismo claim que
+                // usa el JWT de staff); un claim "tenantId" propio dejaba el tenant sin resolver
+                // para todo login de cliente, y el filtro global de Pedido/ClienteCuenta excluía
+                // todo.
+                new Claim(ClaimConstants.TenantId, clienteCuenta.TenantId)
             }),
             Expires = DateTime.UtcNow.AddHours(24),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
