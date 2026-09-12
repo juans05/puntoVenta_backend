@@ -383,7 +383,12 @@ public class PedidoRepository : IPedidoRepository
     {
         try
         {
+            // IgnoreQueryFilters: el JWT de cliente no trae claim de sede (un cliente no
+            // pertenece a una sola sucursal), así que el filtro global TenantId+SucursalId
+            // de Pedido no puede resolverse y dejaría esto siempre vacío. El Where por
+            // ClienteId ya es el límite de autorización correcto para este endpoint.
             var query = _context.Pedido
+                .IgnoreQueryFilters()
                 .Include(p => p.Ubigeo)
                 .Include(p => p.PedidoDetalles)
                 .AsNoTracking()
@@ -412,7 +417,9 @@ public class PedidoRepository : IPedidoRepository
     {
         try
         {
+            // Mismo motivo que en ListarPedidosCliente: sin sede en el JWT de cliente.
             var pedido = await _context.Pedido
+                .IgnoreQueryFilters()
                 .Include(p => p.Ubigeo)
                 .Include(p => p.PedidoDetalles)
                     .ThenInclude(d => d.Producto)
