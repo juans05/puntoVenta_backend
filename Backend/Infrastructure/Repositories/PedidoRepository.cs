@@ -32,10 +32,12 @@ public class PedidoRepository : IPedidoRepository
         {
             var token = GenerarTokenUnico();
 
-            // Se ignora payload.SucursalId como fuente de verdad: el filtro global de
-            // Pedido exige SucursalId == tenant.SucursalId, así que un valor errado del
-            // frontend deja el pedido invisible para cualquier lectura posterior.
-            var sucursalId = _tenantContextAccessor.CurrentContext?.SucursalId ?? payload.SucursalId;
+            // payload.SucursalId nunca se usa como fuente de verdad: el filtro global de
+            // Pedido acepta SucursalId == null como "visible para todo el tenant", así que
+            // cuando el contexto no trae sede (sin X-Sucursal/claim) hay que guardar null,
+            // no un valor inventado del payload -> con SucursalId != null quedaría fuera
+            // del propio filtro (SucursalId == null || SucursalId == tenant.SucursalId).
+            var sucursalId = _tenantContextAccessor.CurrentContext?.SucursalId;
 
             var pedido = new Pedido
             {

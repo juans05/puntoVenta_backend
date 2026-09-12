@@ -4,7 +4,7 @@ namespace Domain.Entities;
 
 public class Pedido : EntityBase
 {
-    public int SucursalId { get; set; }
+    public int? SucursalId { get; set; }
     public string Token { get; set; } = null!;
     public char EstadoPedido { get; set; }
     public decimal Total { get; set; }
