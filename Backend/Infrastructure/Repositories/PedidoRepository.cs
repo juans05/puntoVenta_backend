@@ -103,7 +103,12 @@ public class PedidoRepository : IPedidoRepository
     {
         try
         {
+            // IgnoreQueryFilters: este endpoint es [AllowAnonymous] (enlace público sin login),
+            // por lo que no hay tenant resuelto en el request y el filtro global por TenantId
+            // dejaría cualquier pedido invisible. El Token único (32 chars, índice unique) ya
+            // es la credencial de acceso para este flujo, no hace falta el filtro de tenant.
             var pedido = await _context.Pedido
+                .IgnoreQueryFilters()
                 .Include(p => p.PedidoDetalles)
                     .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(p => p.Token == token && p.EstadoPedido != EstatusPedido.Cancelado);
@@ -268,7 +273,9 @@ public class PedidoRepository : IPedidoRepository
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
+            // Mismo motivo que en ObtenerPedidoPublico: endpoint [AllowAnonymous], sin tenant resuelto.
             var pedido = await _context.Pedido
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.Token == token);
 
             if (pedido == null)
