@@ -20,6 +20,8 @@ public class Pedido : EntityBase
     public string? Referencia { get; set; }
     public decimal? Latitud { get; set; }
     public decimal? Longitud { get; set; }
+    public string? Currier { get; set; }
+    public int? SalonId { get; set; }
 
     public string? CodigoSeguimiento { get; set; }
     public DateTime? FechaDespacho { get; set; }
@@ -30,6 +32,7 @@ public class Pedido : EntityBase
 
     public Cliente? Cliente { get; set; }
     public Ubigeo? Ubigeo { get; set; }
+    public Salon? Salon { get; set; }
     public ComprobanteCabecera? ComprobanteCabecera { get; set; }
     public List<PedidoDetalle> PedidoDetalles { get; set; } = new();
 }

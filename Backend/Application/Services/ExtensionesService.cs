@@ -163,6 +163,62 @@ namespace Application.Services
             return MessageResult<object>.Of(message, resp);
         }
 
+        public async Task<MessageResult<object>> ListarSalones(string ubigeoId)
+        {
+
+            var (estado, resp, message) = await _extensionesRepository.ListarSalones(ubigeoId);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, resp);
+
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<object>> ListarSalonesAdmin()
+        {
+
+            var (estado, resp, message) = await _extensionesRepository.ListarSalonesAdmin();
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(HttpStatusCode.InternalServerError, message, resp);
+
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<object>> CrearSalon(CreateSalonPayload payload)
+        {
+
+            var (estado, resp, message) = await _extensionesRepository.CrearSalon(payload);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, resp);
+
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<bool>> CambiarEstadoSalon(int id, bool estado)
+        {
+
+            var (status, message) = await _extensionesRepository.CambiarEstadoSalon(id, estado);
+
+            if (status != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        status == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                    , message, null);
+
+            return MessageResult<bool>.Of(message, true);
+        }
+
         public async Task<MessageResult<object>> CrearSucursal(CreateSucursalPayload payload)
         {
 

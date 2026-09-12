@@ -17,6 +17,10 @@ namespace Application.Interfaces.IRepository
         Task<(ServiceStatus, object?, string)> ListarRubros();
         Task<(ServiceStatus, object?, string)> ListarSucursales();
         Task<(ServiceStatus, object?, string)> ListarUbigeos();
+        Task<(ServiceStatus, object?, string)> ListarSalones(string ubigeoId);
+        Task<(ServiceStatus, object?, string)> ListarSalonesAdmin();
+        Task<(ServiceStatus, object?, string)> CrearSalon(CreateSalonPayload payload);
+        Task<(ServiceStatus, string)> CambiarEstadoSalon(int id, bool estado);
         Task<(ServiceStatus, object?, string)> CrearSucursal(CreateSucursalPayload payload);
         Task<(ServiceStatus, string)> ReasignarTenantSucursal(int sucursalId, string tenantKey);
     }

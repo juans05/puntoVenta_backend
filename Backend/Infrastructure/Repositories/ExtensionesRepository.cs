@@ -220,6 +220,91 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<(ServiceStatus, object?, string)> ListarSalones(string ubigeoId)
+        {
+            try
+            {
+                var salones = await _context.Salon.AsNoTracking()
+                                                   .Where(s => s.Activo && s.UbigeoId == ubigeoId)
+                                                   .OrderBy(s => s.Nombre)
+                                                   .Select(s => new
+                                                   {
+                                                       id = s.Id,
+                                                       nombre = s.Nombre
+                                                   }).ToListAsync();
+
+                return (ServiceStatus.Ok, salones, "Success");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.InternalError, null, $"Error Interno {e.Message ?? e.InnerException?.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, object?, string)> ListarSalonesAdmin()
+        {
+            try
+            {
+                var salones = await _context.Salon.AsNoTracking()
+                                                   .Include(s => s.Ubigeo)
+                                                   .OrderBy(s => s.Nombre)
+                                                   .Select(s => new
+                                                   {
+                                                       id = s.Id,
+                                                       nombre = s.Nombre,
+                                                       ubigeoId = s.UbigeoId,
+                                                       ubigeoNombre = s.Ubigeo != null ? $"{s.Ubigeo.Departamento} - {s.Ubigeo.Provincia} - {s.Ubigeo.Distrito}" : null,
+                                                       estado = s.Activo
+                                                   }).ToListAsync();
+
+                return (ServiceStatus.Ok, salones, "Success");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.InternalError, null, $"Error Interno {e.Message ?? e.InnerException?.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, object?, string)> CrearSalon(CreateSalonPayload payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload.Nombre))
+                return (ServiceStatus.FailedValidation, null, "El nombre del salón es obligatorio");
+
+            if (string.IsNullOrWhiteSpace(payload.UbigeoId))
+                return (ServiceStatus.FailedValidation, null, "Debes elegir la ciudad del salón");
+
+            try
+            {
+                var ubigeoExiste = await _context.Ubigeo.AnyAsync(u => u.UbigeoId == payload.UbigeoId);
+                if (!ubigeoExiste)
+                    return (ServiceStatus.FailedValidation, null, "La ciudad elegida no es válida");
+
+                var salon = new Domain.Entities.Salon { Nombre = payload.Nombre.Trim(), UbigeoId = payload.UbigeoId, Activo = true };
+
+                await _context.Salon.AddAsync(salon);
+                await _context.SaveChangesAsync();
+
+                return (ServiceStatus.Ok, salon, "Salón registrado correctamente");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.FailedValidation, null, $"Error al registrar salón -> {e.InnerException?.Message ?? e.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, string)> CambiarEstadoSalon(int id, bool estado)
+        {
+            var salon = await _context.Salon.AsTracking().FirstOrDefaultAsync(s => s.Id == id);
+
+            if (salon == null)
+                return (ServiceStatus.NotFound, $"No se encontró el salón {id}");
+
+            salon.Activo = estado;
+            await _context.SaveChangesAsync();
+
+            return (ServiceStatus.Ok, "Success");
+        }
+
         public async Task<(ServiceStatus, object?, string)> CrearSucursal(CreateSucursalPayload payload)
         {
             try

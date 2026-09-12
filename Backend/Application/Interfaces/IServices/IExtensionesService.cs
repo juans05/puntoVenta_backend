@@ -16,6 +16,10 @@ namespace Application.Interfaces.IServices
         Task<MessageResult<object>> ListarRubros();
         Task<MessageResult<object>> ListarSucursales();
         Task<MessageResult<object>> ListarUbigeos();
+        Task<MessageResult<object>> ListarSalones(string ubigeoId);
+        Task<MessageResult<object>> ListarSalonesAdmin();
+        Task<MessageResult<object>> CrearSalon(CreateSalonPayload payload);
+        Task<MessageResult<bool>> CambiarEstadoSalon(int id, bool estado);
         Task<MessageResult<object>> CrearSucursal(CreateSucursalPayload payload);
         Task<MessageResult<bool>> ReasignarTenantSucursal(int sucursalId, string tenantKey);
     }

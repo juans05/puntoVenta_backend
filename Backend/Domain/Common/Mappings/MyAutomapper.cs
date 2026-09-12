@@ -29,7 +29,8 @@ namespace Domain.Common.Mappings
                                                                                src.EstadoPedido == EstatusPedido.Entregado ? "Entregado" :
                                                                                src.EstadoPedido == EstatusPedido.Cancelado ? "Cancelado" : "Desconocido"))
                 .ForMember(dest => dest.FechaCreacion, opt => opt.MapFrom(src => src.FechaCreacion.ToString("dd/MM/yyyy HH:mm")))
-                .ForMember(dest => dest.UbigeoNombre, opt => opt.MapFrom(src => src.Ubigeo != null ? $"{src.Ubigeo.Departamento} - {src.Ubigeo.Provincia} - {src.Ubigeo.Distrito}" : null));
+                .ForMember(dest => dest.UbigeoNombre, opt => opt.MapFrom(src => src.Ubigeo != null ? $"{src.Ubigeo.Departamento} - {src.Ubigeo.Provincia} - {src.Ubigeo.Distrito}" : null))
+                .ForMember(dest => dest.SalonNombre, opt => opt.MapFrom(src => src.Salon != null ? src.Salon.Nombre : null));
 
             CreateMap<PedidoDetalle, PedidoDetalleDTO>()
                 .ForMember(dest => dest.ProductoNombre, opt => opt.MapFrom(src => src.Producto != null ? src.Producto.Nombre : ""))

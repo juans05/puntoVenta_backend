@@ -24,6 +24,7 @@ public class PedidoConfiguration
         entityBuilder.Property(e => e.Longitud).HasColumnType("decimal(10,7)");
         entityBuilder.Property(e => e.CodigoSeguimiento).HasMaxLength(100);
         entityBuilder.Property(e => e.PasswordEnviado).HasDefaultValue(false);
+        entityBuilder.Property(e => e.Currier).HasMaxLength(50);
 
         entityBuilder.HasOne(e => e.Cliente)
                      .WithMany()
@@ -34,6 +35,12 @@ public class PedidoConfiguration
         entityBuilder.HasOne(e => e.Ubigeo)
                      .WithMany()
                      .HasForeignKey(e => e.UbigeoId)
+                     .IsRequired(false)
+                     .OnDelete(DeleteBehavior.Restrict);
+
+        entityBuilder.HasOne(e => e.Salon)
+                     .WithMany()
+                     .HasForeignKey(e => e.SalonId)
                      .IsRequired(false)
                      .OnDelete(DeleteBehavior.Restrict);
 

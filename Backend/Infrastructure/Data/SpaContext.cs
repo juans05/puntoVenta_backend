@@ -95,6 +95,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<Pedido> Pedido => Set<Pedido>();
     public DbSet<PedidoDetalle> PedidoDetalle => Set<PedidoDetalle>();
     public DbSet<ClienteCuenta> ClienteCuenta => Set<ClienteCuenta>();
+    public DbSet<Salon> Salon => Set<Salon>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -181,6 +182,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         new PedidoConfiguration(modelBuilder.Entity<Pedido>());
         new PedidoDetalleConfiguration(modelBuilder.Entity<PedidoDetalle>());
         new ClienteCuentaConfiguration(modelBuilder.Entity<ClienteCuenta>());
+        new SalonConfiguration(modelBuilder.Entity<Salon>());
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

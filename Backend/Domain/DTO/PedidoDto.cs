@@ -19,6 +19,9 @@ public class PedidoDTO
     public string? Referencia { get; set; }
     public decimal? Latitud { get; set; }
     public decimal? Longitud { get; set; }
+    public string? Currier { get; set; }
+    public int? SalonId { get; set; }
+    public string? SalonNombre { get; set; }
     public string? CodigoSeguimiento { get; set; }
     public DateTime? FechaDespacho { get; set; }
     public DateTime? FechaEntrega { get; set; }

@@ -50,6 +50,20 @@ public class ExtensionesController : ControllerBase
     [HttpGet("ubigeos")]
     public async Task<IActionResult> ubigeos() => Ok(await _extensionesService.ListarUbigeos());
 
+    // AllowAnonymous: mismo motivo que ubigeos, lo consume el formulario público de pedido.
+    [AllowAnonymous]
+    [HttpGet("salones")]
+    public async Task<IActionResult> salones([FromQuery] string ubigeoId) => Ok(await _extensionesService.ListarSalones(ubigeoId));
+
+    [HttpGet("salones/listar")]
+    public async Task<IActionResult> ListarSalonesAdmin() => Ok(await _extensionesService.ListarSalonesAdmin());
+
+    [HttpPost("salones/crear")]
+    public async Task<IActionResult> CrearSalon([FromBody] CreateSalonPayload payload) => Ok(await _extensionesService.CrearSalon(payload));
+
+    [HttpPut("salones/{id}/estado")]
+    public async Task<IActionResult> CambiarEstadoSalon(int id, [FromBody] SetEstadoPayload payload) => Ok(await _extensionesService.CambiarEstadoSalon(id, payload.Estado));
+
     [HttpPost("crear-sucursal")]
     public async Task<IActionResult> CrearSucursal([FromBody] CreateSucursalPayload payload) => Ok(await _extensionesService.CrearSucursal(payload));
 

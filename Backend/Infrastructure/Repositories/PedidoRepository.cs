@@ -80,6 +80,7 @@ public class PedidoRepository : IPedidoRepository
             var pedido = await _context.Pedido
                 .Include(p => p.Cliente)
                 .Include(p => p.Ubigeo)
+                .Include(p => p.Salon)
                 .Include(p => p.PedidoDetalles)
                     .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -183,6 +184,7 @@ public class PedidoRepository : IPedidoRepository
             var pedido = await _context.Pedido
                 .Include(p => p.Cliente)
                 .Include(p => p.Ubigeo)
+                .Include(p => p.Salon)
                 .FirstOrDefaultAsync(p => p.Id == payload.Id);
 
             if (pedido == null)
@@ -308,6 +310,16 @@ public class PedidoRepository : IPedidoRepository
             var ubigeo = await _context.Ubigeo.FindAsync(payload.UbigeoId);
             var tipoEnvio = (ubigeo?.Departamento == "LIMA" && ubigeo?.Provincia == "LIMA") ? "LOCAL" : "PROVINCIA";
 
+            if (tipoEnvio == "PROVINCIA")
+            {
+                if (payload.SalonId == null)
+                    return (ServiceStatus.FailedValidation, new SubmitPedidoResult { Exito = false }, "Debes elegir el salón donde recogerás tu pedido");
+
+                var salon = await _context.Salon.FirstOrDefaultAsync(s => s.Id == payload.SalonId && s.Activo && s.UbigeoId == payload.UbigeoId);
+                if (salon == null)
+                    return (ServiceStatus.FailedValidation, new SubmitPedidoResult { Exito = false }, "El salón elegido no es válido para tu ubicación");
+            }
+
             // Actualizar pedido con datos del cliente
             pedido.ClienteId = cliente.Id;
             pedido.Nombre = payload.Nombre;
@@ -319,6 +331,8 @@ public class PedidoRepository : IPedidoRepository
             pedido.Referencia = payload.Referencia;
             pedido.Latitud = payload.Latitud;
             pedido.Longitud = payload.Longitud;
+            pedido.Currier = tipoEnvio == "PROVINCIA" ? "SHALOM" : null;
+            pedido.SalonId = tipoEnvio == "PROVINCIA" ? payload.SalonId : null;
             pedido.EstadoPedido = EstatusPedido.DatosCompletos;
 
             // Crear ClienteCuenta si no existe
@@ -423,6 +437,7 @@ public class PedidoRepository : IPedidoRepository
             var pedido = await _context.Pedido
                 .IgnoreQueryFilters()
                 .Include(p => p.Ubigeo)
+                .Include(p => p.Salon)
                 .Include(p => p.PedidoDetalles)
                     .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(p => p.Id == pedidoId && p.ClienteId == clienteId);
