@@ -12,7 +12,9 @@ public enum TipoComprobante
 {
     Factura = 1,
     Boleta,
-    TicketInterno
+    TicketInterno,
+    NotaCredito,
+    NotaDebito
 }
 public enum CategoriaEnum
 {
@@ -33,6 +35,14 @@ public static class EstatusEnvioSunat
     public const char Pendiente = 'P';
     public const char Enviado = 'E';
     public const char Error = 'X';
+    public const char NoEnviar = 'N'; // "Solo Firmar e Imprimir": nunca pasa por el job de SUNAT
+}
+
+public static class EstatusModoEnvio
+{
+    public const char SoloFirmarImprimir = 'F';
+    public const char EnviarAhora = 'S';
+    public const char SoloGuardar = 'G';
 }
 
 public enum TipoMovimientoInventario
