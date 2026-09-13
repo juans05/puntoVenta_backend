@@ -49,6 +49,30 @@ public static class DecimalExtensions
     {
         StringBuilder parteEntera = new StringBuilder();
 
+        if (numero >= 1000000)
+        {
+            int millones = numero / 1000000;
+            parteEntera.Append(millones == 1 ? "UN MILLON" : $"{ConstruirParteEntera(millones)} MILLONES");
+            numero %= 1000000;
+
+            if (numero > 0)
+            {
+                parteEntera.Append(" ");
+            }
+        }
+
+        if (numero >= 1000)
+        {
+            int miles = numero / 1000;
+            parteEntera.Append(miles == 1 ? "MIL" : $"{ConstruirParteEntera(miles)} MIL");
+            numero %= 1000;
+
+            if (numero > 0)
+            {
+                parteEntera.Append(" ");
+            }
+        }
+
         if (numero >= 100)
         {
             int centena = numero / 100;
