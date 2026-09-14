@@ -117,16 +117,27 @@ public class ClienteRepository :  IClienteRepository
             {
                 if (payload.Value.All(char.IsDigit))
                 {
-                    if(payload.Value.Length == 8)
+                    // DNI (8 digitos) o RUC (11 digitos): buscar por numero de documento.
+                    // Cualquier otro largo numerico se interpreta como el Id interno -- pero
+                    // Convert.ToInt32 desborda con numeros grandes (ej. un RUC mal detectado),
+                    // asi que se usa TryParse y, si no entra en un int, no hay resultados en vez
+                    // de tirar un 500.
+                    if (payload.Value.Length == 8 || payload.Value.Length == 11)
                         lista = await dbContext.Cliente.AsNoTracking()
                             .Include(i => i.Ubigeo)
                             .Where(p => p.NumeroDocumento == payload.Value)
                             .ProjectTo<ClienteDto>(mapper.ConfigurationProvider)
                             .GetPagedAsync(payload.Page, payload.Amount);
+                    else if (int.TryParse(payload.Value, out var clienteId))
+                        lista = await dbContext.Cliente.AsNoTracking()
+                            .Include(i => i.Ubigeo)
+                            .Where(p => p.Id == clienteId)
+                            .ProjectTo<ClienteDto>(mapper.ConfigurationProvider)
+                            .GetPagedAsync(payload.Page, payload.Amount);
                     else
                         lista = await dbContext.Cliente.AsNoTracking()
                             .Include(i => i.Ubigeo)
-                            .Where(p => p.Id == Convert.ToInt32(payload.Value))
+                            .Where(p => false)
                             .ProjectTo<ClienteDto>(mapper.ConfigurationProvider)
                             .GetPagedAsync(payload.Page, payload.Amount);
                 }
