@@ -9,6 +9,7 @@ using Application.Interfaces;
 using Application.Interfaces.IProxies;
 using Application.Proxies;
 using Application.Abstractions;
+using Application.Services.BaseService;
 
 namespace Identity.Infrastructure
 {
@@ -79,6 +80,7 @@ namespace Identity.Infrastructure
 
             services.AddHttpClient();
             services.AddScoped<IFacturacionProxy, FacturacionProxy>();
+            services.AddScoped<IBaseService, BaseService>();
 
             services.AddSingleton<TaxCalculatorFactory>();
 

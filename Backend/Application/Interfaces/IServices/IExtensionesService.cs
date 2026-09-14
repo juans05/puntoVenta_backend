@@ -8,6 +8,8 @@ namespace Application.Interfaces.IServices
 
         Task<MessageResult<object>> ListarTipoDocumento();
         Task<MessageResult<object>> ListarTipoDocumentoVenta();
+        Task<MessageResult<object>> ConsultarRuc(string ruc);
+        Task<MessageResult<object>> ConsultarDni(string dni);
         Task<MessageResult<object>> ListarMetodoPago();
         Task<MessageResult<object>> ListarMetodoPagoAdmin();
         Task<MessageResult<object>> CrearMetodoPago(CreateMetodoPagoPayload payload);

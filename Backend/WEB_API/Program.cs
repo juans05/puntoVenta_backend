@@ -83,6 +83,16 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 
 builder.Services.Configure<ApiUrl>(opt => builder.Configuration.GetSection("ApiUrl").Bind(opt));
+// La ApiKey NO vive en appsettings (es un secreto real) -- se lee de la variable de entorno
+// PERUAPI_API_KEY, mismo criterio que URL_N8N. BaseUrl si es config normal (no es secreto).
+builder.Services.Configure<PeruApiOptions>(opt =>
+{
+    builder.Configuration.GetSection("PeruApi").Bind(opt);
+    opt.ApiKey = builder.Configuration["PERUAPI_API_KEY"];
+});
+// URL_N8N: variable de entorno plana (no anidada como "DniApi:BaseUrl") -- asi coincide
+// exactamente con el nombre que usa la infraestructura (Railway) para configurarla.
+builder.Services.Configure<DniApiOptions>(opt => opt.BaseUrl = builder.Configuration["URL_N8N"]);
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 

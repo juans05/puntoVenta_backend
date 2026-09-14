@@ -23,6 +23,12 @@ public class ExtensionesController : ControllerBase
     [HttpGet("tipo-documento-venta")]
     public async Task<IActionResult> tipoDocumentoVenta() => Ok(await _extensionesService.ListarTipoDocumentoVenta());
 
+    [HttpGet("ruc/{ruc}")]
+    public async Task<IActionResult> consultarRuc(string ruc) => Ok(await _extensionesService.ConsultarRuc(ruc));
+
+    [HttpGet("dni/{dni}")]
+    public async Task<IActionResult> consultarDni(string dni) => Ok(await _extensionesService.ConsultarDni(dni));
+
     [HttpGet("tipo-metodo-pago")]
     public async Task<IActionResult> metodoPago() => Ok(await _extensionesService.ListarMetodoPago());
 

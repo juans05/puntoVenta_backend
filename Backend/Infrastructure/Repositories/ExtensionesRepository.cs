@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Application.Interfaces.IRepository;
+using Application.Services.BaseService;
 using Domain.Models;
 using Domain.Payloads;
 using Infrastructure.Data;
@@ -13,13 +15,22 @@ namespace Infrastructure.Repositories
     {
         private readonly SpaContext _context;
         private readonly IHttpContextAccessor? _httpContextAccessor;
+        private readonly IBaseService _baseService;
+        private readonly PeruApiOptions _peruApiOptions;
+        private readonly DniApiOptions _dniApiOptions;
 
         public ExtensionesRepository(
             SpaContext context,
-            IHttpContextAccessor? httpContextAccessor)
+            IHttpContextAccessor? httpContextAccessor,
+            IBaseService baseService,
+            IOptions<PeruApiOptions> peruApiOptions,
+            IOptions<DniApiOptions> dniApiOptions)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _baseService = baseService;
+            _peruApiOptions = peruApiOptions.Value;
+            _dniApiOptions = dniApiOptions.Value;
         }
 
         public async Task<(ServiceStatus, object?, string)> ListarTipoDocumento()
@@ -61,7 +72,76 @@ namespace Infrastructure.Repositories
             }
         }
 
-    
+
+        // Consulta el RUC en peruapi.com -- la llave se queda en el backend (appsettings/env var)
+        // para que nunca se exponga en el bundle del frontend.
+        public async Task<(ServiceStatus, object?, string)> ConsultarRuc(string ruc)
+        {
+            try
+            {
+                var resultado = await _baseService.SendAsync<PeruApiRucResponse>(new ApiRequest
+                {
+                    apiType = SD.ApiType.GET,
+                    Url = $"{_peruApiOptions.BaseUrl}/ruc/{ruc}?plan=true",
+                    ApiKey = _peruApiOptions.ApiKey
+                });
+
+                if (resultado is null || resultado.Code != "200")
+                    return (ServiceStatus.FailedValidation, null, "No se encontró el RUC consultado");
+
+                var data = new
+                {
+                    ruc = resultado.Ruc,
+                    razonSocial = resultado.RazonSocial,
+                    direccion = resultado.Direccion,
+                    ubigeoId = resultado.Ubigeo,
+                    estado = resultado.Estado,
+                    condicion = resultado.Condicion
+                };
+
+                return (ServiceStatus.Ok, data, "Success");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.InternalError, null, $"Error Interno {e.Message ?? e.InnerException?.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, object?, string)> ConsultarDni(string dni)
+        {
+            try
+            {
+                var resultado = await _baseService.SendAsync<DniLookupResponse>(new ApiRequest
+                {
+                    apiType = SD.ApiType.GET,
+                    Url = $"{_dniApiOptions.BaseUrl}?documento={dni}"
+                });
+
+                if (resultado is null || string.IsNullOrWhiteSpace(resultado.NumeroDocumento))
+                    return (ServiceStatus.FailedValidation, null, "No se encontró el DNI consultado");
+
+                var nombreCompleto = string.Join(" ", new[] { resultado.ApellidoPaterno, resultado.ApellidoMaterno, resultado.Nombre }
+                    .Where(p => !string.IsNullOrWhiteSpace(p)));
+
+                var data = new
+                {
+                    numeroDocumento = resultado.NumeroDocumento,
+                    razonSocial = nombreCompleto,
+                    nombres = resultado.Nombre,
+                    apellidoPaterno = resultado.ApellidoPaterno,
+                    apellidoMaterno = resultado.ApellidoMaterno,
+                    celular = resultado.TelefonoMovil,
+                    fechaNacimiento = resultado.FechaNacimiento
+                };
+
+                return (ServiceStatus.Ok, data, "Success");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.InternalError, null, $"Error Interno {e.Message ?? e.InnerException?.Message}");
+            }
+        }
+
         public async Task<(ServiceStatus, object?, string)> ListarMetodoPago()
         {
             try

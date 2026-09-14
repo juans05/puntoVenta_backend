@@ -9,6 +9,9 @@ namespace Application.Interfaces.IRepository
 
         Task<(ServiceStatus, object?, string)> ListarTipoDocumentoVenta();
 
+        Task<(ServiceStatus, object?, string)> ConsultarRuc(string ruc);
+        Task<(ServiceStatus, object?, string)> ConsultarDni(string dni);
+
         Task<(ServiceStatus, object?, string)> ListarMetodoPago();
         Task<(ServiceStatus, object?, string)> ListarMetodoPagoAdmin();
         Task<(ServiceStatus, object?, string)> CrearMetodoPago(CreateMetodoPagoPayload payload);

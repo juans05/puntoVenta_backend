@@ -47,6 +47,36 @@ namespace Application.Services
             return MessageResult<object>.Of(message, resp);
         }
    
+        public async Task<MessageResult<object>> ConsultarRuc(string ruc)
+        {
+
+            var (estado, resp, message) = await _extensionesRepository.ConsultarRuc(ruc);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, resp);
+
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<object>> ConsultarDni(string dni)
+        {
+
+            var (estado, resp, message) = await _extensionesRepository.ConsultarDni(dni);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, resp);
+
+            return MessageResult<object>.Of(message, resp);
+        }
+
         public async Task<MessageResult<object>> ListarMetodoPago()
         {
 
