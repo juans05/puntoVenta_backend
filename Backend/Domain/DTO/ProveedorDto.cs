@@ -11,7 +11,9 @@ namespace Domain.DTO
     {
         public int ProveedorId { get; set; }
         public int Index { get; set; }
+        public string? Codigo { get; set; }
         public string Nombre { get; set; } = null!;
+        public int? TipoDocumentoId { get; set; }
         public string? Ruc { get; set; }
         public string? Dirección { get; set; }
         public string? Email { get; set; }
@@ -19,6 +21,7 @@ namespace Domain.DTO
         public string? Celular { get; set; }
         public string? UbigeoId { get; set; }
         public Ubigeo? Ubigeo { get; set; }
+        public string? DetalleAdicional { get; set; }
         public string? UsuarioCreacion { get; set; }
         public DateTime FechaCreacion { get; set; }
         public bool Estado { get; set; }

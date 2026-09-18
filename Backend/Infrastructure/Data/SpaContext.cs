@@ -170,6 +170,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         new UserConfiguration(modelBuilder.Entity<User>());
         new RoleConfiguration(modelBuilder.Entity<Role>());
         new ComprobanteCabeceraConfiguration(modelBuilder.Entity<ComprobanteCabecera>());
+        new ProveedorConfiguration(modelBuilder.Entity<Proveedor>());
         new UserSubmoduleConfiguration(modelBuilder.Entity<AspNetUserSubModule>());
         new RoleSubmoduleConfiguration(modelBuilder.Entity<RoleSubmodule>());
         new SubmoduleConfiguration(modelBuilder.Entity<AspNetSubModule>());
