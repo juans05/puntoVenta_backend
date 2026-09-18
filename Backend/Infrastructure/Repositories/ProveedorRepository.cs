@@ -116,13 +116,28 @@ public class ProveedorRepository : IProveedorRepository
             {
                 if (payload.Value.All(char.IsDigit))
                 {
-                    lista = await dbContext.Proveedor.AsNoTracking()
-                        .Include(i => i.Productos)
-                        .Where(p => p.Id == Convert.ToInt32(payload.Value))
-                        .ProjectTo<ProveedorDto>(mapper.ConfigurationProvider)
-                        .GetPagedAsync(payload.Page, payload.Amount);
-
-
+                    // RUC (11 digitos): buscar por Ruc. Cualquier otro largo numerico se
+                    // interpreta como el Id interno -- pero Convert.ToInt32 desborda con un RUC
+                    // (mismo bug ya corregido en ClienteRepository), asi que se usa TryParse y,
+                    // si no entra en un int, no hay resultados en vez de tirar un 500.
+                    if (payload.Value.Length == 11)
+                        lista = await dbContext.Proveedor.AsNoTracking()
+                            .Include(i => i.Productos)
+                            .Where(p => p.Ruc == payload.Value)
+                            .ProjectTo<ProveedorDto>(mapper.ConfigurationProvider)
+                            .GetPagedAsync(payload.Page, payload.Amount);
+                    else if (int.TryParse(payload.Value, out var proveedorId))
+                        lista = await dbContext.Proveedor.AsNoTracking()
+                            .Include(i => i.Productos)
+                            .Where(p => p.Id == proveedorId)
+                            .ProjectTo<ProveedorDto>(mapper.ConfigurationProvider)
+                            .GetPagedAsync(payload.Page, payload.Amount);
+                    else
+                        lista = await dbContext.Proveedor.AsNoTracking()
+                            .Include(i => i.Productos)
+                            .Where(p => false)
+                            .ProjectTo<ProveedorDto>(mapper.ConfigurationProvider)
+                            .GetPagedAsync(payload.Page, payload.Amount);
                 }
                 else
                 {

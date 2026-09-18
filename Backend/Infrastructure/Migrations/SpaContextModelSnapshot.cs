@@ -481,6 +481,9 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("EsCredito")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Estado")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -491,8 +494,21 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<DateTime?>("FechaEmision")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<int?>("MetodoPagoId")
                         .HasColumnType("integer");
+
+                    b.Property<int?>("MonedaId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("MontoDescuento")
+                        .HasColumnType("numeric(13,2)");
+
+                    b.Property<string>("Numero")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("NumeroCompra")
                         .HasMaxLength(150)
@@ -502,8 +518,18 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<decimal?>("OtrosCargos")
+                        .HasColumnType("numeric(13,2)");
+
+                    b.Property<decimal?>("PorcentajeDescuento")
+                        .HasColumnType("numeric(13,2)");
+
                     b.Property<int?>("ProveedorId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Serie")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<int?>("SucursalId")
                         .HasColumnType("integer");
@@ -512,6 +538,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<int?>("TipoIgvId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Total")
                         .HasColumnType("numeric(13,2)");
 
@@ -519,11 +548,23 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<decimal>("ValorGravada")
+                        .HasColumnType("numeric(13,2)");
+
+                    b.Property<decimal>("ValorIgv")
+                        .HasColumnType("numeric(13,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MetodoPagoId");
 
+                    b.HasIndex("MonedaId");
+
                     b.HasIndex("ProveedorId");
+
+                    b.HasIndex("SucursalId");
+
+                    b.HasIndex("TipoIgvId");
 
                     b.ToTable("Compra");
                 });
@@ -585,7 +626,17 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ClienteId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ColaboradorId")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<int?>("ComprobanteAfectadoId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Correlativo")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CotizacionOrigenId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Distrito")
@@ -603,6 +654,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("EsCredito")
+                        .HasColumnType("boolean");
+
                     b.Property<bool?>("EsEcommerce")
                         .HasColumnType("boolean");
 
@@ -612,23 +666,78 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character(1)")
                         .HasDefaultValue('C');
 
+                    b.Property<string>("Etiquetas")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("FechaVencimiento")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("FechaVenta")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<DateTime?>("FechaVigencia")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("GuiaRemisionElectronica")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("GuiaRemisionManual")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<string>("MensajeSunat")
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
+
+                    b.Property<char?>("ModoEnvio")
+                        .HasMaxLength(1)
+                        .HasColumnType("character(1)");
+
+                    b.Property<int?>("MonedaId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("MontoAnticipo")
+                        .HasColumnType("numeric(13,2)");
+
+                    b.Property<decimal?>("MontoDescuento")
+                        .HasColumnType("numeric(13,2)");
+
+                    b.Property<decimal?>("MontoRecibido")
+                        .HasColumnType("numeric(13,2)");
+
+                    b.Property<decimal?>("MontoRetencion")
+                        .HasColumnType("numeric(13,2)");
 
                     b.Property<string>("MotivoAnulacion")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<int?>("MotivoNotaId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("NumeroDocumento")
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
+
+                    b.Property<string>("NumeroOrden")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Observacion")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("PlacaVehiculo")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<decimal?>("PorcentajeDescuento")
+                        .HasColumnType("numeric(13,2)");
 
                     b.Property<decimal>("PorcentajeImpuesto")
                         .HasColumnType("numeric(13,2)");
@@ -653,12 +762,18 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<decimal?>("TipoCambio")
+                        .HasColumnType("numeric(13,2)");
+
                     b.Property<int>("TipoDocumentoVentaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("TipoEnvio")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<int?>("TipoOperacionId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TotalLetras")
                         .HasMaxLength(120)
@@ -677,11 +792,24 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("ValorTotal")
                         .HasColumnType("numeric(13,2)");
 
+                    b.Property<decimal?>("Vuelto")
+                        .HasColumnType("numeric(13,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
+                    b.HasIndex("ComprobanteAfectadoId");
+
+                    b.HasIndex("CotizacionOrigenId");
+
+                    b.HasIndex("MonedaId");
+
+                    b.HasIndex("MotivoNotaId");
+
                     b.HasIndex("TipoDocumentoVentaId");
+
+                    b.HasIndex("TipoOperacionId");
 
                     b.ToTable("ComprobanteCabecera");
                 });
@@ -722,6 +850,12 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<int?>("TipoIgvId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UnidadMedidaId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UsuarioCreacion")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -740,6 +874,10 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ComprobanteCabeceraId");
 
                     b.HasIndex("ProductoId");
+
+                    b.HasIndex("TipoIgvId");
+
+                    b.HasIndex("UnidadMedidaId");
 
                     b.ToTable("ComprobanteDetalle");
                 });
@@ -811,6 +949,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
 
+                    b.Property<string>("SerieCotizacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("SerieFactura")
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
@@ -818,6 +960,14 @@ namespace Infrastructure.Migrations
                     b.Property<string>("SerieNota")
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
+
+                    b.Property<string>("SerieNotaCredito")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("SerieNotaDebito")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("TenantId")
                         .HasMaxLength(15)
@@ -937,6 +1087,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("Facebook")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("GifCarga")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -945,7 +1099,19 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("Logo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("LogoCuadrado")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("LogoRectangular")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
@@ -961,6 +1127,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("RegimenTributario")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("Ruc")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -973,9 +1143,25 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("Tiktok")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("UbigeoId")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Urbanizacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("X")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Youtube")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
 
@@ -1352,6 +1538,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("Celular")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasMaxLength(150)
@@ -1638,6 +1828,12 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
 
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("Locale")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1651,14 +1847,63 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.HasIndex("Codigo")
-                        .IsUnique();
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("PaisId");
 
+                    b.HasIndex("TenantId", "Codigo")
+                        .IsUnique();
+
                     b.ToTable("Moneda");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MotivoNota", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("RevierteStock")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int>("TipoDocumentoVentaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MotivoNota");
                 });
 
             modelBuilder.Entity("Domain.Entities.Nacionalidad", b =>
@@ -2072,6 +2317,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("Ruc")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("Telefono")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -2417,6 +2666,14 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CodigoEstablecimiento")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Correo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("Direccion")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
@@ -2447,6 +2704,18 @@ namespace Infrastructure.Migrations
                     b.Property<int>("RubroId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SerieBoleta")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("SerieFactura")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("TenantId")
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
@@ -2457,6 +2726,10 @@ namespace Infrastructure.Migrations
                     b.Property<string>("UbigeoId")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Urbanizacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("UsuarioCreacion")
                         .HasMaxLength(15)
@@ -2575,6 +2848,79 @@ namespace Infrastructure.Migrations
                     b.ToTable("TipoDocumentoVenta");
                 });
 
+            modelBuilder.Entity("Domain.Entities.TipoIgv", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AplicaPorcentajeImpuesto")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TipoIgv");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TipoOperacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TipoOperacion");
+                });
+
             modelBuilder.Entity("Domain.Entities.Ubigeo", b =>
                 {
                     b.Property<string>("UbigeoId")
@@ -2596,6 +2942,41 @@ namespace Infrastructure.Migrations
                     b.HasKey("UbigeoId");
 
                     b.ToTable("Ubigeo");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UnidadMedida", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnidadMedida");
                 });
 
             modelBuilder.Entity("Domain.Entities.WhatsappConversation", b =>
@@ -2898,13 +3279,31 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("MetodoPagoId");
 
+                    b.HasOne("Domain.Entities.Moneda", "Moneda")
+                        .WithMany()
+                        .HasForeignKey("MonedaId");
+
                     b.HasOne("Domain.Entities.Proveedor", "Proveedor")
                         .WithMany()
                         .HasForeignKey("ProveedorId");
 
+                    b.HasOne("Domain.Entities.Sucursal", "Sucursal")
+                        .WithMany()
+                        .HasForeignKey("SucursalId");
+
+                    b.HasOne("Domain.Entities.TipoIgv", "TipoIgv")
+                        .WithMany()
+                        .HasForeignKey("TipoIgvId");
+
                     b.Navigation("Metodopago");
 
+                    b.Navigation("Moneda");
+
                     b.Navigation("Proveedor");
+
+                    b.Navigation("Sucursal");
+
+                    b.Navigation("TipoIgv");
                 });
 
             modelBuilder.Entity("Domain.Entities.CompraDetalle", b =>
@@ -2932,15 +3331,50 @@ namespace Infrastructure.Migrations
                         .WithMany("ComprobanteCabeceras")
                         .HasForeignKey("ClienteId");
 
+                    b.HasOne("Domain.Entities.ComprobanteCabecera", "ComprobanteAfectado")
+                        .WithMany()
+                        .HasForeignKey("ComprobanteAfectadoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.ComprobanteCabecera", "CotizacionOrigen")
+                        .WithMany()
+                        .HasForeignKey("CotizacionOrigenId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.Moneda", "Moneda")
+                        .WithMany()
+                        .HasForeignKey("MonedaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.MotivoNota", "MotivoNota")
+                        .WithMany()
+                        .HasForeignKey("MotivoNotaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Domain.Entities.TipoDocumentoVenta", "TipoDocumentoVenta")
                         .WithMany("ComprobanteCabeceras")
                         .HasForeignKey("TipoDocumentoVentaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.TipoOperacion", "TipoOperacion")
+                        .WithMany()
+                        .HasForeignKey("TipoOperacionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Cliente");
 
+                    b.Navigation("ComprobanteAfectado");
+
+                    b.Navigation("CotizacionOrigen");
+
+                    b.Navigation("Moneda");
+
+                    b.Navigation("MotivoNota");
+
                     b.Navigation("TipoDocumentoVenta");
+
+                    b.Navigation("TipoOperacion");
                 });
 
             modelBuilder.Entity("Domain.Entities.ComprobanteDetalle", b =>
@@ -2957,9 +3391,21 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.TipoIgv", "TipoIgv")
+                        .WithMany()
+                        .HasForeignKey("TipoIgvId");
+
+                    b.HasOne("Domain.Entities.UnidadMedida", "UnidadMedida")
+                        .WithMany()
+                        .HasForeignKey("UnidadMedidaId");
+
                     b.Navigation("ComprobanteCabecera");
 
                     b.Navigation("Producto");
+
+                    b.Navigation("TipoIgv");
+
+                    b.Navigation("UnidadMedida");
                 });
 
             modelBuilder.Entity("Domain.Entities.ConfiguracionFiscal", b =>

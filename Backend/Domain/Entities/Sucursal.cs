@@ -12,6 +12,12 @@ public class Sucursal : EntityBase
     public int MonedaId { get; set; }
     public int PaisId { get; set; }
     public int RubroId { get; set; }
+    public string? SerieFactura { get; set; }
+    public string? SerieBoleta { get; set; }
+    public string? CodigoEstablecimiento { get; set; }
+    public string? Urbanizacion { get; set; }
+    public string? Telefono { get; set; }
+    public string? Correo { get; set; }
 
     public Moneda Moneda { get; set; } = null!;
     public Pais Pais { get; set; } = null!;

@@ -1,0 +1,18 @@
+[
+  { "id": 1, "tipoDocumentoVentaId": 4, "codigo": "01", "descripcion": "Anulación de la operación", "revierteStock": true, "usuarioCreacion": "Admin" },
+  { "id": 2, "tipoDocumentoVentaId": 4, "codigo": "02", "descripcion": "Anulación por error en el RUC", "revierteStock": true, "usuarioCreacion": "Admin" },
+  { "id": 3, "tipoDocumentoVentaId": 4, "codigo": "03", "descripcion": "Corrección por error en la descripción", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 4, "tipoDocumentoVentaId": 4, "codigo": "04", "descripcion": "Descuento global", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 5, "tipoDocumentoVentaId": 4, "codigo": "05", "descripcion": "Descuento por ítem", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 6, "tipoDocumentoVentaId": 4, "codigo": "06", "descripcion": "Devolución total", "revierteStock": true, "usuarioCreacion": "Admin" },
+  { "id": 7, "tipoDocumentoVentaId": 4, "codigo": "07", "descripcion": "Devolución por ítem", "revierteStock": true, "usuarioCreacion": "Admin" },
+  { "id": 8, "tipoDocumentoVentaId": 4, "codigo": "08", "descripcion": "Bonificación", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 9, "tipoDocumentoVentaId": 4, "codigo": "09", "descripcion": "Disminución en el valor", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 10, "tipoDocumentoVentaId": 4, "codigo": "10", "descripcion": "Otros conceptos", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 11, "tipoDocumentoVentaId": 4, "codigo": "11", "descripcion": "Ajustes de operaciones de exportación", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 12, "tipoDocumentoVentaId": 4, "codigo": "12", "descripcion": "Ajustes afectos al IVAP", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 13, "tipoDocumentoVentaId": 4, "codigo": "13", "descripcion": "Ajustes de operaciones de exportación de servicios", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 14, "tipoDocumentoVentaId": 5, "codigo": "01", "descripcion": "Intereses por mora", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 15, "tipoDocumentoVentaId": 5, "codigo": "02", "descripcion": "Aumento en el valor", "revierteStock": false, "usuarioCreacion": "Admin" },
+  { "id": 16, "tipoDocumentoVentaId": 5, "codigo": "03", "descripcion": "Penalidades / otros conceptos", "revierteStock": false, "usuarioCreacion": "Admin" }
+]

@@ -166,6 +166,26 @@ public class RoleRepositoryTests
     }
 
     [Fact]
+    public async Task ObtenerRolesDeUsuario_DevuelveLosRoleIdsAsignados()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+        await SeedCatalogoAsync(context);
+
+        var repo = new RoleRepository(context, BuildRoleManager(context));
+        var (_, rolVentas, _) = await repo.CrearRol(new CreateRolePayload { Nombre = "Ventas", Prioridad = 20 });
+
+        var userId = await SeedUsuarioAsync(context, "user-1");
+        context.UserRoles.Add(new UserRol { UserId = userId, RoleId = rolVentas!.Id });
+        await context.SaveChangesRegularAsync();
+
+        var (estado, roleIds, _) = await repo.ObtenerRolesDeUsuario(userId);
+
+        Assert.Equal(ServiceStatus.Ok, estado);
+        Assert.Equal(new List<string> { rolVentas.Id }, roleIds);
+    }
+
+    [Fact]
     public async Task ResolverAccesoUsuario_SinRoles_DevuelveVacioSinRutaPorDefecto()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();

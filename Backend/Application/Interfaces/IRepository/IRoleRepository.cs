@@ -13,5 +13,6 @@ public interface IRoleRepository
     Task<(ServiceStatus, string)> EliminarRol(string id);
     Task<(ServiceStatus, List<AccesosDetalle>?, string)> ObtenerCatalogoSubmodulos();
     Task<(ServiceStatus, string)> AsignarRolesAUsuario(AsignarRolesUsuarioPayload payload);
-    Task<(List<AccesosDetalle> Rutas, string? RutaPorDefecto)> ResolverAccesoUsuario(IList<string> nombresDeRol);
+    Task<(ServiceStatus, List<string>?, string)> ObtenerRolesDeUsuario(string userId);
+    Task<(List<AccesosDetalle> Rutas, string? RutaPorDefecto)> ResolverAccesoUsuario(IList<string> nombresDeRol, string? tenantId = null);
 }

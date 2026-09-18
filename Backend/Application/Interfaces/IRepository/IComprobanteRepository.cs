@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.DTO;
+using Domain.Entities;
 using Domain.Models;
 using Domain.Payloads;
 
@@ -7,6 +8,10 @@ namespace Application.Interfaces.IRepository;
 public interface IComprobanteRepository
 {
     Task<(ServiceStatus, object?, string)> CrearComprobante(ComprobantePayload payload);
+
+    Task<(ServiceStatus, object?, string)> CrearNotaCreditoDebito(NotaPayload payload);
+
+    Task<(ServiceStatus, object?, string)> BuscarComprobantePorSerieCorrelativo(string serie, int correlativo);
 
     Task<(ServiceStatus, object, string)> ListarComprobantes(ComprobanteQueryParams queryparam);
     Task<(ServiceStatus, object?, string)> VentasRealizadas(string fecha);
@@ -36,4 +41,14 @@ public interface IComprobanteRepository
     Task<(ServiceStatus, ConfiguracionFiscal?)> ObtenerConfiguracionFiscalPorTenant(string tenant);
 
     Task<(ServiceStatus, string)> ActualizarFechaVenta(int id, DateTime fecha);
+
+    Task<(ServiceStatus, object?, string)> ObtenerCotizacionParaConvertir(int id);
+
+    Task<(ServiceStatus, string?, string)> GenerarPdfCotizacion(int id);
+
+    Task<(ServiceStatus, object?, string)> ObtenerSeriesDocumento();
+
+    Task<(ServiceStatus, List<LibroVentaDto>?, string)> ObtenerLibroVentas(ContabilidadQueryParams payload);
+
+    Task<(ServiceStatus, List<ReporteDetalladoVentaDto>?, string)> ObtenerReporteDetalladoVentas(ContabilidadQueryParams payload);
 }

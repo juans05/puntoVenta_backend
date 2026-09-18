@@ -18,6 +18,9 @@ public class ComprobanteCabeceraConfiguration
                       .HasMaxLength(1)
                       .HasDefaultValue('P');
 
+        entityBuilder.Property(u => u.ModoEnvio)
+                      .HasMaxLength(1);
+
         entityBuilder.Property(u => u.Serie)
                      .IsRequired()
                      .HasMaxLength(4);
@@ -53,6 +56,41 @@ public class ComprobanteCabeceraConfiguration
         entityBuilder.Property(u => u.Distrito)
                      .HasMaxLength(100);
 
+        entityBuilder.Property(u => u.Observacion)
+                     .HasMaxLength(500);
+
+        entityBuilder.Property(u => u.PlacaVehiculo).HasMaxLength(10);
+        entityBuilder.Property(u => u.GuiaRemisionManual).HasMaxLength(20);
+        entityBuilder.Property(u => u.GuiaRemisionElectronica).HasMaxLength(20);
+        entityBuilder.Property(u => u.Etiquetas).HasMaxLength(200);
+        entityBuilder.Property(u => u.NumeroOrden).HasMaxLength(30);
+        entityBuilder.Property(u => u.ColaboradorId).HasMaxLength(450);
+
         entityBuilder.Ignore(u => u.Estado);
+
+        entityBuilder.HasOne(u => u.ComprobanteAfectado)
+                     .WithMany()
+                     .HasForeignKey(u => u.ComprobanteAfectadoId)
+                     .OnDelete(DeleteBehavior.Restrict);
+
+        entityBuilder.HasOne(u => u.CotizacionOrigen)
+                     .WithMany()
+                     .HasForeignKey(u => u.CotizacionOrigenId)
+                     .OnDelete(DeleteBehavior.Restrict);
+
+        entityBuilder.HasOne(u => u.MotivoNota)
+                     .WithMany()
+                     .HasForeignKey(u => u.MotivoNotaId)
+                     .OnDelete(DeleteBehavior.Restrict);
+
+        entityBuilder.HasOne(u => u.TipoOperacion)
+                     .WithMany()
+                     .HasForeignKey(u => u.TipoOperacionId)
+                     .OnDelete(DeleteBehavior.Restrict);
+
+        entityBuilder.HasOne(u => u.Moneda)
+                     .WithMany()
+                     .HasForeignKey(u => u.MonedaId)
+                     .OnDelete(DeleteBehavior.Restrict);
     }
 }

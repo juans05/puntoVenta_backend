@@ -300,13 +300,38 @@ public class RoleRepository : IRoleRepository
         }
     }
 
-    public async Task<(List<AccesosDetalle> Rutas, string? RutaPorDefecto)> ResolverAccesoUsuario(IList<string> nombresDeRol)
+    public async Task<(ServiceStatus, List<string>?, string)> ObtenerRolesDeUsuario(string userId)
+    {
+        try
+        {
+            var roleIds = await _context.UserRoles.AsNoTracking()
+                                                   .Where(ur => ur.UserId == userId)
+                                                   .Select(ur => ur.RoleId)
+                                                   .ToListAsync();
+
+            return (ServiceStatus.Ok, roleIds, "Success");
+        }
+        catch (Exception ex)
+        {
+            return (ServiceStatus.InternalError, null, $"Error al obtener los roles del usuario -> {ex.InnerException?.Message ?? ex.Message}");
+        }
+    }
+
+    public async Task<(List<AccesosDetalle> Rutas, string? RutaPorDefecto)> ResolverAccesoUsuario(IList<string> nombresDeRol, string? tenantId = null)
     {
         if (nombresDeRol == null || nombresDeRol.Count == 0)
             return (new List<AccesosDetalle>(), null);
 
-        var roles = await _context.Roles.AsNoTracking()
-                                         .Where(r => nombresDeRol.Contains(r.Name))
+        // Durante el login el tenant ambiental (_context.CurrentTenantName) todavia no se puede
+        // resolver -- el usuario recien se esta autenticando, no hay claims de tenant en el
+        // HttpContext.User -- asi que el query filter de Role/RoleSubmodule (TenantId == _tenant.Name)
+        // colapsa a "TenantId IS NULL" y no encuentra ningun rol propio del tenant. Por eso aqui se
+        // ignoran esos filtros y se filtra a mano con el tenantId real (pasado explicitamente por
+        // AuthenticationRepository.Token usando user.Tenant.Name).
+        tenantId ??= _context.CurrentTenantName;
+
+        var roles = await _context.Roles.IgnoreQueryFilters().AsNoTracking()
+                                         .Where(r => nombresDeRol.Contains(r.Name) && (r.TenantId == null || r.TenantId == tenantId))
                                          .OrderBy(r => r.Prioridad)
                                          .ToListAsync();
 
@@ -314,8 +339,8 @@ public class RoleRepository : IRoleRepository
 
         var roleIds = roles.Select(r => r.Id).ToList();
 
-        var submoduleIds = await _context.RoleSubmodule.AsNoTracking()
-                                                        .Where(rs => roleIds.Contains(rs.RoleId))
+        var submoduleIds = await _context.RoleSubmodule.IgnoreQueryFilters().AsNoTracking()
+                                                        .Where(rs => roleIds.Contains(rs.RoleId) && rs.TenantId == tenantId)
                                                         .Select(rs => rs.SubmoduleId)
                                                         .Distinct()
                                                         .ToListAsync();

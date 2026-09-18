@@ -9,6 +9,7 @@ namespace Domain.Payloads
     public class CreateProveedorPayload
     {
         public string Nombre { get; set; } = null!;
+        public string? Ruc { get; set; }
         public string? Dirección { get; set; }
         public string? Email { get; set; }
         public string? Telefono { get; set; }

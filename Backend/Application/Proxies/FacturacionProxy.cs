@@ -29,6 +29,16 @@ public class FacturacionProxy : BaseService, IFacturacionProxy
             AccessToken = accessToken ?? _configuration.GetValue<string>("ApiUrl:AccessToken")
         });
 
+    public async Task<T> EnviarNotaSunar<T>(NoteRequest cabecera, string? accessToken = null)
+
+        => await this.SendAsync<T>(new ApiRequest
+        {
+            apiType = SD.ApiType.POST,
+            Url = $"{_apiUrl.BaseUrl}/note/send",
+            Data = cabecera,
+            AccessToken = accessToken ?? _configuration.GetValue<string>("ApiUrl:AccessToken")
+        });
+
     public async Task<T> ResumenAnulacion<T>(SummaryRequest cabecera, string? accessToken = null)
 
         => await this.SendAsync<T>(new ApiRequest

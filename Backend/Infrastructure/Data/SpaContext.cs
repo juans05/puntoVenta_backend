@@ -64,6 +64,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<EmpresaTenant> EmpresaTenant => Set<EmpresaTenant>();
     public DbSet<TipoDocumento> TipoDocumento => Set<TipoDocumento>();
     public DbSet<TipoDocumentoVenta> TipoDocumentoVenta => Set<TipoDocumentoVenta>();
+    public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
+    public DbSet<TipoIgv> TipoIgv => Set<TipoIgv>();
+    public DbSet<UnidadMedida> UnidadMedida => Set<UnidadMedida>();
+    public DbSet<TipoOperacion> TipoOperacion => Set<TipoOperacion>();
     public DbSet<Seriecorrelativo> Seriecorrelativo => Set<Seriecorrelativo>();
     public DbSet<AspNetModule> AspNetModule => Set<AspNetModule>();
     public DbSet<AspNetSubModule> AspNetSubModule => Set<AspNetSubModule>();
@@ -123,6 +127,14 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         //modelBuilder.Entity<AspNetSubModule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<AspNetUserSubModule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Role>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        // Catalogos "base SUNAT + personalizables por tenant": TenantId null = fila del catalogo
+        // nacional (compartida, no editable por nadie via CRUD), TenantId == tenant = fila propia
+        // que ese negocio agrego/edito. Mismo criterio que Role arriba.
+        modelBuilder.Entity<MotivoNota>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<TipoIgv>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<UnidadMedida>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<TipoOperacion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<Moneda>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<RoleSubmodule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Nacionalidad>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Caja>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));

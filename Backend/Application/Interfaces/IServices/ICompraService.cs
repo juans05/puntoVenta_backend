@@ -1,3 +1,4 @@
+using Domain.DTO;
 using Domain.Models;
 using Domain.Payloads;
 
@@ -16,4 +17,10 @@ public interface ICompraService
     Task<MessageResult<bool>> ActualizarFechaCompra(int id, DateTime fecha);
 
     Task<MessageResult<object>> ActualizarCompra(int id, CreateCompraPayload payload);
+
+    Task<MessageResult<object>> ImportarXmlCompra(Stream xmlStream);
+
+    Task<MessageResult<List<LibroCompraDto>>> ObtenerLibroCompras(ContabilidadQueryParams payload);
+
+    Task<MessageResult<List<ReporteDetalladoCompraDto>>> ObtenerReporteDetalladoCompras(ContabilidadQueryParams payload);
 }

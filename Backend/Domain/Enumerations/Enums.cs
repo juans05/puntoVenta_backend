@@ -14,7 +14,8 @@ public enum TipoComprobante
     Boleta,
     TicketInterno,
     NotaCredito,
-    NotaDebito
+    NotaDebito,
+    Cotizacion
 }
 public enum CategoriaEnum
 {

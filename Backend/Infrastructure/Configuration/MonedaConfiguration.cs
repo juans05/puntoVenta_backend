@@ -12,7 +12,9 @@ public class MonedaConfiguration
         entityBuilder.Property(m => m.Simbolo).IsRequired().HasMaxLength(5);
         entityBuilder.Property(m => m.Locale).IsRequired().HasMaxLength(20);
 
-        entityBuilder.HasIndex(m => m.Codigo).IsUnique();
+        // Antes era unico solo por Codigo; con Moneda ahora tenant-scoped (TenantId nullable),
+        // dos tenants distintos deben poder tener cada uno su propio "PEN" sin chocar.
+        entityBuilder.HasIndex(m => new { m.TenantId, m.Codigo }).IsUnique();
 
         entityBuilder.HasOne(m => m.Pais)
                       .WithMany(p => p.Monedas)

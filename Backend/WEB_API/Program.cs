@@ -22,6 +22,9 @@ using System.Text;
 using Identity.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using WEB_API;
+using WEB_API.Authorization;
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -168,7 +171,17 @@ builder.Services.AddAuthorization(options =>
         policy.AuthenticationSchemes = new[] { "Staff" };
         policy.RequireAuthenticatedUser();
     });
+
+    // Piloto de enforcement real de submodulos (ver SubmoduloAuthorizationHandler) -- hoy solo
+    // se aplica a los 5 catalogos nuevos de Nueva Factura (tipos-igv, unidades-medida, etc.).
+    options.AddPolicy("CatalogosDocumentosAdmin", policy =>
+        policy.Requirements.Add(new SubmoduloRequirement("1401")));
+
+    options.AddPolicy("RolesPermisosAdmin", policy =>
+        policy.Requirements.Add(new SubmoduloRequirement("1402")));
 });
+
+builder.Services.AddSingleton<IAuthorizationHandler, SubmoduloAuthorizationHandler>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

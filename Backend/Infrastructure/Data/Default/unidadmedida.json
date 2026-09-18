@@ -1,0 +1,12 @@
+[
+  { "id": 1, "codigo": "NIU", "descripcion": "Unidad", "usuarioCreacion": "Admin" },
+  { "id": 2, "codigo": "ZZ", "descripcion": "Servicio", "usuarioCreacion": "Admin" },
+  { "id": 3, "codigo": "KGM", "descripcion": "Kilogramo", "usuarioCreacion": "Admin" },
+  { "id": 4, "codigo": "GRM", "descripcion": "Gramo", "usuarioCreacion": "Admin" },
+  { "id": 5, "codigo": "LTR", "descripcion": "Litro", "usuarioCreacion": "Admin" },
+  { "id": 6, "codigo": "MTR", "descripcion": "Metro", "usuarioCreacion": "Admin" },
+  { "id": 7, "codigo": "MTK", "descripcion": "Metro cuadrado", "usuarioCreacion": "Admin" },
+  { "id": 8, "codigo": "PAR", "descripcion": "Par", "usuarioCreacion": "Admin" },
+  { "id": 9, "codigo": "DZN", "descripcion": "Docena", "usuarioCreacion": "Admin" },
+  { "id": 10, "codigo": "BX", "descripcion": "Caja", "usuarioCreacion": "Admin" }
+]

@@ -20,11 +20,15 @@ namespace Domain.Entities
         // Si es null, los reportes de margen usan Producto.CostoUnitario como antes.
         public decimal? CostoReal { get; set; }
 
+        public int? TipoIgvId { get; set; }
+        public int? UnidadMedidaId { get; set; }
 
         //public decimal? PrecioFicha { get; set; }
         //public decimal? PrecioFichaSinAumento { get; set; }
 
         public ComprobanteCabecera ComprobanteCabecera { get; set; } = null!;
         public Producto Producto { get; set; } = null!;
+        public TipoIgv? TipoIgv { get; set; }
+        public UnidadMedida? UnidadMedida { get; set; }
     }
 }

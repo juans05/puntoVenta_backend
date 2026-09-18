@@ -7,6 +7,7 @@ public class ComprobanteCabeceraDTO
     public int IdComprobante { get; set; }
     public int? ClienteId { get; set; }
     public string ClienteNombre { get; set; }
+    public string? NumeroDocumento { get; set; }
 
     public int TipoDocumentoVentaId { get; set; }
     public string TipoDocumentoVenta { get; set; }
@@ -23,6 +24,10 @@ public class ComprobanteCabeceraDTO
     public bool? EsEcommerce { get; set; }
     public string? TipoEnvio { get; set; }
     public string? Distrito { get; set; }
+    public bool EsCredito { get; set; }
+    public string? FechaVigencia { get; set; }
+    public bool Vencida { get; set; }
+    public int? CotizacionOrigenId { get; set; }
 
     public List<ComprobanteDetalleDTO> ComprobanteDetalles { get; set; } = new List<ComprobanteDetalleDTO>();
     public List<PagoDTO> Pagos { get; set; } = new List<PagoDTO>();

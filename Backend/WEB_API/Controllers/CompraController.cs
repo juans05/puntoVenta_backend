@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.IServices;
 using Domain.Payloads;
@@ -32,4 +33,14 @@ public class CompraController : ControllerBase
 
     [HttpPut("actualizar/{id}")]
     public async Task<IActionResult> ActualizarCompra(int id, [FromBody] CreateCompraPayload payload) => Ok(await _compraService.ActualizarCompra(id, payload));
+
+    [HttpPost("importar-xml")]
+    public async Task<IActionResult> ImportarXmlCompra(IFormFile archivo)
+    {
+        if (archivo == null || archivo.Length == 0)
+            return BadRequest(new { message = "Selecciona un archivo XML" });
+
+        using var stream = archivo.OpenReadStream();
+        return Ok(await _compraService.ImportarXmlCompra(stream));
+    }
 }

@@ -13,6 +13,21 @@
     "id": 3,
     "nombre": "Nota de venta",
     "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 4,
+    "nombre": "Nota de Crédito",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 5,
+    "nombre": "Nota de Débito",
+    "usuarioCreacion": "Admin"
+  },
+  {
+    "id": 6,
+    "nombre": "Cotización",
+    "usuarioCreacion": "Admin"
   }
 
 ]

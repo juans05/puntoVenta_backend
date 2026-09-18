@@ -50,7 +50,9 @@ namespace Domain.Common.Mappings
 
                 .ForMember(dest => dest.Correlativo, opt => opt.MapFrom(src => src.Correlativo.ToString().PadLeft(7, '0')))
                 .ForMember(dest => dest.Fecha, opt => opt.MapFrom(src => src.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")))
-                .ForMember(dest => dest.FechaVenta, opt => opt.MapFrom(src => (src.FechaVenta ?? src.FechaCreacion).ToString("dd/MM/yyyy HH:mm:ss")));
+                .ForMember(dest => dest.FechaVenta, opt => opt.MapFrom(src => (src.FechaVenta ?? src.FechaCreacion).ToString("dd/MM/yyyy HH:mm:ss")))
+                .ForMember(dest => dest.FechaVigencia, opt => opt.MapFrom(src => src.FechaVigencia.HasValue ? src.FechaVigencia.Value.ToString("dd/MM/yyyy") : null))
+                .ForMember(dest => dest.Vencida, opt => opt.MapFrom(src => src.FechaVigencia.HasValue && src.FechaVigencia.Value.Date < DateTime.UtcNow.AddHours(-5).Date));
 
 
             CreateMap<ComprobanteDetalle, ComprobanteDetalleDTO>()
@@ -132,11 +134,15 @@ namespace Domain.Common.Mappings
                 .ForMember(x => x.Usuario, y => y.MapFrom(z => z.UsuarioCreacion));
 
             CreateMap<Compra, CompraDto>()
+                .ForMember(x => x.Sucursal, y => y.MapFrom(z => z.Sucursal != null ? z.Sucursal.Nombre : null))
                 .ForMember(x => x.Proveedor, y => y.MapFrom(z => z.Proveedor != null ? z.Proveedor.Nombre : null))
                 .ForMember(x => x.MetodoPago, y => y.MapFrom(z => z.Metodopago != null ? z.Metodopago.Descripcion ?? z.Metodopago.Nombre : null))
                 .ForMember(x => x.FechaCompra, y => y.MapFrom(z => z.FechaCompra.ToString("dd/MM/yyyy HH:mm:ss")))
                 .ForMember(x => x.FechaRegistro, y => y.MapFrom(z => z.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")))
+                .ForMember(x => x.FechaEmision, y => y.MapFrom(z => z.FechaEmision.HasValue ? z.FechaEmision.Value.ToString("yyyy-MM-dd") : null))
                 .ForMember(x => x.Usuario, y => y.MapFrom(z => z.UsuarioCreacion))
+                .ForMember(x => x.Moneda, y => y.MapFrom(z => z.Moneda != null ? z.Moneda.Codigo : null))
+                .ForMember(x => x.TipoIgv, y => y.MapFrom(z => z.TipoIgv != null ? z.TipoIgv.Descripcion : null))
                 .ForMember(x => x.Detalle, y => y.MapFrom(z => z.CompraDetalles));
 
             CreateMap<CompraDetalle, CompraDetalleDto>()

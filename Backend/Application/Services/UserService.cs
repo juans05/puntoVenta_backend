@@ -73,6 +73,21 @@ namespace Application.Services
             return MessageResult<object>.Of("Succeeded", enitities);
         }
 
+        public async Task<MessageResult<object>> CambiarEstadoUsuario(string id, bool activo)
+        {
+            var (estado, message) = await _userRepository.CambiarEstadoUsuario(id, activo);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : estado == ServiceStatus.FailedValidation
+                            ? HttpStatusCode.BadRequest
+                            : HttpStatusCode.InternalServerError
+                    , message);
+
+            return MessageResult<object>.Of(message, null);
+        }
 
     }
 }

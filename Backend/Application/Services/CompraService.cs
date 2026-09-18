@@ -1,5 +1,6 @@
 using Application.Interfaces.IRepository;
 using Application.Interfaces.IServices;
+using Domain.DTO;
 using Domain.Models;
 using Domain.Payloads;
 using System.Net;
@@ -103,5 +104,39 @@ public class CompraService : ICompraService
                 , message, result);
 
         return MessageResult<object>.Of(message, result);
+    }
+
+    public async Task<MessageResult<object>> ImportarXmlCompra(Stream xmlStream)
+    {
+        var (estado, result, message) = await _compraRepository.ImportarXmlCompra(xmlStream);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
+
+    public async Task<MessageResult<List<LibroCompraDto>>> ObtenerLibroCompras(ContabilidadQueryParams payload)
+    {
+        var (estado, result, message) = await _compraRepository.ObtenerLibroCompras(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, result);
+
+        return MessageResult<List<LibroCompraDto>>.Of(message, result);
+    }
+
+    public async Task<MessageResult<List<ReporteDetalladoCompraDto>>> ObtenerReporteDetalladoCompras(ContabilidadQueryParams payload)
+    {
+        var (estado, result, message) = await _compraRepository.ObtenerReporteDetalladoCompras(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, result);
+
+        return MessageResult<List<ReporteDetalladoCompraDto>>.Of(message, result);
     }
 }

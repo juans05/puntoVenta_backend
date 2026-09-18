@@ -70,7 +70,7 @@ namespace Infrastructure.Data
         {
             "Categoria", "Grupo", "Impuesto", "Metodopago", "Moneda", "Pais",
             "Producto", "Proveedor", "Rubro", "RubroModulo", "Seriecorrelativo",
-            "TipoDocumento", "TipoDocumentoVenta"
+            "TipoDocumento", "TipoDocumentoVenta", "MotivoNota", "TipoIgv", "UnidadMedida", "TipoOperacion"
         };
 
         private static async Task ResincronizarSecuenciasAsync(SpaContext context)
@@ -189,6 +189,50 @@ namespace Infrastructure.Data
                 await context.SaveChangesRegularAsync();
             }
 
+            // Backfill de submodulos nuevos ("1401" Catalogos de Documentos, "1402" Roles y
+            // Permisos, "501" Recursos Humanos): AsociarModuleUser solo le da el catalogo COMPLETO de submodulos al
+            // admin de un tenant en el momento en que ese tenant se crea, asi que un submodulo
+            // agregado despues nunca le llega a un tenant ya existente. Se le otorga a cualquier
+            // usuario que ya tenga "801" (Mi empresa) -- unico submodulo que, segun
+            // AsociarModuleUser, solo recibe el admin de cada negocio -- para no dejar a los
+            // admins existentes bloqueados del todo.
+            // IgnoreQueryFilters(): AspNetUserSubModule tiene HasQueryFilter por TenantId == tenant
+            // ACTUAL de la request; este seeding corre una sola vez al arrancar (sin request), asi
+            // que sin esto solo veria las filas del tenant que resuelva el contexto ambiente, no
+            // las de todos los tenants existentes.
+            var usuariosConMiEmpresa = await context.AspNetUserSubModule.IgnoreQueryFilters().AsNoTracking()
+                .Where(us => us.SubmoduleId == "801")
+                .Select(us => new { us.UserId, us.TenantId })
+                .ToListAsync();
+
+            var submodulosNuevosParaAdmins = new[] { "1401", "1402", "501" };
+
+            foreach (var submoduloId in submodulosNuevosParaAdmins)
+            {
+                var usuariosConSubmodulo = await context.AspNetUserSubModule.IgnoreQueryFilters().AsNoTracking()
+                    .Where(us => us.SubmoduleId == submoduloId)
+                    .Select(us => us.UserId)
+                    .ToListAsync();
+
+                var faltantes = usuariosConMiEmpresa
+                    .Where(u => !usuariosConSubmodulo.Contains(u.UserId))
+                    .Select(u => new AspNetUserSubModule
+                    {
+                        UserId = u.UserId,
+                        SubmoduleId = submoduloId,
+                        TenantId = u.TenantId,
+                        UsuarioCreacion = "ADMIN",
+                        FechaCreacion = DateTime.UtcNow.AddHours(-5),
+                        Estado = true
+                    }).ToList();
+
+                if (faltantes.Count > 0)
+                {
+                    await context.AspNetUserSubModule.AddRangeAsync(faltantes);
+                    await context.SaveChangesRegularAsync();
+                }
+            }
+
             // TipoDocumento (DNI/RUC/Pasaporte/...) y TipoDocumentoVenta (Boleta/Factura) son
             // catálogos nacionales SUNAT: iguales para cualquier tenant, sin TenantId ni query
             // filter (ver SpaContext.OnModelCreating). Id es la única PK de estas tablas, así
@@ -214,6 +258,56 @@ namespace Infrastructure.Data
             if (tipoDocumentoVentaFaltante.Count > 0)
             {
                 await context.TipoDocumentoVenta!.AddRangeAsync(tipoDocumentoVentaFaltante);
+                await context.SaveChangesRegularAsync();
+            }
+
+            // MotivoNota: catalogo SUNAT (tabla 09 Notas de Credito / tabla 10 Notas de Debito),
+            // mismo criterio que TipoDocumentoVenta arriba (nacional, sin TenantId, insert solo faltantes).
+            var motivoNotaData = File.ReadAllText(Path.Combine(DefaultDataPath, "motivonota.json"));
+            var motivoNota = JsonConvert.DeserializeObject<List<MotivoNota>>(motivoNotaData);
+            var motivoNotaExistente = await context.MotivoNota.Select(x => x.Id).ToListAsync();
+            var motivoNotaFaltante = motivoNota.Where(x => !motivoNotaExistente.Contains(x.Id)).ToList();
+
+            if (motivoNotaFaltante.Count > 0)
+            {
+                await context.MotivoNota!.AddRangeAsync(motivoNotaFaltante);
+                await context.SaveChangesRegularAsync();
+            }
+
+            // TipoIgv (SUNAT tabla 07) y UnidadMedida (SUNAT UN/ECE rec 20): mismo criterio
+            // de catalogo nacional que MotivoNota arriba (sin TenantId, insert solo faltantes).
+            var tipoIgvData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipoigv.json"));
+            var tipoIgv = JsonConvert.DeserializeObject<List<TipoIgv>>(tipoIgvData);
+            var tipoIgvExistente = await context.TipoIgv.Select(x => x.Id).ToListAsync();
+            var tipoIgvFaltante = tipoIgv.Where(x => !tipoIgvExistente.Contains(x.Id)).ToList();
+
+            if (tipoIgvFaltante.Count > 0)
+            {
+                await context.TipoIgv!.AddRangeAsync(tipoIgvFaltante);
+                await context.SaveChangesRegularAsync();
+            }
+
+            var unidadMedidaData = File.ReadAllText(Path.Combine(DefaultDataPath, "unidadmedida.json"));
+            var unidadMedida = JsonConvert.DeserializeObject<List<UnidadMedida>>(unidadMedidaData);
+            var unidadMedidaExistente = await context.UnidadMedida.Select(x => x.Id).ToListAsync();
+            var unidadMedidaFaltante = unidadMedida.Where(x => !unidadMedidaExistente.Contains(x.Id)).ToList();
+
+            if (unidadMedidaFaltante.Count > 0)
+            {
+                await context.UnidadMedida!.AddRangeAsync(unidadMedidaFaltante);
+                await context.SaveChangesRegularAsync();
+            }
+
+            // TipoOperacion (SUNAT tabla 17, simplificado): mismo criterio de catalogo
+            // nacional que TipoIgv/UnidadMedida arriba.
+            var tipoOperacionData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipooperacion.json"));
+            var tipoOperacion = JsonConvert.DeserializeObject<List<TipoOperacion>>(tipoOperacionData);
+            var tipoOperacionExistente = await context.TipoOperacion.Select(x => x.Id).ToListAsync();
+            var tipoOperacionFaltante = tipoOperacion.Where(x => !tipoOperacionExistente.Contains(x.Id)).ToList();
+
+            if (tipoOperacionFaltante.Count > 0)
+            {
+                await context.TipoOperacion!.AddRangeAsync(tipoOperacionFaltante);
                 await context.SaveChangesRegularAsync();
             }
         }

@@ -12,5 +12,7 @@ namespace Application.Interfaces.IServices
         Task<MessageResult<object>> GetAllUsers();
     Task<MessageResult<object>> ListarUsuarios();
 
+    Task<MessageResult<object>> CambiarEstadoUsuario(string id, bool activo);
+
     }
 }

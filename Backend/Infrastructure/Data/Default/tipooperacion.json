@@ -1,0 +1,5 @@
+[
+  { "id": 1, "codigo": "0101", "descripcion": "Venta Interna", "usuarioCreacion": "Admin" },
+  { "id": 2, "codigo": "0200", "descripcion": "Exportación de Bienes", "usuarioCreacion": "Admin" },
+  { "id": 3, "codigo": "0401", "descripcion": "Venta Interna - Anticipos", "usuarioCreacion": "Admin" }
+]

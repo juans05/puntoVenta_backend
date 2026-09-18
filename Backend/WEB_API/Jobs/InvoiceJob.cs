@@ -54,6 +54,24 @@ public class InvoiceJob : IInvocable
                 {
                     foreach (var comprobante in comprobantesPendientes.Data)
                     {
+                        if (comprobante.TipoDocumentoVentaId == (int)TipoComprobante.NotaCredito
+                            || comprobante.TipoDocumentoVentaId == (int)TipoComprobante.NotaDebito)
+                        {
+                            var notaRequest = ArmarNota(comprobante, config);
+
+                            var notaResponse = await _facturacionProxy.EnviarNotaSunar<InvoiceResponse>(notaRequest, config.Token);
+
+                            if (notaResponse.sunatResponse.success)
+                            {
+                                await comprobanteService.ActualizarComprobanteAEnviado(comprobante.Id, JsonConvert.SerializeObject(notaResponse.sunatResponse.cdrResponse.notes));
+                            }
+                            else
+                            {
+                                await comprobanteService.ActualizarComprobanteAError(comprobante.Id, notaResponse.sunatResponse.error.message);
+                            }
+
+                            continue;
+                        }
 
                         var request = ArmarInvoice(comprobante, config);
 
@@ -105,35 +123,64 @@ public class InvoiceJob : IInvocable
 
     }
 
+    private Client ArmarCliente(ComprobanteCabecera comprobanteCabecera) => new Client
+    {
+        tipoDoc = string.IsNullOrEmpty(comprobanteCabecera.NumeroDocumento) ? "0" : comprobanteCabecera.NumeroDocumento.Length == 11 ? "6" : "1",
+        numDoc = string.IsNullOrEmpty(comprobanteCabecera.NumeroDocumento) ? "00000000" : comprobanteCabecera.NumeroDocumento,
+        rznSocial = string.IsNullOrEmpty(comprobanteCabecera.NumeroDocumento) ? "SIN NOMBRE" : comprobanteCabecera.RazonSocial,
+    };
+
+    private Company ArmarCompany(ConfiguracionFiscal config) => new Company
+    {
+        ruc = long.Parse(config.Ruc ?? "0"),
+        razonSocial = config.RazonSocial ?? "EMPRESA NO CONFIGURADA",
+        nombreComercial = config.NombreComercial ?? config.RazonSocial,
+        address = new Address
+        {
+            ubigueo = config.UbigeoId ?? "000000",
+            departamento = config.Departamento ?? "",
+            provincia = config.Provincia ?? "",
+            distrito = config.Distrito ?? "",
+            direccion = config.Direccion ?? ""
+        }
+    };
+
+    // Usa los valores ya calculados y persistidos por linea (ValorUnitarioTotal/ValorIgv, que en
+    // ComprobanteRepository.CrearComprobante ya tienen en cuenta el TipoIgv de cada linea) en vez
+    // de recalcular aqui con el factor global -- evita duplicar la logica de exoneracion/inafectacion.
+    private List<Detail> ArmarDetails(ComprobanteCabecera comprobanteCabecera, decimal impuesto, decimal factor) =>
+        comprobanteCabecera.ComprobanteDetalles.Select(x =>
+        {
+            var mtoBaseIgv = x.ValorUnitarioTotal - x.ValorIgv;
+            var aplicaImpuesto = x.TipoIgv?.AplicaPorcentajeImpuesto ?? true;
+
+            return new Detail
+            {
+                unidad = x.UnidadMedida?.Codigo ?? "NIU",
+                codProducto = "P001",
+                cantidad = x.Cantidad,
+                descripcion = x.Producto.Nombre,
+                mtoValorUnitario = Math.Round(mtoBaseIgv / x.Cantidad, 2),
+                mtoValorVenta = mtoBaseIgv,
+                mtoBaseIgv = mtoBaseIgv,
+                porcentajeIgv = aplicaImpuesto ? impuesto : 0m,
+                igv = x.ValorIgv,
+                tipAfeIgv = x.TipoIgv?.Codigo ?? "10",
+                totalImpuestos = x.ValorIgv,
+                mtoPrecioUnitario = x.ValorUnitario,
+            };
+        }).ToList();
+
     private InvoiceRequest ArmarInvoice(ComprobanteCabecera comprobanteCabecera, ConfiguracionFiscal config)
     {
 
-        var cliente = new Client
-        {
-            tipoDoc = string.IsNullOrEmpty(comprobanteCabecera.NumeroDocumento) ? "0" : comprobanteCabecera.NumeroDocumento.Length == 11 ? "6" : "1",
-            numDoc = string.IsNullOrEmpty(comprobanteCabecera.NumeroDocumento) ? "00000000" : comprobanteCabecera.NumeroDocumento,
-            rznSocial = string.IsNullOrEmpty(comprobanteCabecera.NumeroDocumento) ? "SIN NOMBRE" : comprobanteCabecera.RazonSocial,
-            //address = null
-        };
+        var cliente = ArmarCliente(comprobanteCabecera);
 
         var moneda = config.Moneda ?? "PEN";
         var impuesto = config.PorcentajeImpuesto > 0 ? config.PorcentajeImpuesto : 18m;
         var factor = 1m + (impuesto / 100m);
 
-        var company = new Company
-        {
-            ruc = long.Parse(config.Ruc ?? "0"),
-            razonSocial = config.RazonSocial ?? "EMPRESA NO CONFIGURADA",
-            nombreComercial = config.NombreComercial ?? config.RazonSocial,
-            address = new Address
-            {
-                ubigueo = config.UbigeoId ?? "000000",
-                departamento = config.Departamento ?? "",
-                provincia = config.Provincia ?? "",
-                distrito = config.Distrito ?? "",
-                direccion = config.Direccion ?? ""
-            }
-        };
+        var company = ArmarCompany(config);
 
         var serie = comprobanteCabecera.TipoDocumentoVentaId == (int)TipoComprobante.Factura
             ? (config.SerieFactura ?? "F001")
@@ -159,21 +206,7 @@ public class InvoiceJob : IInvocable
             valorVenta = comprobanteCabecera.ValorSubtotal,
             mtoIGV = comprobanteCabecera.ValorIgv,
             totalImpuestos = comprobanteCabecera.ValorIgv,
-            details = comprobanteCabecera.ComprobanteDetalles.Select(x => new Detail
-            {
-                unidad = "NIU",
-                codProducto = "P001",
-                cantidad = x.Cantidad,
-                descripcion = x.Producto.Nombre,
-                mtoValorUnitario = Math.Round(x.ValorUnitario / factor, 2),
-                mtoValorVenta = Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad,
-                mtoBaseIgv = Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad,
-                porcentajeIgv = impuesto,
-                igv = (x.ValorUnitario * x.Cantidad) - (Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad),
-                tipAfeIgv = "10",
-                totalImpuestos = (x.ValorUnitario * x.Cantidad) - (Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad),
-                mtoPrecioUnitario = x.ValorUnitario,
-            }).ToList(),
+            details = ArmarDetails(comprobanteCabecera, impuesto, factor),
             legends = new List<Legend>
             {
                 new Legend
@@ -186,6 +219,64 @@ public class InvoiceJob : IInvocable
 
         return invoice;
 
+    }
+
+    private NoteRequest ArmarNota(ComprobanteCabecera comprobanteCabecera, ConfiguracionFiscal config)
+    {
+        var cliente = ArmarCliente(comprobanteCabecera);
+
+        var moneda = config.Moneda ?? "PEN";
+        var impuesto = config.PorcentajeImpuesto > 0 ? config.PorcentajeImpuesto : 18m;
+        var factor = 1m + (impuesto / 100m);
+
+        var company = ArmarCompany(config);
+
+        var afectado = comprobanteCabecera.ComprobanteAfectado;
+        var motivo = comprobanteCabecera.MotivoNota;
+
+        var serieAfectado = afectado.TipoDocumentoVentaId == (int)TipoComprobante.Factura
+            ? (config.SerieFactura ?? "F001")
+            : (config.SerieBoleta ?? "B001");
+
+        var serie = comprobanteCabecera.TipoDocumentoVentaId == (int)TipoComprobante.NotaCredito
+            ? (config.SerieNotaCredito ?? "FC01")
+            : (config.SerieNotaDebito ?? "FD01");
+
+        string fechaHoraFormateada = comprobanteCabecera.FechaCreacion.ToString("yyyy-MM-ddTHH:mm:sszzz");
+
+        var nota = new NoteRequest
+        {
+            ublVersion = "2.1",
+            tipoDoc = comprobanteCabecera.TipoDocumentoVentaId == (int)TipoComprobante.NotaCredito ? "07" : "08",
+            tipoDocAfectado = afectado.TipoDocumentoVentaId == (int)TipoComprobante.Factura ? "01" : "03",
+            numDocfectado = $"{serieAfectado}-{afectado.Correlativo.ToString().PadLeft(7, '0')}",
+            codMotivo = motivo?.Codigo ?? "01",
+            desMotivo = motivo?.Descripcion ?? "",
+            serie = serie,
+            correlativo = comprobanteCabecera.Correlativo.ToString().PadLeft(7, '0'),
+            fechaEmision = fechaHoraFormateada,
+            formaPago = new FormaPago { tipo = "Contado", moneda = moneda },
+            tipoMoneda = moneda,
+            client = cliente,
+            company = company,
+            subTotal = comprobanteCabecera.ValorTotal,
+            mtoImpVenta = comprobanteCabecera.ValorTotal,
+            mtoOperGravadas = comprobanteCabecera.ValorSubtotal,
+            valorVenta = comprobanteCabecera.ValorSubtotal,
+            mtoIGV = comprobanteCabecera.ValorIgv,
+            totalImpuestos = comprobanteCabecera.ValorIgv,
+            details = ArmarDetails(comprobanteCabecera, impuesto, factor),
+            legends = new List<Legend>
+            {
+                new Legend
+                {
+                    code = "1000",
+                    value = comprobanteCabecera.TotalLetras
+                }
+            }
+        };
+
+        return nota;
     }
 
 

@@ -10,4 +10,5 @@ public interface IUsersRepository
     Task<(ServiceStatus, AuthenticatedUsuarioDto?, string)> GetAllUserAccess(string username);
     Task<(ServiceStatus, object?, string)> GetAllUsers();
     Task<(ServiceStatus, object?, string)> ListarUsuarios();
+    Task<(ServiceStatus, string)> CambiarEstadoUsuario(string id, bool activo);
 }

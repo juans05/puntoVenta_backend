@@ -61,5 +61,173 @@
     "moduloId": "1300",
     "usuarioCreacion": "ADMIN",
     "estado": "true"
+  },
+  {
+    "identificador": "1401",
+    "nombre": "Catálogos de Documentos",
+    "moduloId": "1400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1402",
+    "nombre": "Roles y Permisos",
+    "moduloId": "1400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "501",
+    "nombre": "Recursos Humanos",
+    "moduloId": "500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "202",
+    "nombre": "Inventario",
+    "moduloId": "200",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "302",
+    "nombre": "Ventas Realizadas",
+    "moduloId": "300",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "502",
+    "nombre": "Asistencia",
+    "moduloId": "500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "503",
+    "nombre": "Reporte de Asistencia",
+    "moduloId": "500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "504",
+    "nombre": "Configuración de Renta",
+    "moduloId": "500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "702",
+    "nombre": "Cajas",
+    "moduloId": "700",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1302",
+    "nombre": "ROI Publicidad",
+    "moduloId": "1300",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1303",
+    "nombre": "Categorías y métodos de pago",
+    "moduloId": "1300",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1403",
+    "nombre": "Usuarios",
+    "moduloId": "1400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1404",
+    "nombre": "Sucursales",
+    "moduloId": "1400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1405",
+    "nombre": "Salones de recojo",
+    "moduloId": "1400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1501",
+    "nombre": "Emitir Factura",
+    "moduloId": "1500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1502",
+    "nombre": "Emitir Boleta",
+    "moduloId": "1500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1503",
+    "nombre": "Emitir Nota de Crédito",
+    "moduloId": "1500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1504",
+    "nombre": "Emitir Nota de Débito",
+    "moduloId": "1500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1505",
+    "nombre": "Emitir Nota de Venta",
+    "moduloId": "1500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1506",
+    "nombre": "Emitir Cotización",
+    "moduloId": "1500",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1601",
+    "nombre": "Libro Electrónico de Ventas",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1602",
+    "nombre": "Libro Electrónico de Compras",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1603",
+    "nombre": "Reporte Detallado de Ventas",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1604",
+    "nombre": "Reporte Detallado de Compras",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
   }
 ]

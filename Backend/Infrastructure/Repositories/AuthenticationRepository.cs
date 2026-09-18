@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Domain.DTO;
+using Application.Interfaces.IRepository;
 
 namespace Infrastructure.Repositories
 {
@@ -28,6 +29,7 @@ namespace Infrastructure.Repositories
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IMapper _mapper;
         private readonly ILogger<AuthenticationRepository> _logger;
+        private readonly IRoleRepository _roleRepository;
 
         public AuthenticationRepository(
             SpaContext context,
@@ -36,7 +38,8 @@ namespace Infrastructure.Repositories
             IOptions<TokenManagement> tokenSettings,
             TokenValidationParameters tokenValidationParameters,
             IMapper mapper,
-            ILogger<AuthenticationRepository> logger)
+            ILogger<AuthenticationRepository> logger,
+            IRoleRepository roleRepository)
         {
             _context = context;
             _userManager = userManager;
@@ -45,6 +48,7 @@ namespace Infrastructure.Repositories
             _tokenValidationParameters = tokenValidationParameters;
             _mapper = mapper;
             _logger = logger;
+            _roleRepository = roleRepository;
         }
 
         //--------------------------------------------------------------------
@@ -103,9 +107,21 @@ namespace Infrastructure.Repositories
                     claims = DefaultClaims(user.Id, user.FirstName, user.LastName, user.Email, user.NormalizedUserName, user.PhoneNumber, user.AvatarUrl, user.Tenant.Name, empresa,
                         user.SucursalId?.ToString(), user.Tenant.PaisId?.ToString(), user.Tenant.RubroId.ToString(), user.Tenant.MonedaId?.ToString());
 
+                    // GetRolesAsync() usa el mismo DbContext cuyo tenant ambiental (_context.CurrentTenantName)
+                    // todavia es null en este punto del login (no hay claims de tenant en el HttpContext.User
+                    // antes de autenticarse) -- el query filter de Role (TenantId == null || TenantId ==
+                    // _tenant.Name) colapsa a "TenantId IS NULL" y nunca encuentra roles propios del tenant
+                    // (ej. "Cajero"). Se consulta AspNetUserRoles directo, ignorando ese filtro, y se filtra
+                    // a mano por el tenant real que ya conocemos via user.Tenant.Name.
+                    IList<string> userRoles = new List<string>();
+
                     if (_userManager.SupportsUserRole)
                     {
-                        IList<string> userRoles = await _userManager.GetRolesAsync(user);
+                        userRoles = await _context.Roles.IgnoreQueryFilters().AsNoTracking()
+                            .Where(r => r.UserRoles.Any(ur => ur.UserId == user.Id) && (r.TenantId == null || r.TenantId == user.Tenant.Name))
+                            .Select(r => r.Name)
+                            .ToListAsync();
+
                         foreach (string role in userRoles)
                         {
                             claims.Add(new Claim(ClaimTypes.Role, role));
@@ -115,7 +131,15 @@ namespace Infrastructure.Repositories
 
                     var applicationUserDto = _mapper.Map<ApplicationUserDto>(user);
 
-                    var rutas = applicationUserDto.Resumen;
+                    // Se unen dos fuentes de acceso: los submodulos asignados directo al usuario
+                    // (AspNetUserSubModule, el unico mecanismo usado hasta ahora) y los que le llegan
+                    // via Role -> RoleSubmodule (RoleRepository, existia en el codigo con tests pero
+                    // nunca estuvo conectado al login). Sin roles asignados (caso de todo usuario
+                    // existente hoy) ResolverAccesoUsuario devuelve vacio, asi que esto no cambia el
+                    // comportamiento de nadie hasta que un admin use la pantalla de Roles y Permisos.
+                    var (rutasPorRol, _) = await _roleRepository.ResolverAccesoUsuario(userRoles, user.Tenant.Name);
+
+                    var rutas = MergeAccesos(applicationUserDto.Resumen, rutasPorRol);
 
                     claims.Add(new Claim("rutas", Newtonsoft.Json.JsonConvert.SerializeObject(rutas)));
 
@@ -298,6 +322,22 @@ namespace Infrastructure.Repositories
             if (!string.IsNullOrEmpty(moneda)) claims.Add(new Claim(ClaimConstants.Moneda, moneda));
 
             return claims;
+        }
+
+        private static List<AccesosDetalle> MergeAccesos(List<AccesosDetalle> a, List<AccesosDetalle> b)
+        {
+            return a.Concat(b)
+                .GroupBy(x => x.Modulo)
+                .Select(g => new AccesosDetalle
+                {
+                    Modulo = g.Key,
+                    ModuloNombre = g.First().ModuloNombre,
+                    SubModulos = g.SelectMany(x => x.SubModulos)
+                                  .GroupBy(s => s.SubModulo)
+                                  .Select(s => s.First())
+                                  .ToList()
+                })
+                .ToList();
         }
 
         private AspNetUserToken CreateRefreshToken()

@@ -8,6 +8,7 @@ public class User : IdentityUser
     public string? AvatarUrl { get; set; }
     public string FechaCreacion { get; set; }
     public bool Estado { get; set; }
+    public string? Celular { get; set; }
 
     public int TenantId { get; set; }
     public Tenant Tenant { get; set; } = null!;

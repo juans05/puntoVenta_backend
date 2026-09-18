@@ -1,8 +1,9 @@
 namespace Domain.Entities;
 
-public class Moneda
+// EntityBase da TenantId (nullable): null = catalogo base SUNAT compartido por todos los
+// tenants (los 4 seeds originales), no-null = moneda propia agregada por ese tenant via CRUD.
+public class Moneda : EntityBase
 {
-    public int Id { get; set; }
     public string Codigo { get; set; } = null!;
     public string Simbolo { get; set; } = null!;
     public string Locale { get; set; } = null!;

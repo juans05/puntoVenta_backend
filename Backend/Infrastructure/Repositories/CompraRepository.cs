@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Application.Helper;
 using Application.Interfaces.IRepository;
 using AutoMapper;
@@ -21,12 +22,18 @@ public class CompraRepository : ICompraRepository
     private readonly SpaContext _context;
     private readonly IMapper _mapper;
     private readonly IHttpContextAccessor? _httpContextAccessor;
+    private readonly TaxCalculatorFactory _taxCalculatorFactory;
 
-    public CompraRepository(SpaContext context, IMapper mapper, IHttpContextAccessor? httpContextAccessor)
+    public CompraRepository(
+        SpaContext context,
+        IMapper mapper,
+        IHttpContextAccessor? httpContextAccessor,
+        TaxCalculatorFactory? taxCalculatorFactory = null)
     {
         _context = context;
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
+        _taxCalculatorFactory = taxCalculatorFactory ?? new TaxCalculatorFactory();
     }
 
     private int? PaisIdClaim =>
@@ -41,6 +48,55 @@ public class CompraRepository : ICompraRepository
         return $"C-{(count + 1).ToString().PadLeft(6, '0')}";
     }
 
+    // Si ya viene un proveedorId (elegido de la lista existente o editando una compra) se usa tal
+    // cual. Si no, y hay Ruc, se empareja por Ruc o se crea -- mismo criterio que ImportarXmlCompra.
+    private async Task<int?> ObtenerOCrearProveedorPorRuc(int? proveedorId, string? ruc, string? nombre, string? direccion, string? ubigeoId, string? email)
+    {
+        if (proveedorId.HasValue) return proveedorId;
+        if (string.IsNullOrWhiteSpace(ruc)) return null;
+
+        var proveedorExistente = await _context.Proveedor.AsTracking().FirstOrDefaultAsync(p => p.Ruc == ruc);
+        if (proveedorExistente != null) return proveedorExistente.Id;
+
+        if (string.IsNullOrWhiteSpace(nombre)) return null;
+
+        var nuevoProveedor = new Proveedor { Nombre = nombre, Ruc = ruc, Dirección = direccion, UbigeoId = ubigeoId, Email = email };
+        await _context.Proveedor.AddAsync(nuevoProveedor);
+        await _context.SaveChangesAsync();
+        return nuevoProveedor.Id;
+    }
+
+    // Subtotal -> Descuento -> Otros cargos -> separacion Gravada/IGV segun el TipoIgv elegido para
+    // el documento (a diferencia de las ventas, en compras el IGV es por documento, no por linea).
+    private async Task<(decimal montoDescuento, decimal otrosCargos, decimal gravada, decimal igv, decimal total)> CalcularTotalesCompra(
+        decimal subtotalProductos, decimal? porcentajeDescuento, decimal? montoDescuentoFijo, decimal? otrosCargosPayload, int? tipoIgvId)
+    {
+        var montoDescuento = porcentajeDescuento.HasValue && porcentajeDescuento.Value > 0
+            ? Math.Round(subtotalProductos * porcentajeDescuento.Value / 100m, 2)
+            : montoDescuentoFijo ?? 0m;
+
+        var otrosCargos = otrosCargosPayload ?? 0m;
+
+        var baseConDescuento = subtotalProductos - montoDescuento + otrosCargos;
+
+        var tipoIgv = tipoIgvId.HasValue
+            ? await _context.TipoIgv.AsNoTracking().FirstOrDefaultAsync(t => t.Id == tipoIgvId)
+            : null;
+        var aplicaImpuesto = tipoIgv?.AplicaPorcentajeImpuesto ?? true;
+
+        var config = await _context.ConfiguracionFiscal
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(x => x.TenantId == _context.CurrentTenantName && x.Activo && x.Estado)
+            .FirstOrDefaultAsync();
+        var calculadora = _taxCalculatorFactory.GetCalculator(PaisIdClaim);
+
+        var gravada = aplicaImpuesto ? calculadora.CalcularSubtotal(baseConDescuento, PaisIdClaim, config?.PorcentajeImpuesto) : baseConDescuento;
+        var igv = aplicaImpuesto ? calculadora.CalcularImpuesto(baseConDescuento, PaisIdClaim, config?.PorcentajeImpuesto) : 0m;
+
+        return (montoDescuento, otrosCargos, gravada, igv, baseConDescuento);
+    }
+
     public async Task<(ServiceStatus, CompraDto?, string)> CrearCompra(CreateCompraPayload payload)
     {
         if (payload.Detalle == null || payload.Detalle.Count == 0)
@@ -50,17 +106,36 @@ public class CompraRepository : ICompraRepository
 
         try
         {
-            var total = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
+            var subtotalProductos = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
+
+            var proveedorId = await ObtenerOCrearProveedorPorRuc(
+                payload.ProveedorId, payload.ProveedorRuc, payload.ProveedorNombre,
+                payload.ProveedorDireccion, payload.ProveedorUbigeoId, payload.ProveedorEmail);
+
+            var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
+                subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
 
             var compra = new Compra
             {
                 NumeroCompra = await GenerarNumeroCompra(),
-                ProveedorId = payload.ProveedorId,
+                SucursalId = payload.SucursalId,
+                ProveedorId = proveedorId,
                 Total = total,
                 MetodoPagoId = payload.MetodoPagoId,
                 Observacion = payload.Observacion,
                 Estado = "CONFIRMADO",
-                FechaCompra = payload.FechaCompra ?? NowLocal()
+                FechaCompra = payload.FechaCompra ?? NowLocal(),
+                Serie = payload.Serie,
+                Numero = payload.Numero,
+                FechaEmision = payload.FechaEmision,
+                MonedaId = payload.MonedaId,
+                TipoIgvId = payload.TipoIgvId,
+                PorcentajeDescuento = payload.PorcentajeDescuento,
+                MontoDescuento = montoDescuento,
+                OtrosCargos = otrosCargos,
+                EsCredito = payload.EsCredito,
+                ValorGravada = gravada,
+                ValorIgv = igv
             };
 
             await _context.Compra.AddAsync(compra);
@@ -189,10 +264,13 @@ public class CompraRepository : ICompraRepository
     {
         try
         {
-            var query = _context.Compra.AsNoTracking().Where(c => c.Estado != "ANULADO").AsQueryable();
+            var query = _context.Compra.AsNoTracking().Include(c => c.Sucursal).Include(c => c.Moneda).Include(c => c.TipoIgv).Where(c => c.Estado != "ANULADO").AsQueryable();
 
             if (payload.ProveedorId.HasValue)
                 query = query.Where(c => c.ProveedorId == payload.ProveedorId);
+
+            if (payload.SucursalId.HasValue)
+                query = query.Where(c => c.SucursalId == payload.SucursalId);
 
             if (DateTime.TryParse(payload.StartDate, out var start))
                 query = query.Where(c => c.FechaCompra.Date >= start.Date);
@@ -222,8 +300,11 @@ public class CompraRepository : ICompraRepository
     public async Task<(ServiceStatus, CompraDto?, string)> ObtenerCompra(int id)
     {
         var dto = await _context.Compra.AsNoTracking()
+                                .Include(c => c.Sucursal)
                                 .Include(c => c.Proveedor)
                                 .Include(c => c.Metodopago)
+                                .Include(c => c.Moneda)
+                                .Include(c => c.TipoIgv)
                                 .Include(c => c.CompraDetalles)
                                     .ThenInclude(d => d.Producto)
                                 .ProjectTo<CompraDto>(_mapper.ConfigurationProvider)
@@ -308,11 +389,32 @@ public class CompraRepository : ICompraRepository
                 CostoUnitario = d.CostoUnitario
             }).ToList();
 
-            compra.ProveedorId = payload.ProveedorId;
+            var subtotalProductos = nuevoDetalle.Sum(d => d.Cantidad * d.CostoUnitario);
+
+            var proveedorId = await ObtenerOCrearProveedorPorRuc(
+                payload.ProveedorId, payload.ProveedorRuc, payload.ProveedorNombre,
+                payload.ProveedorDireccion, payload.ProveedorUbigeoId, payload.ProveedorEmail);
+
+            var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
+                subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
+
+            compra.SucursalId = payload.SucursalId;
+            compra.ProveedorId = proveedorId;
             compra.MetodoPagoId = payload.MetodoPagoId;
             compra.Observacion = payload.Observacion;
             compra.FechaCompra = payload.FechaCompra ?? compra.FechaCompra;
-            compra.Total = nuevoDetalle.Sum(d => d.Cantidad * d.CostoUnitario);
+            compra.Serie = payload.Serie;
+            compra.Numero = payload.Numero;
+            compra.FechaEmision = payload.FechaEmision;
+            compra.MonedaId = payload.MonedaId;
+            compra.TipoIgvId = payload.TipoIgvId;
+            compra.PorcentajeDescuento = payload.PorcentajeDescuento;
+            compra.MontoDescuento = montoDescuento;
+            compra.OtrosCargos = otrosCargos;
+            compra.EsCredito = payload.EsCredito;
+            compra.ValorGravada = gravada;
+            compra.ValorIgv = igv;
+            compra.Total = total;
 
             await _context.CompraDetalle.AddRangeAsync(nuevoDetalle);
             await _context.SaveChangesAsync();
@@ -352,6 +454,181 @@ public class CompraRepository : ICompraRepository
         {
             await _context.Database.RollbackTransactionAsync();
             return (ServiceStatus.FailedValidation, null, $"Error al editar compra -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    public async Task<(ServiceStatus, CompraXmlPreviewDto?, string)> ImportarXmlCompra(Stream xmlStream)
+    {
+        System.Xml.Linq.XDocument doc;
+        try
+        {
+            doc = System.Xml.Linq.XDocument.Load(xmlStream);
+        }
+        catch (Exception)
+        {
+            return (ServiceStatus.FailedValidation, null, "El archivo no es un XML válido");
+        }
+
+        var root = doc.Root;
+        if (root == null)
+            return (ServiceStatus.FailedValidation, null, "El XML está vacío");
+
+        System.Xml.Linq.XNamespace cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2";
+        System.Xml.Linq.XNamespace cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2";
+
+        var numeroDocumento = root.Element(cbc + "ID")?.Value;
+
+        DateTime? fechaEmision = DateTime.TryParse(root.Element(cbc + "IssueDate")?.Value, out var fecha) ? fecha : null;
+
+        var supplierParty = root.Element(cac + "AccountingSupplierParty")?.Element(cac + "Party");
+        var ruc = supplierParty?.Element(cac + "PartyIdentification")?.Element(cbc + "ID")?.Value?.Trim();
+        var razonSocial = (supplierParty?.Element(cac + "PartyLegalEntity")?.Element(cbc + "RegistrationName")?.Value
+                            ?? supplierParty?.Element(cac + "PartyName")?.Element(cbc + "Name")?.Value)?.Trim();
+
+        decimal.TryParse(
+            root.Element(cac + "LegalMonetaryTotal")?.Element(cbc + "PayableAmount")?.Value,
+            System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var total);
+
+        var lineas = new List<CompraXmlLineaDto>();
+        foreach (var linea in root.Elements(cac + "InvoiceLine"))
+        {
+            var descripcion = linea.Element(cac + "Item")?.Element(cbc + "Description")?.Value?.Trim() ?? "Producto";
+
+            decimal.TryParse(linea.Element(cbc + "InvoicedQuantity")?.Value,
+                System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var cantidad);
+
+            decimal.TryParse(linea.Element(cac + "Price")?.Element(cbc + "PriceAmount")?.Value,
+                System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var precio);
+
+            lineas.Add(new CompraXmlLineaDto { Descripcion = descripcion, Cantidad = cantidad, PrecioUnitario = precio });
+        }
+
+        if (string.IsNullOrWhiteSpace(ruc) && lineas.Count == 0)
+            return (ServiceStatus.FailedValidation, null, "No se pudo leer el XML: no tiene la estructura de una factura electrónica UBL de SUNAT");
+
+        // Empareja por RUC (identificador confiable, a diferencia del nombre que puede variar
+        // de formato entre el emisor del XML y como quedo registrado aqui). Si no existe, se
+        // crea el proveedor -- mismo criterio que ya usa CrearComprobante con el Cliente.
+        int? proveedorId = null;
+        if (!string.IsNullOrWhiteSpace(ruc))
+        {
+            var proveedorExistente = await _context.Proveedor.AsTracking().FirstOrDefaultAsync(p => p.Ruc == ruc);
+
+            if (proveedorExistente != null)
+            {
+                proveedorId = proveedorExistente.Id;
+                razonSocial ??= proveedorExistente.Nombre;
+            }
+            else if (!string.IsNullOrWhiteSpace(razonSocial))
+            {
+                var nuevoProveedor = new Proveedor { Nombre = razonSocial, Ruc = ruc };
+                await _context.Proveedor.AddAsync(nuevoProveedor);
+                await _context.SaveChangesAsync();
+                proveedorId = nuevoProveedor.Id;
+            }
+        }
+
+        return (ServiceStatus.Ok, new CompraXmlPreviewDto
+        {
+            ProveedorId = proveedorId,
+            ProveedorNombre = razonSocial,
+            ProveedorRuc = ruc,
+            NumeroDocumento = numeroDocumento,
+            FechaEmision = fechaEmision,
+            Total = total,
+            Lineas = lineas
+        }, "XML leído correctamente");
+    }
+
+    // Registro de Compras (PLE 8.1) -- una fila por compra registrada.
+    public async Task<(ServiceStatus, List<LibroCompraDto>?, string)> ObtenerLibroCompras(ContabilidadQueryParams payload)
+    {
+        try
+        {
+            var query = _context.Compra.AsNoTracking()
+                .Include(c => c.Proveedor)
+                .Include(c => c.Moneda)
+                .Include(c => c.TipoIgv)
+                .Where(c => c.Estado != "ANULADO");
+
+            if (payload.SucursalId.HasValue)
+                query = query.Where(c => c.SucursalId == payload.SucursalId);
+
+            if (DateTime.TryParse(payload.FechaInicio, out var inicio))
+                query = query.Where(c => c.FechaCompra >= inicio.Date);
+
+            if (DateTime.TryParse(payload.FechaFin, out var fin))
+                query = query.Where(c => c.FechaCompra <= fin.Date.AddDays(1).AddTicks(-1));
+
+            var compras = await query.OrderBy(c => c.FechaCompra).ToListAsync();
+
+            var aplicaImpuesto = (Compra c) => c.TipoIgv?.AplicaPorcentajeImpuesto ?? true;
+
+            var libro = compras.Select(c => new LibroCompraDto
+            {
+                Periodo = c.FechaCompra.ToString("yyyyMM"),
+                Cuo = c.Id.ToString().PadLeft(12, '0'),
+                FechaEmision = (c.FechaEmision ?? c.FechaCompra).ToString("dd/MM/yyyy"),
+                TipoComprobante = "01", // Factura de compra (unico documento que este sistema registra como compra)
+                Serie = c.Serie ?? "",
+                Numero = c.Numero ?? "",
+                TipoDocProveedor = SunatCodigos.TipoDocumentoIdentidadPorNumero(c.Proveedor?.Ruc),
+                NumeroDocProveedor = c.Proveedor?.Ruc,
+                RazonSocial = c.Proveedor?.Nombre,
+                BaseImponibleGravada = aplicaImpuesto(c) ? c.ValorGravada : 0,
+                ValorAdquisicionesNoGravadas = aplicaImpuesto(c) ? 0 : c.ValorGravada,
+                Igv = c.ValorIgv,
+                ImporteTotal = c.Total,
+                Moneda = c.Moneda?.Codigo ?? "PEN",
+                Estado = "1"
+            }).ToList();
+
+            return (ServiceStatus.Ok, libro, "Success");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error Interno {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    // Una fila por producto comprado (no por compra).
+    public async Task<(ServiceStatus, List<ReporteDetalladoCompraDto>?, string)> ObtenerReporteDetalladoCompras(ContabilidadQueryParams payload)
+    {
+        try
+        {
+            var query = _context.Compra.AsNoTracking()
+                .Include(c => c.Proveedor)
+                .Include(c => c.CompraDetalles).ThenInclude(d => d.Producto)
+                .Where(c => c.Estado != "ANULADO");
+
+            if (payload.SucursalId.HasValue)
+                query = query.Where(c => c.SucursalId == payload.SucursalId);
+
+            if (DateTime.TryParse(payload.FechaInicio, out var inicio))
+                query = query.Where(c => c.FechaCompra >= inicio.Date);
+
+            if (DateTime.TryParse(payload.FechaFin, out var fin))
+                query = query.Where(c => c.FechaCompra <= fin.Date.AddDays(1).AddTicks(-1));
+
+            var compras = await query.OrderBy(c => c.FechaCompra).ToListAsync();
+
+            var reporte = compras.SelectMany(c => c.CompraDetalles.Select(d => new ReporteDetalladoCompraDto
+            {
+                Fecha = c.FechaCompra.ToString("dd/MM/yyyy"),
+                SerieNumero = string.IsNullOrEmpty(c.Serie) ? c.NumeroCompra : $"{c.Serie}-{c.Numero}",
+                Proveedor = c.Proveedor?.Nombre,
+                Ruc = c.Proveedor?.Ruc,
+                Producto = d.Producto?.Nombre,
+                Cantidad = d.Cantidad,
+                CostoUnitario = d.CostoUnitario,
+                Subtotal = d.Cantidad * d.CostoUnitario
+            })).ToList();
+
+            return (ServiceStatus.Ok, reporte, "Success");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error Interno {e.InnerException?.Message ?? e.Message}");
         }
     }
 }

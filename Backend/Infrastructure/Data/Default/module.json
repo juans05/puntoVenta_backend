@@ -52,5 +52,29 @@
     "nombre": "Gastos",
     "usuarioCreacion": "ADMIN",
     "estado": "true"
+  },
+  {
+    "identificador": "1400",
+    "nombre": "Configuración",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "500",
+    "nombre": "Recursos Humanos",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1500",
+    "nombre": "Venta & Comprobante",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1600",
+    "nombre": "Contabilidad",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
   }
 ]

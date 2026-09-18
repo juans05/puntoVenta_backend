@@ -1,0 +1,5 @@
+[
+  { "id": 1, "codigo": "10", "descripcion": "Gravado - Operación Onerosa", "aplicaPorcentajeImpuesto": true, "usuarioCreacion": "Admin" },
+  { "id": 2, "codigo": "20", "descripcion": "Exonerado - Operación Onerosa", "aplicaPorcentajeImpuesto": false, "usuarioCreacion": "Admin" },
+  { "id": 3, "codigo": "30", "descripcion": "Inafecto - Operación Onerosa", "aplicaPorcentajeImpuesto": false, "usuarioCreacion": "Admin" }
+]

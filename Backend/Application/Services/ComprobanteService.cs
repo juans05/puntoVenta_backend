@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.IProxies;
 using Application.Interfaces.IRepository;
 using Application.Interfaces.IServices;
+using Domain.DTO;
 using Domain.Entities;
 using Domain.Models;
 using Domain.Payloads;
@@ -36,6 +37,40 @@ public class ComprobanteService : IComprobanteService
         return MessageResult<object>.Of(message, resp);
 
     }
+    public async Task<MessageResult<object>> CrearNotaCreditoDebito(NotaPayload request)
+    {
+
+        var (estado, resp, message) = await _comprobanteRepository.CrearNotaCreditoDebito(request);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<object>.Of(message, resp);
+
+    }
+
+    public async Task<MessageResult<object>> BuscarComprobantePorSerieCorrelativo(string serie, int correlativo)
+    {
+
+        var (estado, resp, message) = await _comprobanteRepository.BuscarComprobantePorSerieCorrelativo(serie, correlativo);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<object>.Of(message, resp);
+
+    }
+
     public async Task<MessageResult<object>> ListarComprobantes(ComprobanteQueryParams queryparam)
     {
 
@@ -200,5 +235,65 @@ public class ComprobanteService : IComprobanteService
                 , message, null);
 
         return MessageResult<bool>.Of(message, true);
+    }
+
+    public async Task<MessageResult<object>> ObtenerCotizacionParaConvertir(int id)
+    {
+        var (estado, resp, message) = await _comprobanteRepository.ObtenerCotizacionParaConvertir(id);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<object>.Of(message, resp);
+    }
+
+    public async Task<MessageResult<string>> GenerarPdfCotizacion(int id)
+    {
+        var (estado, pdfBase64, message) = await _comprobanteRepository.GenerarPdfCotizacion(id);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.NotFound
+                    ? HttpStatusCode.NotFound
+                    : HttpStatusCode.InternalServerError
+                , message, null);
+
+        return MessageResult<string>.Of(message, pdfBase64);
+    }
+
+    public async Task<MessageResult<object>> ObtenerSeriesDocumento()
+    {
+        var (estado, resp, message) = await _comprobanteRepository.ObtenerSeriesDocumento();
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, null);
+
+        return MessageResult<object>.Of(message, resp);
+    }
+
+    public async Task<MessageResult<List<LibroVentaDto>>> ObtenerLibroVentas(ContabilidadQueryParams payload)
+    {
+        var (estado, resp, message) = await _comprobanteRepository.ObtenerLibroVentas(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, resp);
+
+        return MessageResult<List<LibroVentaDto>>.Of(message, resp);
+    }
+
+    public async Task<MessageResult<List<ReporteDetalladoVentaDto>>> ObtenerReporteDetalladoVentas(ContabilidadQueryParams payload)
+    {
+        var (estado, resp, message) = await _comprobanteRepository.ObtenerReporteDetalladoVentas(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, resp);
+
+        return MessageResult<List<ReporteDetalladoVentaDto>>.Of(message, resp);
     }
 }

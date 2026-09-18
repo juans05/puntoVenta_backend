@@ -20,6 +20,12 @@ public class FacturacionController : ControllerBase
     [HttpPost("crear")]
     public async Task<IActionResult> CrearComprobante(ComprobantePayload payload) => Ok(await _comprobanteService.CrearComprobante(payload));
 
+    [HttpPost("crear-nota")]
+    public async Task<IActionResult> CrearNotaCreditoDebito(NotaPayload payload) => Ok(await _comprobanteService.CrearNotaCreditoDebito(payload));
+
+    [HttpGet("buscar")]
+    public async Task<IActionResult> BuscarComprobante([FromQuery] string serie, [FromQuery] int correlativo) => Ok(await _comprobanteService.BuscarComprobantePorSerieCorrelativo(serie, correlativo));
+
     [HttpGet("listar")]
     public async Task<IActionResult> ListarComprobantes([FromQuery] ComprobanteQueryParams queryparam) => Ok(await _comprobanteService.ListarComprobantes(queryparam));
 
@@ -37,6 +43,15 @@ public class FacturacionController : ControllerBase
 
     [HttpPut("modificar-fecha-venta/{id}")]
     public async Task<IActionResult> ActualizarFechaVenta(int id, [FromBody] ActualizarFechaPayload payload) => Ok(await _comprobanteService.ActualizarFechaVenta(id, payload.Fecha));
+
+    [HttpGet("cotizacion/{id}/convertir")]
+    public async Task<IActionResult> ObtenerCotizacionParaConvertir(int id) => Ok(await _comprobanteService.ObtenerCotizacionParaConvertir(id));
+
+    [HttpGet("cotizacion/{id}/pdf")]
+    public async Task<IActionResult> GenerarPdfCotizacion(int id) => Ok(await _comprobanteService.GenerarPdfCotizacion(id));
+
+    [HttpGet("series")]
+    public async Task<IActionResult> ObtenerSeriesDocumento() => Ok(await _comprobanteService.ObtenerSeriesDocumento());
 
 }
 

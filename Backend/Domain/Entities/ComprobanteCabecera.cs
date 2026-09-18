@@ -20,6 +20,7 @@ public class ComprobanteCabecera : EntityBase
     public char EstadoComprobante { get; set; } = EstatusComprobante.Creado;
     public DateTime? FechaVenta { get; set; }
     public char EnviadoSunat { get; set; } = EstatusEnvioSunat.Pendiente;
+    public char? ModoEnvio { get; set; } // EstatusModoEnvio: F=Solo Firmar e Imprimir, S=Enviar a SUNAT ahora, G=Solo Guardar
     public string? MensajeSunat { get; set; }
     public string? MotivoAnulacion { get; set; }
 
@@ -30,8 +31,45 @@ public class ComprobanteCabecera : EntityBase
     public string? TipoEnvio { get; set; }
     public string? Distrito { get; set; }
 
+    public int? ComprobanteAfectadoId { get; set; }
+    public int? MotivoNotaId { get; set; }
+
+    // Solo aplica a Cotizacion (TipoDocumentoVentaId = 6): hasta cuando es valida (no se persiste
+    // un estado "Vencida" -- se calcula comparando contra la fecha actual) y, si el cliente acepta,
+    // el Id de la Factura/Boleta en la que se convirtio (se completa en el comprobante resultante,
+    // no en la cotizacion en si).
+    public DateTime? FechaVigencia { get; set; }
+    public int? CotizacionOrigenId { get; set; }
+
+    public bool EsCredito { get; set; }
+    public decimal? PorcentajeDescuento { get; set; }
+    public decimal? MontoDescuento { get; set; }
+    public decimal? MontoRecibido { get; set; }
+    public decimal? Vuelto { get; set; }
+    public string? Observacion { get; set; }
+
+    // Campos de "Opc. Avanzadas": todos opcionales, se completan solo si el usuario
+    // habilita el campo correspondiente en el formulario.
+    public int? TipoOperacionId { get; set; }
+    public string? PlacaVehiculo { get; set; }
+    public string? GuiaRemisionManual { get; set; }
+    public string? GuiaRemisionElectronica { get; set; }
+    public string? Etiquetas { get; set; }
+    public DateTime? FechaVencimiento { get; set; }
+    public string? NumeroOrden { get; set; }
+    public string? ColaboradorId { get; set; }
+    public int? MonedaId { get; set; }
+    public decimal? TipoCambio { get; set; }
+    public decimal? MontoRetencion { get; set; }
+    public decimal? MontoAnticipo { get; set; }
+
     public Cliente? Cliente { get; set; }
     public TipoDocumentoVenta TipoDocumentoVenta { get; set; } = null!;
+    public ComprobanteCabecera? ComprobanteAfectado { get; set; }
+    public ComprobanteCabecera? CotizacionOrigen { get; set; }
+    public MotivoNota? MotivoNota { get; set; }
+    public TipoOperacion? TipoOperacion { get; set; }
+    public Moneda? Moneda { get; set; }
     public List<ComprobanteDetalle> ComprobanteDetalles { get; set; } = new List<ComprobanteDetalle>();
     public List<Pago> Pagos { get; set; } = new List<Pago>();
 }

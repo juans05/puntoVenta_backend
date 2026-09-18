@@ -28,5 +28,12 @@ namespace WEB_API.Controllers
         [HttpGet("listar-usuarios")]
         public async Task<IActionResult> ListarUsuarios() => Ok(await _usersService.ListarUsuarios());
 
+        // Reutiliza la policy de Roles y Permisos (submodulo 1402): activar/desactivar usuarios
+        // es administracion de cuentas, no algo que cualquier usuario autenticado del tenant deba poder hacer.
+        [Authorize(Policy = "RolesPermisosAdmin")]
+        [HttpPut("{id}/estado")]
+        public async Task<IActionResult> CambiarEstadoUsuario(string id, [FromBody] CambiarEstadoUsuarioPayload payload) =>
+            Ok(await _usersService.CambiarEstadoUsuario(id, payload.Activo));
+
     }
 }
