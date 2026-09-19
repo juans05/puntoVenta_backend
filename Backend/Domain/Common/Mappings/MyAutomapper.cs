@@ -86,7 +86,9 @@ namespace Domain.Common.Mappings
                                                                        }
                                                                            ).ToList()));
 
-            CreateMap<CreateProductPayload, Producto>();
+            CreateMap<CreateProductPayload, Producto>()
+                .ForMember(x => x.PreciosAlternativos, y => y.Ignore())
+                .ForMember(x => x.Presentaciones, y => y.Ignore());
             //.ForMember(x => x.Comentarios, y => y.MapFrom(z => z.Comentarios));
 
 
@@ -104,11 +106,19 @@ namespace Domain.Common.Mappings
             CreateMap<CreateComentarioPayload, Comentario>();
 
             CreateMap<UpdateProductPayload, Producto>()
-                .ForMember(x => x.Stock, y => y.Ignore());
+                .ForMember(x => x.Stock, y => y.Ignore())
+                .ForMember(x => x.PreciosAlternativos, y => y.Ignore())
+                .ForMember(x => x.Presentaciones, y => y.Ignore());
             //.ForMember(x => x.Comentarios, y => y.MapFrom(z => z.Comentarios));
 
             CreateMap<Producto, ProductoDto>()
                 .ForMember(x => x.productoId, y => y.MapFrom(z => z.Id));
+
+            CreateMap<PrecioAlternativoPayload, PrecioAlternativo>();
+            CreateMap<PrecioAlternativo, PrecioAlternativoDto>();
+            CreateMap<PresentacionPayload, Presentacion>();
+            CreateMap<Presentacion, PresentacionDto>()
+                .ForMember(x => x.UnidadMedidaNombre, y => y.MapFrom(z => z.UnidadMedida == null ? null : z.UnidadMedida.Descripcion));
 
             CreateMap<CreateCategoryPayload, Categoria>();
             CreateMap<Categoria, CategoriaDto>()

@@ -34,7 +34,30 @@ public record class ProductoDto
     public DateTime FechaCreacion { get; set; }
     public bool Estado { get; set; }
 
-
+    public int? SucursalId { get; set; }
+    public string? Codigo { get; set; }
+    public string? Marca { get; set; }
+    public int? MonedaId { get; set; }
+    [JsonIgnore]
+    public Moneda? Moneda { get; set; }
+    public string? NombreMoneda { get => Moneda == null ? null : Moneda.Simbolo; }
+    public int? TipoIgvId { get; set; }
+    [JsonIgnore]
+    public TipoIgv? TipoIgv { get; set; }
+    public string? NombreTipoIgv { get => TipoIgv == null ? null : TipoIgv.Descripcion; }
+    public int? UnidadMedidaId { get; set; }
+    [JsonIgnore]
+    public UnidadMedida? UnidadMedida { get; set; }
+    public string? NombreUnidadMedida { get => UnidadMedida == null ? null : UnidadMedida.Descripcion; }
+    public decimal? PrecioMinimo { get; set; }
+    public decimal? PesoKg { get; set; }
+    public bool Icbper { get; set; }
+    public decimal? PorcentajeDetraccion { get; set; }
+    public string? DestinoPreparacion { get; set; }
+    public bool GestionLotes { get; set; }
+    public bool MultiPrecioActivo { get; set; }
+    public List<PrecioAlternativoDto> PreciosAlternativos { get; set; } = new();
+    public List<PresentacionDto> Presentaciones { get; set; } = new();
 
 };
 

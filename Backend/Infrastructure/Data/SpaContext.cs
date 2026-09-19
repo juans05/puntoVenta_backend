@@ -67,6 +67,8 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
     public DbSet<TipoIgv> TipoIgv => Set<TipoIgv>();
     public DbSet<UnidadMedida> UnidadMedida => Set<UnidadMedida>();
+    public DbSet<PrecioAlternativo> PrecioAlternativo => Set<PrecioAlternativo>();
+    public DbSet<Presentacion> Presentacion => Set<Presentacion>();
     public DbSet<TipoOperacion> TipoOperacion => Set<TipoOperacion>();
     public DbSet<Seriecorrelativo> Seriecorrelativo => Set<Seriecorrelativo>();
     public DbSet<AspNetModule> AspNetModule => Set<AspNetModule>();
@@ -136,6 +138,8 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<TipoOperacion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<Moneda>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<RoleSubmodule>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<PrecioAlternativo>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<Presentacion>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Nacionalidad>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Caja>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<CajaFisica>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));

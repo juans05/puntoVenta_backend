@@ -37,6 +37,24 @@ public class Producto : EntityBase
         public string? CloudinaryPublicId { get; set; }
         public string? Comentario { get; set; }
 
+        public string? Codigo { get; set; }
+        public string? Marca { get; set; }
+        public int? MonedaId { get; set; }
+        public Moneda? Moneda { get; set; }
+        public int? TipoIgvId { get; set; }
+        public TipoIgv? TipoIgv { get; set; }
+        public int? UnidadMedidaId { get; set; }
+        public UnidadMedida? UnidadMedida { get; set; }
+        public decimal? PrecioMinimo { get; set; }
+        public decimal? PesoKg { get; set; }
+        public bool Icbper { get; set; }
+        public decimal? PorcentajeDetraccion { get; set; }
+        public string? DestinoPreparacion { get; set; }
+        public bool GestionLotes { get; set; }
+        public bool MultiPrecioActivo { get; set; }
+
+        public List<PrecioAlternativo> PreciosAlternativos { get; set; } = new List<PrecioAlternativo>();
+        public List<Presentacion> Presentaciones { get; set; } = new List<Presentacion>();
         public List<ComprobanteDetalle> ComprobanteDetalles { get; set; } = new List<ComprobanteDetalle>();
 
 

@@ -43,13 +43,19 @@ public class ProductRepository : IProductRepository
             if (entity.GrupoId == 0) entity.GrupoId = null;
             if (entity.ProveedorId == 0) entity.Proveedor = null;
 
+            if (payload.PreciosAlternativos?.Count > 0)
+                entity.PreciosAlternativos = mapper.Map<List<PrecioAlternativo>>(payload.PreciosAlternativos);
+
+            if (payload.Presentaciones?.Count > 0)
+                entity.Presentaciones = mapper.Map<List<Presentacion>>(payload.Presentaciones);
+
             //entity.Comentarios?.ForEach(x => x.UsuarioCreacion = payload.UsuarioCreacion);
 
             //entity.Id = 34;
 
             await dbContext.Producto.AddAsync(entity);
             await dbContext.SaveChangesAsync();
-            
+
             return (ServiceStatus.Ok, entity, "Success");
         }
         catch (Exception ex)
@@ -70,6 +76,31 @@ public class ProductRepository : IProductRepository
             var entity = mapper.Map(payload, producto);
 
             dbContext.Entry(entity).State = EntityState.Modified;
+
+            // Reemplazo completo de los hijos en cada edicion -- mas simple que diffear altas/bajas/cambios
+            // uno por uno, y coincide con como el modal los maneja (arma la lista completa en memoria y la
+            // manda entera al guardar el producto).
+            if (payload.PreciosAlternativos != null)
+            {
+                var preciosExistentes = await dbContext.PrecioAlternativo
+                    .Where(p => p.ProductoId == payload.ProductoId).ToListAsync();
+                dbContext.PrecioAlternativo.RemoveRange(preciosExistentes);
+
+                var nuevosPrecios = mapper.Map<List<PrecioAlternativo>>(payload.PreciosAlternativos);
+                nuevosPrecios.ForEach(p => p.ProductoId = payload.ProductoId);
+                await dbContext.PrecioAlternativo.AddRangeAsync(nuevosPrecios);
+            }
+
+            if (payload.Presentaciones != null)
+            {
+                var presentacionesExistentes = await dbContext.Presentacion
+                    .Where(p => p.ProductoId == payload.ProductoId).ToListAsync();
+                dbContext.Presentacion.RemoveRange(presentacionesExistentes);
+
+                var nuevasPresentaciones = mapper.Map<List<Presentacion>>(payload.Presentaciones);
+                nuevasPresentaciones.ForEach(p => p.ProductoId = payload.ProductoId);
+                await dbContext.Presentacion.AddRangeAsync(nuevasPresentaciones);
+            }
 
             //dbContext.Add(entity);
 
