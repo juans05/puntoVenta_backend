@@ -90,7 +90,7 @@
 
 **Total de flujos:** 10
 **Total de tests requeridos:** 60+
-**Tests completados:** 5 ✅
+**Tests completados:** 8 ✅
 
 | Módulo | Estado | Tests | Pasando |
 |--------|--------|-------|---------|
@@ -106,6 +106,17 @@
 | Datos Maestros | ⏳ | 7 | 0/7 |
 
 **Progreso General:** 8/60 (13%)
+
+## Próximos Pasos
+
+Para expandir la cobertura de tests, se necesita:
+1. Investigar las entidades exactas (Compra, CompraDetalle, AspNetUser, Auditoria, etc.)
+2. Crear tests para Cajas (6 tests)
+3. Crear tests para Inventario (8 tests)
+4. Crear tests para Métodos de Pago (4 tests)
+5. Crear tests para Datos Maestros (7 tests)
+6. Crear tests para Reportes (6 tests)
+7. Crear tests para Usuarios (5 tests)
 
 ## Convenciones de Testing
 
