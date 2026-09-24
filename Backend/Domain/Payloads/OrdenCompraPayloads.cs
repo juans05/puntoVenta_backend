@@ -5,6 +5,8 @@ public class ConfiguracionFlujoPayload
     public string FlujoCompras { get; set; } = null!;
     public string CruceFactura { get; set; } = null!;
     public decimal? MontoAprobacionOc { get; set; }
+    // null = no cambia el modo de ventas actual.
+    public string? FlujoVentas { get; set; }
 }
 
 public class OrdenCompraQueryParams

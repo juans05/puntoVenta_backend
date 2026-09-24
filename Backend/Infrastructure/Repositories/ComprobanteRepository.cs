@@ -73,6 +73,12 @@ namespace Infrastructure.Repositories
                     return (ServiceStatus.FailedValidation, null, "Por favor, ingrese el nombre");
 
 
+                // Factura de un pedido de venta (flujo completo): solo lo entregado y sin facturar, y el
+                // stock ya bajo en la entrega. El PedidoVentaId del cliente solo cuenta si pasa la validacion.
+                if (payload.PedidoVentaId.HasValue
+                    && await PedidoVentaFacturacion.Validar(_context, payload) is { } rechazoPedido)
+                    return (ServiceStatus.FailedValidation, null, rechazoPedido);
+
                 // Normaliza a centimos una sola vez: payload.Total llega desde JS (puede traer
                 // ruido de punto flotante) y todo lo que sigue se calcula a partir de este valor.
                 payload.Total = Math.Round(payload.Total, 2);
@@ -124,6 +130,8 @@ namespace Infrastructure.Repositories
                 }
 
                 var cabecera = _mapper.Map<ComprobanteCabecera>(payload);
+
+                cabecera.StockYaDescontado = payload.PedidoVentaId.HasValue;
 
                 cabecera.FechaVenta = payload.FechaVenta ?? DateTime.UtcNow.AddHours(-5);
 
@@ -241,7 +249,7 @@ namespace Infrastructure.Repositories
                     if (producto == null)
                         return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
 
-                    if (esCotizacion) continue;
+                    if (esCotizacion || cabecera.StockYaDescontado) continue;
 
                     if ((producto.Stock ?? 0) < item.Cantidad)
                         return (ServiceStatus.FailedValidation, null, $"No hay stock disponible para el producto {producto.Nombre}");
@@ -262,6 +270,10 @@ namespace Infrastructure.Repositories
                 }
 
                 await _context.ComprobanteDetalle.AddRangeAsync(detalle);
+
+                if (cabecera.StockYaDescontado)
+                    await PedidoVentaFacturacion.Aplicar(_context, payload.PedidoVentaId!.Value,
+                        detalle.Select(d => (d.ProductoId, d.Cantidad)), +1);
 
                 await _context.SaveChangesAsync();
 
@@ -678,7 +690,12 @@ namespace Infrastructure.Repositories
 
             try
             {
-                await RestaurarStock(entity.ComprobanteDetalles, entity.Id, "VentaAnulada");
+                // Si el stock bajo en una entrega, anular la factura no lo devuelve: solo reabre lo facturado.
+                if (entity.StockYaDescontado && entity.PedidoVentaId.HasValue)
+                    await PedidoVentaFacturacion.Aplicar(_context, entity.PedidoVentaId.Value,
+                        entity.ComprobanteDetalles.Select(d => (d.ProductoId, d.Cantidad)), -1);
+                else
+                    await RestaurarStock(entity.ComprobanteDetalles, entity.Id, "VentaAnulada");
 
                 entity.EstadoComprobante = EstatusComprobante.Anulado;
 

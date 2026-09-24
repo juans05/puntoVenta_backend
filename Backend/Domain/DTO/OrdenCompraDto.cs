@@ -5,6 +5,7 @@ public class ConfiguracionFlujoDto
     public string FlujoCompras { get; set; } = null!;
     public string CruceFactura { get; set; } = null!;
     public decimal? MontoAprobacionOc { get; set; }
+    public string FlujoVentas { get; set; } = null!;
 }
 
 public class OrdenCompraDto

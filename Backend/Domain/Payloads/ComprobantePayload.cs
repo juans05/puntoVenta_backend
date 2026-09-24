@@ -46,6 +46,9 @@ namespace Domain.Payloads
         public DateTime? FechaVigencia { get; set; }
         public int? CotizacionOrigenId { get; set; }
 
+        // Solo flujo de ventas COMPLETO: factura/boleta de lo entregado de un pedido de venta.
+        public int? PedidoVentaId { get; set; }
+
         public List<ComprobanteDetallePayload> DetalleComprobante { get; set; } = new List<ComprobanteDetallePayload>();
         public List<PagoPayload> DetallePago { get; set; } = new List<PagoPayload>();
 

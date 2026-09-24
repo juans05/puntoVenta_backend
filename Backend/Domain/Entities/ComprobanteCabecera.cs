@@ -41,6 +41,10 @@ public class ComprobanteCabecera : EntityBase
     public DateTime? FechaVigencia { get; set; }
     public int? CotizacionOrigenId { get; set; }
 
+    // Factura/boleta emitida desde un pedido de venta (flujo completo): el stock ya bajo en la entrega.
+    public int? PedidoVentaId { get; set; }
+    public bool StockYaDescontado { get; set; }
+
     public bool EsCredito { get; set; }
     public decimal? PorcentajeDescuento { get; set; }
     public decimal? MontoDescuento { get; set; }

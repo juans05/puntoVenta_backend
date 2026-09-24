@@ -5,6 +5,8 @@ public class ConfiguracionFlujo : EntityBase
 {
     public string FlujoCompras { get; set; } = FlujoComprasModo.Simplificado;
     public string CruceFactura { get; set; } = CruceFacturaModo.Advertir;
+    // Ventas: SIMPLIFICADO (factura directa, como siempre) o COMPLETO (pedido -> entrega -> factura).
+    public string FlujoVentas { get; set; } = FlujoComprasModo.Simplificado;
     // Ordenes con total mayor a este monto requieren aprobacion. Null = nunca se pide aprobacion.
     public decimal? MontoAprobacionOc { get; set; }
 }

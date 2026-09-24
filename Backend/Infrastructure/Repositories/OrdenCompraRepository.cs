@@ -48,7 +48,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
     {
         FlujoCompras = c?.FlujoCompras ?? FlujoComprasModo.Simplificado,
         CruceFactura = c?.CruceFactura ?? CruceFacturaModo.Advertir,
-        MontoAprobacionOc = c?.MontoAprobacionOc
+        MontoAprobacionOc = c?.MontoAprobacionOc,
+        FlujoVentas = c?.FlujoVentas ?? FlujoComprasModo.Simplificado
     };
 
     public async Task<(ServiceStatus, ConfiguracionFlujoDto?, string)> ObtenerConfiguracion()
@@ -60,6 +61,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             return (ServiceStatus.FailedValidation, null, "Flujo de compras no válido");
         if (payload.CruceFactura is not (CruceFacturaModo.Advertir or CruceFacturaModo.Bloquear))
             return (ServiceStatus.FailedValidation, null, "Modo de cruce no válido");
+        if (payload.FlujoVentas is not null and not (FlujoComprasModo.Simplificado or FlujoComprasModo.Completo))
+            return (ServiceStatus.FailedValidation, null, "Flujo de ventas no válido");
         if (payload.MontoAprobacionOc is < 0)
             return (ServiceStatus.FailedValidation, null, "El monto de aprobación no puede ser negativo");
 
@@ -73,6 +76,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         config.FlujoCompras = payload.FlujoCompras;
         config.CruceFactura = payload.CruceFactura;
         config.MontoAprobacionOc = payload.MontoAprobacionOc;
+        if (payload.FlujoVentas != null) config.FlujoVentas = payload.FlujoVentas;
         await _context.SaveChangesAsync();
 
         return (ServiceStatus.Ok, ToDto(config), "Configuración guardada");
