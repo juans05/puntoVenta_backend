@@ -95,6 +95,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<OrdenCompra> OrdenCompra => Set<OrdenCompra>();
     public DbSet<OrdenCompraDetalle> OrdenCompraDetalle => Set<OrdenCompraDetalle>();
     public DbSet<Recepcion> Recepcion => Set<Recepcion>();
+    public DbSet<Cobranza> Cobranza => Set<Cobranza>();
+    public DbSet<CobranzaDetalle> CobranzaDetalle => Set<CobranzaDetalle>();
+    public DbSet<PagoProveedor> PagoProveedor => Set<PagoProveedor>();
+    public DbSet<PagoProveedorDetalle> PagoProveedorDetalle => Set<PagoProveedorDetalle>();
     public DbSet<PedidoVenta> PedidoVenta => Set<PedidoVenta>();
     public DbSet<PedidoVentaDetalle> PedidoVentaDetalle => Set<PedidoVentaDetalle>();
     public DbSet<Entrega> Entrega => Set<Entrega>();
@@ -169,6 +173,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Compra>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<ConfiguracionFlujo>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<Cobranza>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<CobranzaDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<PagoProveedor>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<PagoProveedorDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<PedidoVenta>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<PedidoVentaDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Entrega>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));

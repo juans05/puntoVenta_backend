@@ -160,6 +160,7 @@ namespace Domain.Common.Mappings
                 .ForMember(x => x.FechaCompra, y => y.MapFrom(z => z.FechaCompra.ToString("dd/MM/yyyy HH:mm:ss")))
                 .ForMember(x => x.FechaRegistro, y => y.MapFrom(z => z.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")))
                 .ForMember(x => x.FechaEmision, y => y.MapFrom(z => z.FechaEmision.HasValue ? z.FechaEmision.Value.ToString("yyyy-MM-dd") : null))
+                .ForMember(x => x.FechaVencimiento, y => y.MapFrom(z => z.FechaVencimiento.HasValue ? z.FechaVencimiento.Value.ToString("yyyy-MM-dd") : null))
                 .ForMember(x => x.Usuario, y => y.MapFrom(z => z.UsuarioCreacion))
                 .ForMember(x => x.Moneda, y => y.MapFrom(z => z.Moneda != null ? z.Moneda.Codigo : null))
                 .ForMember(x => x.TipoIgv, y => y.MapFrom(z => z.TipoIgv != null ? z.TipoIgv.Descripcion : null))

@@ -79,6 +79,9 @@ namespace Infrastructure.Repositories
                     && await PedidoVentaFacturacion.Validar(_context, payload) is { } rechazoPedido)
                     return (ServiceStatus.FailedValidation, null, rechazoPedido);
 
+                if (payload.EsCredito && payload.ClienteId == null && string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+                    return (ServiceStatus.FailedValidation, null, "Una venta a crédito necesita un cliente (documento)");
+
                 // Normaliza a centimos una sola vez: payload.Total llega desde JS (puede traer
                 // ruido de punto flotante) y todo lo que sigue se calcula a partir de este valor.
                 payload.Total = Math.Round(payload.Total, 2);
@@ -277,7 +280,8 @@ namespace Infrastructure.Repositories
 
                 await _context.SaveChangesAsync();
 
-                var pagos = _mapper.Map<List<Pago>>(payload.DetallePago);
+                // Venta a credito: no hay pago inicial; el saldo se cobra despues (Cuentas por cobrar).
+                var pagos = payload.EsCredito ? new List<Pago>() : _mapper.Map<List<Pago>>(payload.DetallePago);
 
                 pagos.ForEach(x => x.ComprobanteCabeceraId = cabecera.Id);
 

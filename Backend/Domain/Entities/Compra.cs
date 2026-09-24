@@ -24,6 +24,8 @@ public class Compra : EntityBase
     public decimal? MontoDescuento { get; set; }
     public decimal? OtrosCargos { get; set; }
     public bool EsCredito { get; set; }
+    // Vencimiento de la compra a credito (cuentas por pagar / antiguedad). Null = usa FechaCompra.
+    public DateTime? FechaVencimiento { get; set; }
     public decimal ValorGravada { get; set; }
     public decimal ValorIgv { get; set; }
     // Factura de una orden de compra (flujo completo): el stock ya subio en la recepcion.

@@ -27,6 +27,7 @@ public class CompraDto
     public decimal? MontoDescuento { get; set; }
     public decimal? OtrosCargos { get; set; }
     public bool EsCredito { get; set; }
+    public string? FechaVencimiento { get; set; }
     public decimal ValorGravada { get; set; }
     public decimal ValorIgv { get; set; }
     public List<CompraDetalleDto> Detalle { get; set; } = new();

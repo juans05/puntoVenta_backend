@@ -136,6 +136,9 @@ public class CompraRepository : ICompraRepository
                 payload.ProveedorId, payload.ProveedorRuc, payload.ProveedorNombre,
                 payload.ProveedorDireccion, payload.ProveedorUbigeoId, payload.ProveedorEmail);
 
+            if (payload.EsCredito && proveedorId == null)
+                return (ServiceStatus.FailedValidation, null, "Una compra a crédito necesita un proveedor");
+
             var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
                 subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
 
@@ -158,6 +161,7 @@ public class CompraRepository : ICompraRepository
                 MontoDescuento = montoDescuento,
                 OtrosCargos = otrosCargos,
                 EsCredito = payload.EsCredito,
+                FechaVencimiento = payload.FechaVencimiento,
                 ValorGravada = gravada,
                 ValorIgv = igv,
                 OrdenCompraId = deOrden ? payload.OrdenCompraId : null,
@@ -447,6 +451,7 @@ public class CompraRepository : ICompraRepository
             compra.MontoDescuento = montoDescuento;
             compra.OtrosCargos = otrosCargos;
             compra.EsCredito = payload.EsCredito;
+            compra.FechaVencimiento = payload.FechaVencimiento;
             compra.ValorGravada = gravada;
             compra.ValorIgv = igv;
             compra.Total = total;

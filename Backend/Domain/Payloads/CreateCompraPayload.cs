@@ -16,6 +16,7 @@ public class CreateCompraPayload
     public decimal? MontoDescuento { get; set; }
     public decimal? OtrosCargos { get; set; }
     public bool EsCredito { get; set; }
+    public DateTime? FechaVencimiento { get; set; }
 
     // Datos del proveedor cuando aun no existe en el catalogo local: si ProveedorId viene vacio
     // pero hay Ruc, se busca/crea por Ruc (mismo criterio que la importacion de XML).
