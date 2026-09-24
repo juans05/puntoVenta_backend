@@ -102,6 +102,8 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<PedidoVenta> PedidoVenta => Set<PedidoVenta>();
     public DbSet<PedidoVentaDetalle> PedidoVentaDetalle => Set<PedidoVentaDetalle>();
     public DbSet<Entrega> Entrega => Set<Entrega>();
+    public DbSet<GuiaRemision> GuiaRemision => Set<GuiaRemision>();
+    public DbSet<GuiaRemisionDetalle> GuiaRemisionDetalle => Set<GuiaRemisionDetalle>();
     public DbSet<EntregaDetalle> EntregaDetalle => Set<EntregaDetalle>();
     public DbSet<RecepcionDetalle> RecepcionDetalle => Set<RecepcionDetalle>();
     public DbSet<Gasto> Gasto => Set<Gasto>();
@@ -179,6 +181,8 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<PagoProveedorDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<PedidoVenta>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<PedidoVentaDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<GuiaRemision>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<GuiaRemisionDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Entrega>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<EntregaDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<OrdenCompra>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));

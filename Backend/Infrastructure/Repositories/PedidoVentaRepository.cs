@@ -21,11 +21,13 @@ public class PedidoVentaRepository : IPedidoVentaRepository
 {
     private readonly SpaContext _context;
     private readonly IHttpContextAccessor? _httpContextAccessor;
+    private readonly IGuiaRemisionRepository _guiaRemisionRepository;
 
-    public PedidoVentaRepository(SpaContext context, IHttpContextAccessor? httpContextAccessor)
+    public PedidoVentaRepository(SpaContext context, IHttpContextAccessor? httpContextAccessor, IGuiaRemisionRepository guiaRemisionRepository)
     {
         _context = context;
         _httpContextAccessor = httpContextAccessor;
+        _guiaRemisionRepository = guiaRemisionRepository;
     }
 
     private int? PaisIdClaim =>
@@ -415,6 +417,8 @@ public class PedidoVentaRepository : IPedidoVentaRepository
         if (entrega == null) return (ServiceStatus.NotFound, null, "Entrega no encontrada");
         if (entrega.EstadoEntrega != "ACTIVA")
             return (ServiceStatus.FailedValidation, null, "La entrega ya está anulada");
+        if (await _guiaRemisionRepository.TieneGuiaActiva(entregaId))
+            return (ServiceStatus.FailedValidation, null, "Esta entrega tiene una guía de remisión activa: anúlala primero");
 
         var pedido = await CargarTracking(entrega.PedidoVentaId);
         if (pedido == null) return (ServiceStatus.NotFound, null, "Pedido no encontrado");

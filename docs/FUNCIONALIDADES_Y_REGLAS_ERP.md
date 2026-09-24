@@ -137,6 +137,27 @@ Reglas:
 
 Números: `PV-000001` (pedido), `ENT-000001` (entrega).
 
+### 4.3 Guía de remisión (documento interno, no se envía a SUNAT)
+
+Pantalla: **Venta & Comprobante → Guías de remisión**. Desde cada entrega activa de un pedido de venta
+se puede generar su guía con el botón **"Guía de remisión"**.
+
+**Qué es y qué no es**: es una constancia interna de traslado, generada a partir de los datos de la
+entrega. **No se envía a SUNAT**: no hay proxy, credenciales, ticket ni estado de SUNAT. Si más adelante
+se necesita la guía electrónica ante SUNAT, esto queda como base para agregarla.
+
+Al generarla se copian el cliente y la dirección del pedido, la placa de la entrega y sus productos. Se
+completa a mano: modalidad de traslado (transporte público o privado), dirección de partida, peso total
+y, según la modalidad, el transportista (RUC y razón social) o el chofer (nombre, documento y placa).
+
+Reglas:
+- Una entrega tiene **como máximo una guía activa** a la vez.
+- **Anular una entrega exige anular antes su guía** (si tiene una activa).
+- Anular una guía es local y libera la entrega para generar otra.
+- No mueve stock (ya lo hizo la entrega) ni llama a ningún servicio externo.
+
+Número: `GRE-000001`.
+
 ---
 
 ## 5. Cuentas por cobrar y por pagar
@@ -202,7 +223,7 @@ Al abrir el detalle se pide el pedido completo (con productos) y se muestra un i
 
 ## 9. Fuera de alcance actual
 Pendiente o no incluido:
-- **Guía de remisión electrónica (GRE)** ante SUNAT: la *Entrega* es hoy un documento interno.
+- **Enviar la guía de remisión a SUNAT** (guía electrónica): hoy es un documento interno, por decisión explícita.
 - **Devolución a proveedores** (salida de mercadería y nota de crédito de compra).
 - Pagos a cuenta (anticipos sin factura), aplicar notas de crédito contra el saldo y cuotas de crédito SUNAT.
 - **Buscar en SUNAT** y **Foto o PDF** (lectura por IA) al traer un documento.
@@ -218,5 +239,7 @@ Pendiente o no incluido:
 | Emisión | `POST /api/facturacion/crear` (acepta `pedidoVentaId`), `POST /api/facturacion/importar-xml` |
 | Cuentas por cobrar | `/api/cuentas-por-cobrar`: resumen, cliente/{id}/documentos, antiguedad · `/api/cobranzas`: crear, listar, {id}/anular |
 | Cuentas por pagar | `/api/cuentas-por-pagar`: resumen, proveedor/{id}/documentos, antiguedad · `/api/pagos-proveedor`: crear, listar, {id}/anular |
+| Guías de remisión | `/api/guias-remision`: desde-entrega/{entregaId}, {id}/actualizar, listar, {id}, {id}/anular |
 
-Diseños detallados: `docs/superpowers/specs/` (flujo de compras, flujo de ventas y cuentas por cobrar y pagar).
+Diseños detallados: `docs/superpowers/specs/` (flujo de compras, flujo de ventas, cuentas por cobrar y
+pagar, y guía de remisión).

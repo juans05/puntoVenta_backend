@@ -14,7 +14,7 @@ public class PedidoVentaRepositoryTests
     private static (PedidoVentaRepository Repo, ComprobanteRepository Comprobante, OrdenCompraRepository Config, SpaContext Context, System.Data.Common.DbConnection Connection) Preparar()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
-        var repo = new PedidoVentaRepository(context, httpContextAccessor: null);
+        var repo = new PedidoVentaRepository(context, httpContextAccessor: null, new GuiaRemisionRepository(context, httpContextAccessor: null));
         var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new TaxCalculatorFactory());
         var compra = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
         var config = new OrdenCompraRepository(context, compra, httpContextAccessor: null);
