@@ -26,5 +26,8 @@ public class Compra : EntityBase
     public bool EsCredito { get; set; }
     public decimal ValorGravada { get; set; }
     public decimal ValorIgv { get; set; }
+    // Factura de una orden de compra (flujo completo): el stock ya subio en la recepcion.
+    public int? OrdenCompraId { get; set; }
+    public bool StockYaIngresado { get; set; }
     public List<CompraDetalle> CompraDetalles { get; set; } = new();
 }

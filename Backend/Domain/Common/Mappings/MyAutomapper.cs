@@ -108,7 +108,17 @@ namespace Domain.Common.Mappings
             CreateMap<UpdateProductPayload, Producto>()
                 .ForMember(x => x.Stock, y => y.Ignore())
                 .ForMember(x => x.PreciosAlternativos, y => y.Ignore())
-                .ForMember(x => x.Presentaciones, y => y.Ignore());
+                .ForMember(x => x.Presentaciones, y => y.Ignore())
+                // Si el payload no trae estos IDs (undefined/omitido en el JSON), se conserva el valor
+                // existente en vez de borrarlo -- ninguna pantalla del frontend envia estos campos como
+                // null a proposito para "quitar" la relacion, asi que null solo puede ser un campo omitido.
+                .ForMember(x => x.CategoriaId, y => y.Condition(src => src.CategoriaId != null))
+                .ForMember(x => x.GrupoId, y => y.Condition(src => src.GrupoId != null))
+                .ForMember(x => x.ProveedorId, y => y.Condition(src => src.ProveedorId != null))
+                .ForMember(x => x.MonedaId, y => y.Condition(src => src.MonedaId != null))
+                .ForMember(x => x.TipoIgvId, y => y.Condition(src => src.TipoIgvId != null))
+                .ForMember(x => x.UnidadMedidaId, y => y.Condition(src => src.UnidadMedidaId != null))
+                .ForMember(x => x.SucursalId, y => y.Condition(src => src.SucursalId != null));
             //.ForMember(x => x.Comentarios, y => y.MapFrom(z => z.Comentarios));
 
             CreateMap<Producto, ProductoDto>()

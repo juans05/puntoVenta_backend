@@ -140,18 +140,23 @@ public class TenantResolver : ITenantResolver
         return header.ToUpper(); // TenantKey en BD es mayúscula para el default (SPASOLIS → SPASOLIS1)
     }
 
-    private static int? GetSucursalId(HttpContext context, string tenantKey, Tenantx? tenant)
+    // El header X-Sucursal permite cambiar de sede por request, pero solo a quien no esta atado a una
+    // sede (sin claim) o es administrador. Un usuario con sede asignada que manda otra sede en el
+    // header se ignora: se queda con la suya (el filtro por tenant ya evita cruzar de empresa).
+    public static int? GetSucursalId(HttpContext context, string tenantKey, Tenantx? tenant)
     {
-        // El header X-Sucursal prevalece (permite cambiar de sede por request)
-        var header = context.Request.Headers["X-Sucursal"].FirstOrDefault();
-        if (int.TryParse(header, out var headerSucursal))
-            return headerSucursal;
+        int? claimSucursal = int.TryParse(context.User.FindFirstValue(ClaimConstants.Sucursal), out var c) ? c : null;
 
-        var claim = context.User.FindFirstValue(ClaimConstants.Sucursal);
-        if (int.TryParse(claim, out var claimSucursal))
-            return claimSucursal;
+        if (int.TryParse(context.Request.Headers["X-Sucursal"].FirstOrDefault(), out var headerSucursal))
+        {
+            var puedeCambiarDeSede = claimSucursal is null
+                || headerSucursal == claimSucursal
+                || context.User.IsInRole("SuperAdmin")
+                || context.User.IsInRole("Administrador");
+            if (puedeCambiarDeSede) return headerSucursal;
+        }
 
-        return null;
+        return claimSucursal;
     }
 
     private static int? ParseInt(string? value)

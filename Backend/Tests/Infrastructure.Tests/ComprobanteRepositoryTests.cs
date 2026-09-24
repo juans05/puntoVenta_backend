@@ -289,7 +289,7 @@ public class ComprobanteRepositoryTests
         {
             TipoDocumentoVentaId = 6,
             Total = 20m,
-            FechaVigencia = DateTime.UtcNow.AddDays(-1), // ya vencida
+            FechaVigencia = DateTime.UtcNow.AddDays(-2), // ya vencida (-2: con -1 falla entre 00:00 y 05:00 UTC, ver desfase UTC-5)
             DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = productoId, Cantidad = 2, ValorUnitario = 10m } },
             DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 20m } }
         });
@@ -627,6 +627,83 @@ public class ComprobanteRepositoryTests
 
         Assert.Equal(ServiceStatus.FailedValidation, estado);
         Assert.False(await context.ComprobanteCabecera.AnyAsync());
+    }
+
+    [Fact]
+    public async Task CrearNotaCreditoDebito_NotaCreada_AparaceEnListarComprobantesConSuTipoYDatos()
+    {
+        // Regresion del bug reportado: "en NC/ND no aparecen los documentos creados". El backend
+        // en si resulto estar bien (verificado manualmente), pero no habia ningun test que lo
+        // protegiera -- si alguien rompe el mapping de TipoDocumentoVenta.Nombre (join usado por
+        // ProjectTo) o agrega un filtro que excluya tipos 4/5 por error, este test lo agarra.
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        var productoId = await SeedProductoAsync(context, stock: 8);
+        var motivoCreditoId = await SeedMotivoNotaAsync(context, tipoDocumentoVentaId: 4, revierteStock: false);
+        var motivoDebitoId = await SeedMotivoNotaAsync(context, tipoDocumentoVentaId: 5, revierteStock: false);
+
+        var afectado = new ComprobanteCabecera
+        {
+            TipoDocumentoVentaId = 2, // Boleta
+            Serie = "B001",
+            Correlativo = 1,
+            RazonSocial = "Cliente Test",
+            ValorTotal = 20m,
+            ValorSubtotal = 20m,
+            ValorIgv = 0m,
+            EstadoComprobante = EstatusComprobante.Creado,
+        };
+        context.ComprobanteCabecera.Add(afectado);
+        await context.SaveChangesAsync();
+
+        context.ComprobanteDetalle.Add(new ComprobanteDetalle
+        {
+            ComprobanteCabeceraId = afectado.Id,
+            ProductoId = productoId,
+            Cantidad = 2,
+            ValorUnitario = 10m,
+            ValorUnitarioTotal = 20m,
+            ValorIgv = 0m,
+        });
+        await context.SaveChangesAsync();
+
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+
+        var (estadoNC, _, _) = await repo.CrearNotaCreditoDebito(new NotaPayload
+        {
+            ComprobanteAfectadoId = afectado.Id,
+            MotivoNotaId = motivoCreditoId,
+            TipoDocumentoVentaId = 4 // NotaCredito
+        });
+        Assert.Equal(ServiceStatus.Ok, estadoNC);
+
+        var (estadoND, _, _) = await repo.CrearNotaCreditoDebito(new NotaPayload
+        {
+            ComprobanteAfectadoId = afectado.Id,
+            MotivoNotaId = motivoDebitoId,
+            TipoDocumentoVentaId = 5 // NotaDebito
+        });
+        Assert.Equal(ServiceStatus.Ok, estadoND);
+
+        var (estadoListar, resultado, _) = await repo.ListarComprobantes(new ComprobanteQueryParams { Page = 1, Amount = 20 });
+
+        Assert.Equal(ServiceStatus.Ok, estadoListar);
+        var lista = Assert.IsType<DataCollection<Domain.DTO.ComprobanteCabeceraDTO>>(resultado);
+
+        // 3 filas: la boleta afectada + la NC + la ND -- ninguna se pierde en el listado.
+        Assert.Equal(3, lista.Items.Count);
+
+        var nc = Assert.Single(lista.Items, x => x.TipoDocumentoVentaId == 4);
+        Assert.Equal("Nota de Credito", nc.TipoDocumentoVenta);
+        Assert.Equal("FC01", nc.Serie);
+        Assert.Equal("Cliente Test", nc.ClienteNombre);
+
+        var nd = Assert.Single(lista.Items, x => x.TipoDocumentoVentaId == 5);
+        Assert.Equal("Nota de Debito", nd.TipoDocumentoVenta);
+        Assert.Equal("FD01", nd.Serie);
+        Assert.Equal("Cliente Test", nd.ClienteNombre);
     }
 
     [Fact]

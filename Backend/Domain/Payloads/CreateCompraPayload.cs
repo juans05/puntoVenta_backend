@@ -25,6 +25,9 @@ public class CreateCompraPayload
     public string? ProveedorUbigeoId { get; set; }
     public string? ProveedorEmail { get; set; }
 
+    // Solo lo honra CrearCompraDeOrden (flujo completo); CrearCompra lo ignora.
+    public int? OrdenCompraId { get; set; }
+
     public List<CompraDetallePayload> Detalle { get; set; } = new();
 }
 

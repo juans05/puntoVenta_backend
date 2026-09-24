@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.IServices;
 using Domain.Payloads;
@@ -19,6 +22,61 @@ public class FacturacionController : ControllerBase
 
     [HttpPost("crear")]
     public async Task<IActionResult> CrearComprobante(ComprobantePayload payload) => Ok(await _comprobanteService.CrearComprobante(payload));
+
+    // Lee un XML UBL (factura/boleta de SUNAT) y devuelve cliente + lineas para precargar la venta.
+    // No guarda nada: el usuario revisa y emite desde el formulario.
+    [HttpPost("importar-xml")]
+    public IActionResult ImportarXmlVenta(IFormFile archivo)
+    {
+        if (archivo == null || archivo.Length == 0)
+            return BadRequest(new { message = "Selecciona un archivo XML" });
+
+        XDocument doc;
+        try
+        {
+            using var stream = archivo.OpenReadStream();
+            doc = XDocument.Load(stream);
+        }
+        catch (Exception)
+        {
+            return BadRequest(new { message = "El archivo no es un XML válido" });
+        }
+
+        XNamespace cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2";
+        XNamespace cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2";
+        var root = doc.Root;
+        var lineasXml = root?.Elements(cac + "InvoiceLine").ToList() ?? new List<XElement>();
+        if (root == null || lineasXml.Count == 0)
+            return BadRequest(new { message = "No se pudo leer el XML: no tiene la estructura de una factura electrónica UBL de SUNAT" });
+
+        static decimal Num(string? v) =>
+            decimal.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out var n) ? n : 0;
+
+        var cliente = root.Element(cac + "AccountingCustomerParty")?.Element(cac + "Party");
+        var lineas = lineasXml.Select(l => new
+        {
+            codigo = l.Element(cac + "Item")?.Element(cac + "SellersItemIdentification")?.Element(cbc + "ID")?.Value?.Trim(),
+            descripcion = l.Element(cac + "Item")?.Element(cbc + "Description")?.Value?.Trim() ?? "Producto",
+            cantidad = Num(l.Element(cbc + "InvoicedQuantity")?.Value),
+            precioUnitario = Num(l.Element(cac + "Price")?.Element(cbc + "PriceAmount")?.Value),
+        });
+
+        return Ok(new
+        {
+            message = "XML leído correctamente",
+            data = new
+            {
+                numeroDocumentoXml = root.Element(cbc + "ID")?.Value,
+                fechaEmision = root.Element(cbc + "IssueDate")?.Value,
+                clienteNumeroDocumento = cliente?.Element(cac + "PartyIdentification")?.Element(cbc + "ID")?.Value?.Trim(),
+                clienteRazonSocial = (cliente?.Element(cac + "PartyLegalEntity")?.Element(cbc + "RegistrationName")?.Value
+                                      ?? cliente?.Element(cac + "PartyName")?.Element(cbc + "Name")?.Value)?.Trim(),
+                clienteDireccion = cliente?.Element(cac + "PartyLegalEntity")?.Element(cac + "RegistrationAddress")
+                                         ?.Element(cac + "AddressLine")?.Element(cbc + "Line")?.Value?.Trim(),
+                lineas
+            }
+        });
+    }
 
     [HttpPost("crear-nota")]
     public async Task<IActionResult> CrearNotaCreditoDebito(NotaPayload payload) => Ok(await _comprobanteService.CrearNotaCreditoDebito(payload));

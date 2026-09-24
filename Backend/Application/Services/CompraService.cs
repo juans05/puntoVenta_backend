@@ -139,4 +139,14 @@ public class CompraService : ICompraService
 
         return MessageResult<List<ReporteDetalladoCompraDto>>.Of(message, result);
     }
+
+    public async Task<MessageResult<object>> ObtenerSerieNumero(int? sucursalId)
+    {
+        var (estado, result, message) = await _compraRepository.ObtenerSerieNumero(sucursalId);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }

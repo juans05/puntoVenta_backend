@@ -75,6 +75,12 @@ public class ProductRepository : IProductRepository
 
             var entity = mapper.Map(payload, producto);
 
+            // El formulario manda 0 cuando no hay categoria/grupo/proveedor seleccionado -- 0 no es
+            // un Id real y viola la FK correspondiente si se intenta guardar tal cual (ver CreateProduct).
+            if (entity.CategoriaId == 0) entity.CategoriaId = null;
+            if (entity.GrupoId == 0) entity.GrupoId = null;
+            if (entity.ProveedorId == 0) entity.ProveedorId = null;
+
             dbContext.Entry(entity).State = EntityState.Modified;
 
             // Reemplazo completo de los hijos en cada edicion -- mas simple que diffear altas/bajas/cambios
@@ -115,6 +121,18 @@ public class ProductRepository : IProductRepository
 
             await dbContext.SaveChangesAsync();
 
+            // Recargar con las navegaciones incluidas -- "entity" solo tiene los Ids escalares (el mapper
+            // no toca Categoria/Moneda/TipoIgv/UnidadMedida), asi que devolverlo tal cual serializa esos
+            // campos en null y pisa la fila en el frontend con datos incompletos (categoria/moneda "perdidas"
+            // hasta el proximo refresh manual).
+            var actualizado = await dbContext.Producto.AsNoTracking()
+                .Include(p => p.Categoria)
+                .Include(p => p.Proveedor)
+                .Include(p => p.Grupo)
+                .Include(p => p.Moneda)
+                .Include(p => p.TipoIgv)
+                .Include(p => p.UnidadMedida)
+                .FirstAsync(p => p.Id == payload.ProductoId);
 
             //agregamos los comentarios
             //var mapComentario = mapper.Map<List<Comentario>>(payload.Comentarios);
@@ -143,7 +161,7 @@ public class ProductRepository : IProductRepository
             //await dbContext.AddAsync(mapComentario);
             //await dbContext.SaveChangesAsync();
 
-            return (ServiceStatus.Ok, entity, "Success");
+            return (ServiceStatus.Ok, actualizado, "Success");
         }
         catch (Exception ex)
         {
@@ -196,17 +214,13 @@ public class ProductRepository : IProductRepository
             payload.GrupoId = payload.GrupoId == 0 ? null :  payload.GrupoId;
 
 
-            if (payload.Value is null)
+            if (string.IsNullOrWhiteSpace(payload.Value))
             {
 
                 lista = await dbContext.Producto.AsNoTracking()
-                    .Where( p => p.Estado == true && 
-                                payload.CategoriaId == null? 
-                                p.CategoriaId == p.CategoriaId :
-                                p.CategoriaId == payload.CategoriaId && 
-                                payload.GrupoId == null ?
-                                p.GrupoId == p.GrupoId :
-                                p.GrupoId == payload.GrupoId)
+                    .Where( p => p.Estado == true &&
+                                (payload.CategoriaId == null || p.CategoriaId == payload.CategoriaId) &&
+                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId))
                     .Include(i => i.Proveedor)
                     //.Include(i => i.Comentarios)
                     .Include(i => i.Categoria)
@@ -222,12 +236,8 @@ public class ProductRepository : IProductRepository
                         .Include(i => i.Proveedor)
                         //.Include(i => i.Comentarios)
                         .Where(p => p.Id == Convert.ToInt32(payload.Value) &&
-                           payload.CategoriaId == null ?
-                                p.CategoriaId == p.CategoriaId :
-                                p.CategoriaId == payload.CategoriaId &&
-                                payload.GrupoId == null ?
-                                p.GrupoId == p.GrupoId :
-                                p.GrupoId == payload.GrupoId
+                                (payload.CategoriaId == null || p.CategoriaId == payload.CategoriaId) &&
+                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId)
                         )
                         .ProjectTo<ProductoDto>(mapper.ConfigurationProvider)
                         .GetPagedAsync(payload.Page, payload.Amount);
@@ -240,12 +250,8 @@ public class ProductRepository : IProductRepository
                         .Include(i => i.Proveedor)
                         //.Include(i => i.Comentarios)
                         .Where(p => p.Nombre.Contains(payload.Value) &&
-                                payload.CategoriaId == null ?
-                                p.CategoriaId == p.CategoriaId :
-                                p.CategoriaId == payload.CategoriaId &&
-                                payload.GrupoId == null ?
-                                p.GrupoId == p.GrupoId :
-                                p.GrupoId == payload.GrupoId
+                                (payload.CategoriaId == null || p.CategoriaId == payload.CategoriaId) &&
+                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId)
                         )
                         .ProjectTo<ProductoDto>(mapper.ConfigurationProvider)
                         .GetPagedAsync(payload.Page, payload.Amount);

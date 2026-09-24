@@ -97,7 +97,31 @@ public class CompraRepository : ICompraRepository
         return (montoDescuento, otrosCargos, gravada, igv, baseConDescuento);
     }
 
-    public async Task<(ServiceStatus, CompraDto?, string)> CrearCompra(CreateCompraPayload payload)
+    // Suma (+1) o resta (-1) lo facturado en las lineas de la orden y recalcula su estado
+    // (RECIBIDA totalmente facturada -> CERRADA; al anular la factura se reabre).
+    private async Task AjustarFacturadoOrden(int ordenId, IEnumerable<CompraDetalle> lineas, int signo)
+    {
+        var orden = await _context.OrdenCompra.AsTracking().Include(o => o.Detalles).FirstAsync(o => o.Id == ordenId);
+        foreach (var l in lineas)
+        {
+            var od = orden.Detalles.FirstOrDefault(d => d.ProductoId == l.ProductoId);
+            if (od != null) od.CantidadFacturada = Math.Max(0, od.CantidadFacturada + signo * l.Cantidad);
+        }
+        OrdenCompraEstado.Recalcular(orden);
+    }
+
+    public Task<(ServiceStatus, CompraDto?, string)> CrearCompra(CreateCompraPayload payload)
+    {
+        payload.OrdenCompraId = null; // solo CrearCompraDeOrden (con su cruce) puede enlazar una orden
+        return CrearCompraCore(payload, deOrden: false);
+    }
+
+    // Factura de una orden de compra (flujo completo): el stock ya subio en la recepcion, aqui solo
+    // se registra el documento y se descuenta lo pendiente de facturar en la orden.
+    public Task<(ServiceStatus, CompraDto?, string)> CrearCompraDeOrden(CreateCompraPayload payload)
+        => CrearCompraCore(payload, deOrden: true);
+
+    private async Task<(ServiceStatus, CompraDto?, string)> CrearCompraCore(CreateCompraPayload payload, bool deOrden)
     {
         if (payload.Detalle == null || payload.Detalle.Count == 0)
             return (ServiceStatus.FailedValidation, null, "La compra debe incluir al menos un producto");
@@ -135,7 +159,9 @@ public class CompraRepository : ICompraRepository
                 OtrosCargos = otrosCargos,
                 EsCredito = payload.EsCredito,
                 ValorGravada = gravada,
-                ValorIgv = igv
+                ValorIgv = igv,
+                OrdenCompraId = deOrden ? payload.OrdenCompraId : null,
+                StockYaIngresado = deOrden
             };
 
             await _context.Compra.AddAsync(compra);
@@ -152,7 +178,7 @@ public class CompraRepository : ICompraRepository
             await _context.CompraDetalle.AddRangeAsync(detalle);
             await _context.SaveChangesAsync();
 
-            foreach (var item in detalle)
+            foreach (var item in deOrden ? new List<CompraDetalle>() : detalle)
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
 
@@ -174,6 +200,9 @@ public class CompraRepository : ICompraRepository
                     ReferenciaId = compra.Id
                 });
             }
+
+            if (deOrden)
+                await AjustarFacturadoOrden(compra.OrdenCompraId!.Value, detalle, +1);
 
             await _context.SaveChangesAsync();
 
@@ -206,7 +235,7 @@ public class CompraRepository : ICompraRepository
 
         try
         {
-            foreach (var item in compra.CompraDetalles)
+            foreach (var item in compra.StockYaIngresado ? new List<CompraDetalle>() : compra.CompraDetalles)
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
 
@@ -245,6 +274,9 @@ public class CompraRepository : ICompraRepository
             }
 
             compra.Estado = "ANULADO";
+
+            if (compra.OrdenCompraId.HasValue)
+                await AjustarFacturadoOrden(compra.OrdenCompraId.Value, compra.CompraDetalles, -1);
 
             await _context.SaveChangesAsync();
             await _context.Database.CommitTransactionAsync();
@@ -347,6 +379,9 @@ public class CompraRepository : ICompraRepository
 
         if (compra.Estado == "ANULADO")
             return (ServiceStatus.FailedValidation, null, "No se puede editar una compra anulada");
+
+        if (compra.OrdenCompraId.HasValue)
+            return (ServiceStatus.FailedValidation, null, "La factura de una orden de compra no se edita: anúlala y regístrala de nuevo");
 
         await _context.Database.BeginTransactionAsync();
 
@@ -625,6 +660,31 @@ public class CompraRepository : ICompraRepository
             })).ToList();
 
             return (ServiceStatus.Ok, reporte, "Success");
+        }
+        catch (Exception e)
+        {
+            return (ServiceStatus.InternalError, null, $"Error Interno {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    public async Task<(ServiceStatus, object?, string)> ObtenerSerieNumero(int? sucursalId)
+    {
+        try
+        {
+            var config = await _context.ConfiguracionFiscal
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(x => x.TenantId == _context.CurrentTenantName && x.Activo && x.Estado)
+                .FirstOrDefaultAsync();
+
+            var serie = config?.SerieCompra ?? "C001";
+
+            // Correlativo por serie (igual criterio que GenerarNumeroCompra, pero acotado a la
+            // serie configurada en vez de todas las compras del tenant).
+            var correlativo = await _context.Compra.CountAsync(c => c.Serie == serie) + 1;
+            var numero = correlativo.ToString().PadLeft(6, '0');
+
+            return (ServiceStatus.Ok, new { serie, numero }, "Success");
         }
         catch (Exception e)
         {

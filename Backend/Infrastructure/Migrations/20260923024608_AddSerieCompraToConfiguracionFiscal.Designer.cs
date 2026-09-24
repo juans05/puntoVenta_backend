@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SpaContext))]
-    partial class SpaContextModelSnapshot : ModelSnapshot
+    [Migration("20260923024608_AddSerieCompraToConfiguracionFiscal")]
+    partial class AddSerieCompraToConfiguracionFiscal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -518,9 +520,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("OrdenCompraId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal?>("OtrosCargos")
                         .HasColumnType("numeric(13,2)");
 
@@ -533,9 +532,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Serie")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
-
-                    b.Property<bool>("StockYaIngresado")
-                        .HasColumnType("boolean");
 
                     b.Property<int?>("SucursalId")
                         .HasColumnType("integer");
@@ -1000,44 +996,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("EmpresaId");
 
                     b.ToTable("ConfiguracionFiscal");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ConfiguracionFlujo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CruceFactura")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("FlujoCompras")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<decimal?>("MontoAprobacionOc")
-                        .HasColumnType("numeric(13,2)");
-
-                    b.Property<string>("TenantId")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("UsuarioCreacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ConfiguracionFlujo");
                 });
 
             modelBuilder.Entity("Domain.Entities.ConfiguracionRenta", b =>
@@ -1985,129 +1943,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Nacionalidad");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OrdenCompra", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AprobadoPor")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("EstadoOrden")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<DateTime?>("FechaAprobacion")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("FechaEmision")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("MonedaId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MotivoCierre")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Numero")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Observacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<int?>("ProveedorId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("SucursalId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TenantId")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<decimal>("Total")
-                        .HasColumnType("numeric(13,2)");
-
-                    b.Property<string>("UsuarioCreacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MonedaId");
-
-                    b.HasIndex("ProveedorId");
-
-                    b.HasIndex("SucursalId");
-
-                    b.ToTable("OrdenCompra");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrdenCompraDetalle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CantidadFacturada")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CantidadPedida")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CantidadRecibida")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("CostoUnitario")
-                        .HasColumnType("numeric(13,2)");
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("OrdenCompraId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("SucursalId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TenantId")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("UsuarioCreacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrdenCompraId");
-
-                    b.HasIndex("ProductoId");
-
-                    b.ToTable("OrdenCompraDetalle");
-                });
-
             modelBuilder.Entity("Domain.Entities.Pago", b =>
                 {
                     b.Property<int>("Id")
@@ -2664,102 +2499,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UbigeoId");
 
                     b.ToTable("Proveedor");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Recepcion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("EstadoRecepcion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Numero")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Observacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<int>("OrdenCompraId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("SucursalId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TenantId")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("UsuarioCreacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrdenCompraId");
-
-                    b.ToTable("Recepcion");
-                });
-
-            modelBuilder.Entity("Domain.Entities.RecepcionDetalle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("OrdenCompraDetalleId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RecepcionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("SucursalId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TenantId")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("UsuarioCreacion")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrdenCompraDetalleId");
-
-                    b.HasIndex("RecepcionId");
-
-                    b.ToTable("RecepcionDetalle");
                 });
 
             modelBuilder.Entity("Domain.Entities.Recurso", b =>
@@ -4034,46 +3773,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Pais");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OrdenCompra", b =>
-                {
-                    b.HasOne("Domain.Entities.Moneda", "Moneda")
-                        .WithMany()
-                        .HasForeignKey("MonedaId");
-
-                    b.HasOne("Domain.Entities.Proveedor", "Proveedor")
-                        .WithMany()
-                        .HasForeignKey("ProveedorId");
-
-                    b.HasOne("Domain.Entities.Sucursal", "Sucursal")
-                        .WithMany()
-                        .HasForeignKey("SucursalId");
-
-                    b.Navigation("Moneda");
-
-                    b.Navigation("Proveedor");
-
-                    b.Navigation("Sucursal");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrdenCompraDetalle", b =>
-                {
-                    b.HasOne("Domain.Entities.OrdenCompra", "OrdenCompra")
-                        .WithMany("Detalles")
-                        .HasForeignKey("OrdenCompraId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Producto", "Producto")
-                        .WithMany()
-                        .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OrdenCompra");
-
-                    b.Navigation("Producto");
-                });
-
             modelBuilder.Entity("Domain.Entities.Pago", b =>
                 {
                     b.HasOne("Domain.Entities.Caja", "Caja")
@@ -4232,36 +3931,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("TipoDocumento");
 
                     b.Navigation("Ubigeo");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Recepcion", b =>
-                {
-                    b.HasOne("Domain.Entities.OrdenCompra", "OrdenCompra")
-                        .WithMany("Recepciones")
-                        .HasForeignKey("OrdenCompraId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OrdenCompra");
-                });
-
-            modelBuilder.Entity("Domain.Entities.RecepcionDetalle", b =>
-                {
-                    b.HasOne("Domain.Entities.OrdenCompraDetalle", "OrdenCompraDetalle")
-                        .WithMany()
-                        .HasForeignKey("OrdenCompraDetalleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Recepcion", "Recepcion")
-                        .WithMany("Detalles")
-                        .HasForeignKey("RecepcionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OrdenCompraDetalle");
-
-                    b.Navigation("Recepcion");
                 });
 
             modelBuilder.Entity("Domain.Entities.Renta", b =>
@@ -4520,13 +4189,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Sucursales");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OrdenCompra", b =>
-                {
-                    b.Navigation("Detalles");
-
-                    b.Navigation("Recepciones");
-                });
-
             modelBuilder.Entity("Domain.Entities.Pais", b =>
                 {
                     b.Navigation("Monedas");
@@ -4549,11 +4211,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Proveedor", b =>
                 {
                     b.Navigation("Productos");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Recepcion", b =>
-                {
-                    b.Navigation("Detalles");
                 });
 
             modelBuilder.Entity("Domain.Entities.Renta", b =>

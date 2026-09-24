@@ -436,15 +436,25 @@ public class TenantRepository : ITenantRepository
 
             await dbContext.SaveChangesAsync();
 
-            // Mantiene la identidad fiscal (la que se usa para emitir comprobantes ante SUNAT)
-            // sincronizada con los datos del negocio que el usuario acaba de guardar aquí.
-            var configFiscal = await dbContext.ConfiguracionFiscal.FirstOrDefaultAsync(c => c.EmpresaId == entity.Id);
+            // Mantiene la identidad fiscal (la que se usa para emitir comprobantes ante SUNAT,
+            // via ObtenerConfiguracionFiscalPorTenant -- que busca solo por TenantId) sincronizada
+            // con los datos del negocio que el usuario acaba de guardar aquí. Antes se buscaba por
+            // EmpresaId, pero esa columna puede venir sin vincular en datos legacy (visto en
+            // produccion: ConfiguracionFiscal.EmpresaId nulo) y ademas no tiene query filter global
+            // por TenantId como la mayoria de entidades en SpaContext -- una Empresa compartida
+            // entre varios Tenants (EmpresaTenants) podia terminar actualizando la de OTRO tenant
+            // (FirstOrDefaultAsync sin ORDER BY no es deterministico). Buscar directamente por
+            // TenantId (igual criterio que la lectura) evita ambos problemas y de paso repara el
+            // vinculo a EmpresaId si nunca se habia seteado.
+            var configFiscal = await dbContext.ConfiguracionFiscal
+                .FirstOrDefaultAsync(c => c.TenantId == dbContext.CurrentTenantName && c.Activo && c.Estado);
             if (configFiscal != null)
             {
                 var ubigeo = entity.UbigeoId != null
                     ? await dbContext.Ubigeo.FirstOrDefaultAsync(u => u.UbigeoId == entity.UbigeoId)
                     : null;
 
+                configFiscal.EmpresaId = entity.Id;
                 configFiscal.Ruc = entity.Ruc;
                 configFiscal.RazonSocial = entity.RazonSocial;
                 configFiscal.NombreComercial = entity.NombreComercial;

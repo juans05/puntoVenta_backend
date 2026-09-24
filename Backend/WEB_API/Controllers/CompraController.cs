@@ -43,4 +43,7 @@ public class CompraController : ControllerBase
         using var stream = archivo.OpenReadStream();
         return Ok(await _compraService.ImportarXmlCompra(stream));
     }
+
+    [HttpGet("obtener-serie-numero")]
+    public async Task<IActionResult> ObtenerSerieNumero([FromQuery] int? sucursalId) => Ok(await _compraService.ObtenerSerieNumero(sucursalId));
 }

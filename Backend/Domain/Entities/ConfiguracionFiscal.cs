@@ -18,6 +18,7 @@ public class ConfiguracionFiscal : EntityBase
     public string? SerieNotaCredito { get; set; }
     public string? SerieNotaDebito { get; set; }
     public string? SerieCotizacion { get; set; }
+    public string? SerieCompra { get; set; }
     public string? CodigoAdaptador { get; set; }
     public string? Token { get; set; }
     public string? Moneda { get; set; }

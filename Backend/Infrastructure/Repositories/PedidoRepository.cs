@@ -60,10 +60,8 @@ public class PedidoRepository : IPedidoRepository
             await _context.AddAsync(pedido);
             await _context.SaveChangesAsync();
 
-            var dto = _mapper.Map<PedidoDTO>(pedido);
-            dto.EstadoPedidoDescripcion = ObtenerDescripcionEstado(pedido.EstadoPedido);
-            dto.FechaCreacion = pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm");
-            dto.UsuarioCreacion = pedido.UsuarioCreacion;
+            // Recarga con Producto: el pedido recien guardado no lo trae y el DTO saldria sin nombres.
+            var (_, dto, _) = await ObtenerPedidoPorId(pedido.Id);
 
             return (ServiceStatus.Ok, dto, "Pedido creado exitosamente");
         }
@@ -185,6 +183,8 @@ public class PedidoRepository : IPedidoRepository
                 .Include(p => p.Cliente)
                 .Include(p => p.Ubigeo)
                 .Include(p => p.Salon)
+                .Include(p => p.PedidoDetalles)
+                    .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(p => p.Id == payload.Id);
 
             if (pedido == null)
