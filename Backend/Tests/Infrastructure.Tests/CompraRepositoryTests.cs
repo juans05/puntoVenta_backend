@@ -56,7 +56,7 @@ public class CompraRepositoryTests
         var (context, connection) = TestDbContextFactory.CreateContext();
         using var _ = connection;
 
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, preview, _) = await repo.ImportarXmlCompra(ComoStream(XmlFacturaValida("20123456789", "Distribuidora Acme SAC")));
 
@@ -86,7 +86,7 @@ public class CompraRepositoryTests
         context.Proveedor.Add(proveedorExistente);
         await context.SaveChangesAsync();
 
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, preview, _) = await repo.ImportarXmlCompra(ComoStream(XmlFacturaValida("20999999999", "Otro Nombre En El Xml")));
 
@@ -101,7 +101,7 @@ public class CompraRepositoryTests
         var (context, connection) = TestDbContextFactory.CreateContext();
         using var _ = connection;
 
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, preview, mensaje) = await repo.ImportarXmlCompra(ComoStream("esto no es xml"));
 
@@ -116,7 +116,7 @@ public class CompraRepositoryTests
         using var _ = connection;
 
         var productoId = await SeedProductoAsync(context);
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, dto, _) = await repo.CrearCompra(new CreateCompraPayload
         {
@@ -137,7 +137,7 @@ public class CompraRepositoryTests
 
         var productoId = await SeedProductoAsync(context);
         var tipoIgvGravadoId = await SeedTipoIgvAsync(context, "10", aplicaPorcentajeImpuesto: true);
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, dto, _) = await repo.CrearCompra(new CreateCompraPayload
         {
@@ -162,7 +162,7 @@ public class CompraRepositoryTests
 
         var productoId = await SeedProductoAsync(context);
         var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, dto, _) = await repo.CrearCompra(new CreateCompraPayload
         {
@@ -183,7 +183,7 @@ public class CompraRepositoryTests
         using var _ = connection;
 
         var productoId = await SeedProductoAsync(context);
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estado, dto, _) = await repo.CrearCompra(new CreateCompraPayload
         {
@@ -206,7 +206,7 @@ public class CompraRepositoryTests
 
         var productoId = await SeedProductoAsync(context);
         var tipoIgvGravadoId = await SeedTipoIgvAsync(context, "10", aplicaPorcentajeImpuesto: true);
-        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
         var (estadoCrear, _, _) = await repo.CrearCompra(new CreateCompraPayload
         {

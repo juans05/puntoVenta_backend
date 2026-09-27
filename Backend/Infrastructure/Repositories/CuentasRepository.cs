@@ -21,11 +21,13 @@ namespace Infrastructure.Repositories;
 public class CuentasRepository : ICuentasRepository
 {
     private readonly SpaContext _context;
+    private readonly IAsientoContableRepository _asientoContableRepository;
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
-    public CuentasRepository(SpaContext context, IHttpContextAccessor? httpContextAccessor)
+    public CuentasRepository(SpaContext context, IAsientoContableRepository asientoContableRepository, IHttpContextAccessor? httpContextAccessor)
     {
         _context = context;
+        _asientoContableRepository = asientoContableRepository;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -252,6 +254,15 @@ public class CuentasRepository : ICuentasRepository
                     _context.Retiros.Add(new Retiros { CajaId = caja.Id, Monto = total, Motivo = $"Pago proveedor {numero}" });
                 await _context.SaveChangesAsync();
                 id = pago.Id;
+
+                var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
+                    OrigenAsientoContable.Pago, pago.Id, $"Pago {numero}",
+                    new List<LineaAsientoContable> { new("42", total, 0), new("10", 0, total) });
+                if (estadoAsiento != ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                }
             }
 
             await _context.Database.CommitTransactionAsync();
@@ -298,6 +309,10 @@ public class CuentasRepository : ICuentasRepository
             }
 
             await _context.SaveChangesAsync();
+
+            if (!cobrar)
+                await _asientoContableRepository.Reversar(OrigenAsientoContable.Pago, id);
+
             await _context.Database.CommitTransactionAsync();
             return await ObtenerPago(cobrar, id);
         }

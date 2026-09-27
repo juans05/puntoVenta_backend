@@ -16,7 +16,7 @@ public class CuentasRepositoryTests
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
         Microsoft.AspNetCore.Http.IHttpContextAccessor? accessor = username == null ? null : new FakeHttpContextAccessor(username);
-        return (new CuentasRepository(context, accessor), context, connection);
+        return (new CuentasRepository(context, new AsientoContableRepository(context), accessor), context, connection);
     }
 
     private static async Task<int> SeedMetodoPago(SpaContext context, int id = 1)

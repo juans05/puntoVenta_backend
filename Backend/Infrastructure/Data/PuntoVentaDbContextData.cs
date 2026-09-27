@@ -391,6 +391,49 @@ namespace Infrastructure.Data
                 await context.Sucursal!.AddRangeAsync(sucursales);
                 await context.SaveChangesRegularAsync();
             }
+
+            // Plan de cuentas (PCGE): catalogo propio y editable por tenant (igual que
+            // Seriecorrelativo/Metodopago arriba), sembrado desde el PCGE oficial completo
+            // (PCGE.xlsx, provisto por el usuario) para las cuentas de partida doble
+            // (Activo/Pasivo/Patrimonio/Gasto/Ingreso). Se excluyen a proposito las cuentas de
+            // orden, cierre y analitica de costos -- ver plan de Pieza 3.
+            if (!context.CuentaContable.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
+            {
+                var cuentaContableData = File.ReadAllText(Path.Combine(DefaultDataPath, "cuentacontable.json"));
+                var filas = JsonConvert.DeserializeObject<List<CuentaContableSeedRow>>(cuentaContableData);
+
+                // El JSON esta en preorden (cada cuenta seguida de sus hijas): se reconstruye la
+                // jerarquia con un stack por prefijo de Codigo, y se enlaza CuentaPadre (objeto en
+                // memoria, no un Id) para que EF resuelva el CuentaPadreId real al guardar el grafo.
+                var cuentas = new List<CuentaContable>(filas.Count);
+                var ancestros = new List<CuentaContable>();
+                foreach (var fila in filas)
+                {
+                    while (ancestros.Count > 0 && !fila.Codigo.StartsWith(ancestros[^1].Codigo))
+                        ancestros.RemoveAt(ancestros.Count - 1);
+
+                    var cuenta = new CuentaContable
+                    {
+                        Codigo = fila.Codigo,
+                        Nombre = fila.Nombre,
+                        Tipo = fila.Tipo,
+                        TenantId = tenantId,
+                        CuentaPadre = ancestros.Count > 0 ? ancestros[^1] : null
+                    };
+                    cuentas.Add(cuenta);
+                    ancestros.Add(cuenta);
+                }
+
+                await context.CuentaContable.AddRangeAsync(cuentas);
+                await context.SaveChangesRegularAsync();
+            }
+        }
+
+        private class CuentaContableSeedRow
+        {
+            public string Codigo { get; set; } = null!;
+            public string Nombre { get; set; } = null!;
+            public string Tipo { get; set; } = null!;
         }
     }
 }

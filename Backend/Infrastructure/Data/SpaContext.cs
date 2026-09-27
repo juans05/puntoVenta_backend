@@ -119,6 +119,9 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<PedidoDetalle> PedidoDetalle => Set<PedidoDetalle>();
     public DbSet<ClienteCuenta> ClienteCuenta => Set<ClienteCuenta>();
     public DbSet<Salon> Salon => Set<Salon>();
+    public DbSet<CuentaContable> CuentaContable => Set<CuentaContable>();
+    public DbSet<AsientoContable> AsientoContable => Set<AsientoContable>();
+    public DbSet<AsientoContableDetalle> AsientoContableDetalle => Set<AsientoContableDetalle>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -135,6 +138,9 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Proveedor>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Departamento>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<DepartamentoAprobador>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<CuentaContable>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<AsientoContable>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<AsientoContableDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Comentario>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         // TipoDocumento y TipoDocumentoVenta son catálogos nacionales SUNAT (DNI/RUC/Pasaporte,
         // Boleta/Factura): idénticos para cualquier negocio, no hay filtro por tenant. Id es la

@@ -14,8 +14,8 @@ public class OrdenCompraRepositoryTests
     private static (OrdenCompraRepository Orden, CompraRepository Compra, SpaContext Context, System.Data.Common.DbConnection Connection) Preparar()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
-        var compraRepo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
-        var repo = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context), httpContextAccessor: null);
+        var compraRepo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+        var repo = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context), new AsientoContableRepository(context), httpContextAccessor: null);
         return (repo, compraRepo, context, connection);
     }
 
@@ -199,13 +199,13 @@ public class OrdenCompraRepositoryTests
             Detalle = new() { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
         });
 
-        var repoOtroUsuario = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context),
+        var repoOtroUsuario = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context), new AsientoContableRepository(context),
             new FakeHttpContextAccessor("otro", userId: "otro-usuario"));
         var (estadoRechazado, _, mensajeRechazo) = await repoOtroUsuario.AprobarOrden(orden!.Id, "otro");
         Assert.Equal(ServiceStatus.FailedValidation, estadoRechazado);
         Assert.Contains("aprobador asignado", mensajeRechazo);
 
-        var repoAdmin = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context),
+        var repoAdmin = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context), new AsientoContableRepository(context),
             new FakeHttpContextAccessor("admin", userId: "admin-id", "Administrador"));
         var (estadoAdmin, aprobadaPorAdmin, _) = await repoAdmin.AprobarOrden(orden.Id, "admin");
         Assert.Equal(ServiceStatus.Ok, estadoAdmin);
@@ -228,7 +228,7 @@ public class OrdenCompraRepositoryTests
             Detalle = new() { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
         });
 
-        var repoAprobador = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context),
+        var repoAprobador = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context), new AsientoContableRepository(context),
             new FakeHttpContextAccessor("jefe", userId: "aprobador-1"));
         var (estado, aprobada, _) = await repoAprobador.AprobarOrden(orden!.Id, "jefe");
 

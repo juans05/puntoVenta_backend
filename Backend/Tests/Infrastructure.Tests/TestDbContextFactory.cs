@@ -1,6 +1,7 @@
 using Application.Abstractions;
 using AutoMapper;
 using Domain.Common.Mappings;
+using Domain.Entities;
 using Domain.Tenant;
 using Infrastructure.Data;
 using Microsoft.Data.Sqlite;
@@ -47,8 +48,25 @@ public static class TestDbContextFactory
 
         var context = new SpaContext(options, tenantResolver ?? new FakeTenantResolver());
         context.Database.EnsureCreated();
+        SeedCuentasContables(context);
 
         return (context, connection);
+    }
+
+    // Subconjunto minimo del plan de cuentas (PCGE) que usan los asientos automaticos de
+    // OrdenCompraRepository/CompraRepository/CuentasRepository (Movimiento/Factura/Pago) -- ver
+    // Infrastructure/Data/Default/cuentacontable.json para el catalogo real completo, que aqui
+    // seria demasiado para cada test. Inocuo para los tests que no tocan estos flujos.
+    private static void SeedCuentasContables(SpaContext context)
+    {
+        var tenantId = context.CurrentTenantName;
+        context.CuentaContable.AddRange(
+            new CuentaContable { Codigo = "10", Nombre = "Efectivo y Equivalentes de Efectivo", Tipo = TipoCuentaContable.Activo, TenantId = tenantId },
+            new CuentaContable { Codigo = "20", Nombre = "Mercaderías", Tipo = TipoCuentaContable.Activo, TenantId = tenantId },
+            new CuentaContable { Codigo = "42", Nombre = "Cuentas por Pagar Comerciales Terceros", Tipo = TipoCuentaContable.Pasivo, TenantId = tenantId },
+            new CuentaContable { Codigo = "4211", Nombre = "Facturas, boletas y otros comp. No emitidas", Tipo = TipoCuentaContable.Pasivo, TenantId = tenantId },
+            new CuentaContable { Codigo = "63", Nombre = "Gastos de Servicios Prestados por Terceros", Tipo = TipoCuentaContable.Gasto, TenantId = tenantId });
+        context.SaveChanges();
     }
 
     /// <summary>

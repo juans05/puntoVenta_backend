@@ -21,17 +21,20 @@ public class CompraRepository : ICompraRepository
 {
     private readonly SpaContext _context;
     private readonly IMapper _mapper;
+    private readonly IAsientoContableRepository _asientoContableRepository;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly TaxCalculatorFactory _taxCalculatorFactory;
 
     public CompraRepository(
         SpaContext context,
         IMapper mapper,
+        IAsientoContableRepository asientoContableRepository,
         IHttpContextAccessor? httpContextAccessor,
         TaxCalculatorFactory? taxCalculatorFactory = null)
     {
         _context = context;
         _mapper = mapper;
+        _asientoContableRepository = asientoContableRepository;
         _httpContextAccessor = httpContextAccessor;
         _taxCalculatorFactory = taxCalculatorFactory ?? new TaxCalculatorFactory();
     }
@@ -220,6 +223,31 @@ public class CompraRepository : ICompraRepository
 
             await _context.SaveChangesAsync();
 
+            // Asiento contable de la factura. ponytail: usa subtotalProductos (sin IGV) en vez de
+            // compra.Total en ambos lados para que la cuenta puente (4211) cierre exacto contra lo
+            // que el movimiento de inventario le abonó -- el IGV no esta desagregado en su propia
+            // cuenta (fuera de alcance, ver plan Pieza 3); si se necesita que "42" cuadre con el
+            // total realmente pagado, agregar el IGV como tercera pata de este asiento.
+            if (subtotalProductos > 0)
+            {
+                var cuentaDebe = "20"; // compra directa (!deOrden): mercaderia recibida en el mismo paso, sube stock ahora mismo.
+                if (deOrden)
+                {
+                    var tipoOrden = await _context.OrdenCompra.AsNoTracking()
+                        .Where(o => o.Id == compra.OrdenCompraId).Select(o => o.TipoOrden).FirstOrDefaultAsync();
+                    cuentaDebe = tipoOrden == TipoOrdenCompra.Servicio ? "63" : "4211";
+                }
+
+                var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
+                    OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}",
+                    new List<LineaAsientoContable> { new(cuentaDebe, subtotalProductos, 0), new("42", 0, subtotalProductos) });
+                if (estadoAsiento != ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                }
+            }
+
             await _context.Database.CommitTransactionAsync();
 
             var (_, dto, _) = await ObtenerCompra(compra.Id);
@@ -293,6 +321,9 @@ public class CompraRepository : ICompraRepository
                 await AjustarFacturadoOrden(compra.OrdenCompraId.Value, compra.CompraDetalles, -1);
 
             await _context.SaveChangesAsync();
+
+            await _asientoContableRepository.Reversar(OrigenAsientoContable.Factura, compra.Id);
+
             await _context.Database.CommitTransactionAsync();
 
             var (_, dto, _) = await ObtenerCompra(compra.Id);

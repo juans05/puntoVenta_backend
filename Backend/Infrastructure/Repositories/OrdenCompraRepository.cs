@@ -22,14 +22,17 @@ public class OrdenCompraRepository : IOrdenCompraRepository
     private readonly SpaContext _context;
     private readonly ICompraRepository _compraRepository;
     private readonly IDepartamentoRepository _departamentoRepository;
+    private readonly IAsientoContableRepository _asientoContableRepository;
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
     public OrdenCompraRepository(SpaContext context, ICompraRepository compraRepository,
-        IDepartamentoRepository departamentoRepository, IHttpContextAccessor? httpContextAccessor)
+        IDepartamentoRepository departamentoRepository, IAsientoContableRepository asientoContableRepository,
+        IHttpContextAccessor? httpContextAccessor)
     {
         _context = context;
         _compraRepository = compraRepository;
         _departamentoRepository = departamentoRepository;
+        _asientoContableRepository = asientoContableRepository;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -452,10 +455,12 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             _context.Recepcion.Add(recepcion);
             await _context.SaveChangesAsync();
 
+            var totalRecepcion = 0m;
             foreach (var l in lineas)
             {
                 var od = orden.Detalles.First(d => d.Id == l.OrdenCompraDetalleId);
                 od.CantidadRecibida += l.Cantidad;
+                totalRecepcion += l.Cantidad * od.CostoUnitario;
 
                 _context.RecepcionDetalle.Add(new RecepcionDetalle
                 {
@@ -490,6 +495,20 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
             OrdenCompraEstado.Recalcular(orden);
             await _context.SaveChangesAsync();
+
+            if (totalRecepcion > 0)
+            {
+                var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
+                    OrigenAsientoContable.MovimientoInventario, recepcion.Id,
+                    $"Recepción {recepcion.Numero} de orden {orden.Numero}",
+                    new List<LineaAsientoContable> { new("20", totalRecepcion, 0), new("4211", 0, totalRecepcion) });
+                if (estadoAsiento != ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                }
+            }
+
             await _context.Database.CommitTransactionAsync();
             return await ObtenerOrden(ordenId);
         }
@@ -558,6 +577,10 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             if (orden.EstadoOrden == EstadoOrdenCompra.Cerrada) orden.EstadoOrden = EstadoOrdenCompra.Recibida;
             OrdenCompraEstado.Recalcular(orden);
             await _context.SaveChangesAsync();
+
+            // Best-effort: si la recepcion no generó asiento (ej. costo total 0), no hay nada que reversar.
+            await _asientoContableRepository.Reversar(OrigenAsientoContable.MovimientoInventario, recepcion.Id);
+
             await _context.Database.CommitTransactionAsync();
             return await ObtenerOrden(orden.Id);
         }
