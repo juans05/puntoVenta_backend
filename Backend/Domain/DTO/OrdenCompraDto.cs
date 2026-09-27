@@ -52,4 +52,5 @@ public class RecepcionDto
     public string Fecha { get; set; } = null!;
     public string EstadoRecepcion { get; set; } = null!;
     public string? Observacion { get; set; }
+    public string? NumeroGuiaRemision { get; set; }
 }

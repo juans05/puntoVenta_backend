@@ -58,6 +58,7 @@ public class EmitirOrdenCompraPayload
 public class CreateRecepcionPayload
 {
     public string? Observacion { get; set; }
+    public string? NumeroGuiaRemision { get; set; }
     public List<RecepcionDetallePayload> Detalle { get; set; } = new();
 }
 

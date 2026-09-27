@@ -55,6 +55,9 @@ public class Recepcion : EntityBase
     public DateTime Fecha { get; set; }
     public string EstadoRecepcion { get; set; } = "ACTIVA";
     public string? Observacion { get; set; }
+    // Numero de guia de remision que trae el proveedor junto con la mercaderia (documento de
+    // ellos, distinto de "Numero" arriba que es nuestro correlativo interno REC-000001).
+    public string? NumeroGuiaRemision { get; set; }
     public List<RecepcionDetalle> Detalles { get; set; } = new();
 }
 

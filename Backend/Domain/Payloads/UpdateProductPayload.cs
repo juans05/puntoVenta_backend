@@ -41,6 +41,8 @@ namespace Domain.Payloads
         public bool GestionLotes { get; set; }
         public bool MultiPrecioActivo { get; set; }
         public bool EsServicio { get; set; }
+        public bool SeVende { get; set; } = true;
+        public bool SeCompra { get; set; } = true;
         public int? CuentaIngresoId { get; set; }
         public int? CuentaInventarioId { get; set; }
         public int? CuentaCostoId { get; set; }

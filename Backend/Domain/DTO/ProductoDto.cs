@@ -57,6 +57,8 @@ public record class ProductoDto
     public bool GestionLotes { get; set; }
     public bool MultiPrecioActivo { get; set; }
     public bool EsServicio { get; set; }
+    public bool SeVende { get; set; }
+    public bool SeCompra { get; set; }
     public int? CuentaIngresoId { get; set; }
     public int? CuentaInventarioId { get; set; }
     public int? CuentaCostoId { get; set; }

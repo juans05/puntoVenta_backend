@@ -305,7 +305,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             Numero = r.Numero,
             Fecha = r.Fecha.ToString("dd/MM/yyyy HH:mm"),
             EstadoRecepcion = r.EstadoRecepcion,
-            Observacion = r.Observacion
+            Observacion = r.Observacion,
+            NumeroGuiaRemision = r.NumeroGuiaRemision
         }).ToList()
     };
 
@@ -450,7 +451,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 SucursalId = orden.SucursalId,
                 OrdenCompraId = orden.Id,
                 Fecha = NowLocal(),
-                Observacion = payload.Observacion
+                Observacion = payload.Observacion,
+                NumeroGuiaRemision = payload.NumeroGuiaRemision
             };
             _context.Recepcion.Add(recepcion);
             await _context.SaveChangesAsync();

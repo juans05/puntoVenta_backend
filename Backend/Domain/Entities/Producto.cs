@@ -58,6 +58,12 @@ public class Producto : EntityBase
         // solo campo -- ver ProductoModal (frontend) para que campos se ocultan segun este valor.
         public bool EsServicio { get; set; }
 
+        // Toggles estilo QuickBooks "I sell this product/service" / "I purchase this product/service":
+        // controlan si el producto aparece como opcion al armar una Factura (Ventas) o una Compra.
+        // Default true para no ocultar productos existentes al desplegar esta columna.
+        public bool SeVende { get; set; } = true;
+        public bool SeCompra { get; set; } = true;
+
         // Cuentas contables del producto (tab "Contabilidad" del modal), todas opcionales: si no se
         // eligen, ComprobanteRepository.CrearComprobante usa las cuentas PCGE por defecto (70 Ventas,
         // 20 Mercaderias, 69 Costo de Ventas) al generar el asiento de la venta.
