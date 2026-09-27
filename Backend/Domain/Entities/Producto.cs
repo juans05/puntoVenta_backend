@@ -53,6 +53,21 @@ public class Producto : EntityBase
         public bool GestionLotes { get; set; }
         public bool MultiPrecioActivo { get; set; }
 
+        // Es un servicio (sin inventario: sin stock/lotes/presentaciones/peso) en vez de un bien
+        // fisico. Basado en el toggle "Inventory Item" de SAP Item Master Data, simplificado a un
+        // solo campo -- ver ProductoModal (frontend) para que campos se ocultan segun este valor.
+        public bool EsServicio { get; set; }
+
+        // Cuentas contables del producto (tab "Contabilidad" del modal), todas opcionales: si no se
+        // eligen, ComprobanteRepository.CrearComprobante usa las cuentas PCGE por defecto (70 Ventas,
+        // 20 Mercaderias, 69 Costo de Ventas) al generar el asiento de la venta.
+        public int? CuentaIngresoId { get; set; }
+        public CuentaContable? CuentaIngreso { get; set; }
+        public int? CuentaInventarioId { get; set; }
+        public CuentaContable? CuentaInventario { get; set; }
+        public int? CuentaCostoId { get; set; }
+        public CuentaContable? CuentaCosto { get; set; }
+
         public List<PrecioAlternativo> PreciosAlternativos { get; set; } = new List<PrecioAlternativo>();
         public List<Presentacion> Presentaciones { get; set; } = new List<Presentacion>();
         public List<ComprobanteDetalle> ComprobanteDetalles { get; set; } = new List<ComprobanteDetalle>();

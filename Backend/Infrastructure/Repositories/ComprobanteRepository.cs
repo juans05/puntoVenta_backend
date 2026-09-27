@@ -25,6 +25,7 @@ namespace Infrastructure.Repositories
     {
         private readonly SpaContext _context;
         private readonly IMapper _mapper;
+        private readonly IAsientoContableRepository _asientoContableRepository;
         private readonly IHttpContextAccessor? _httpContextAccessor;
         private readonly TaxCalculatorFactory _taxCalculatorFactory;
 
@@ -32,11 +33,13 @@ namespace Infrastructure.Repositories
         public ComprobanteRepository(
             SpaContext context,
             IMapper mapper,
+            IAsientoContableRepository asientoContableRepository,
             IHttpContextAccessor? httpContextAccessor,
             TaxCalculatorFactory taxCalculatorFactory)
         {
             _context = context;
             _mapper = mapper;
+            _asientoContableRepository = asientoContableRepository;
             _httpContextAccessor = httpContextAccessor;
             _taxCalculatorFactory = taxCalculatorFactory;
         }
@@ -243,6 +246,8 @@ namespace Infrastructure.Repositories
                 // disponibilidad (el cliente todavia no confirmo nada).
                 var esCotizacion = payload.TipoDocumentoVentaId == (int)TipoComprobante.Cotizacion;
 
+                var productosVendidos = new Dictionary<int, Producto>();
+
                 foreach (var item in detalle)
                 {
                     item.ComprobanteCabeceraId = cabecera.Id;
@@ -251,6 +256,8 @@ namespace Infrastructure.Repositories
 
                     if (producto == null)
                         return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
+
+                    productosVendidos[item.ProductoId] = producto;
 
                     if (esCotizacion || cabecera.StockYaDescontado) continue;
 
@@ -289,6 +296,15 @@ namespace Infrastructure.Repositories
 
                 await _context.SaveChangesAsync();
 
+                if (!esCotizacion)
+                {
+                    var (estadoAsiento, _, mensajeAsiento) = await GenerarAsientoVenta(cabecera, detalle, payload.EsCredito, productosVendidos);
+                    if (estadoAsiento != ServiceStatus.Ok)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                        return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                    }
+                }
 
                 await _context.Database.CommitTransactionAsync();
             }
@@ -707,6 +723,8 @@ namespace Infrastructure.Repositories
 
                 await _context.SaveChangesAsync();
 
+                await _asientoContableRepository.Reversar(OrigenAsientoContable.Venta, entity.Id);
+
                 await _context.Database.CommitTransactionAsync();
 
                 return (ServiceStatus.Ok, null, "Success");
@@ -718,6 +736,63 @@ namespace Infrastructure.Repositories
                 return (ServiceStatus.FailedValidation, null, $"Error en Anular Venta -> {ex.InnerException?.Message ?? ex.Message}");
             }
 
+        }
+
+        // Asiento contable de la venta. ponytail: usa cabecera.ValorSubtotal (sin IGV) en la
+        // contraparte (Caja/Cuentas por Cobrar) en vez de ValorTotal, para que cuadre exacto contra
+        // la suma de Ingresos por linea (tambien sin IGV) sin desagregar el IGV en su propia cuenta
+        // -- mismo criterio de simplificacion que CompraRepository.CrearCompraCore (Pieza 3).
+        // Cuentas por defecto (PCGE): 10 Efectivo, 12 Cuentas por Cobrar, 70 Ventas, 69 Costo de
+        // Ventas, 20 Mercaderias -- cada producto puede sobreescribirlas desde su tab Contabilidad.
+        private async Task<(ServiceStatus, Domain.DTO.AsientoContableDto?, string)> GenerarAsientoVenta(
+            ComprobanteCabecera cabecera, List<ComprobanteDetalle> detalle, bool esCredito, Dictionary<int, Producto> productos)
+        {
+            var cuentaIds = productos.Values
+                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaCostoId, p.CuentaInventarioId })
+                .Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
+            var codigosPorCuentaId = cuentaIds.Count > 0
+                ? await _context.CuentaContable.AsNoTracking().Where(c => cuentaIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Codigo)
+                : new Dictionary<int, string>();
+            string CodigoDe(int? cuentaId, string porDefecto) =>
+                cuentaId.HasValue && codigosPorCuentaId.TryGetValue(cuentaId.Value, out var codigo) ? codigo : porDefecto;
+
+            var lineas = new List<LineaAsientoContable>
+            {
+                new(esCredito ? "12" : "10", cabecera.ValorSubtotal, 0)
+            };
+
+            var ingresosPorCuenta = new Dictionary<string, decimal>();
+            var costoPorCuentas = new Dictionary<(string Costo, string Inventario), decimal>();
+
+            foreach (var item in detalle)
+            {
+                var producto = productos[item.ProductoId];
+                var cuentaIngreso = CodigoDe(producto.CuentaIngresoId, "70");
+                var importeSinIgv = item.ValorUnitarioTotal - item.ValorIgv;
+                ingresosPorCuenta[cuentaIngreso] = ingresosPorCuenta.GetValueOrDefault(cuentaIngreso) + importeSinIgv;
+
+                if (producto.EsServicio) continue;
+
+                var costo = (item.CostoReal ?? producto.CostoUnitario ?? 0) * item.Cantidad;
+                if (costo <= 0) continue;
+
+                var key = (CodigoDe(producto.CuentaCostoId, "69"), CodigoDe(producto.CuentaInventarioId, "20"));
+                costoPorCuentas[key] = costoPorCuentas.GetValueOrDefault(key) + costo;
+            }
+
+            // Redondeado aqui (no en cada linea individual): igv por linea se calcula sin redondear
+            // (mismo criterio que subtotalCalculado en CrearComprobante), asi que el acumulado por
+            // cuenta puede traer residuo de punto flotante que el helper de asientos rechazaria.
+            foreach (var (cuenta, monto) in ingresosPorCuenta)
+                lineas.Add(new LineaAsientoContable(cuenta, 0, Math.Round(monto, 2)));
+            foreach (var ((cuentaCosto, cuentaInventario), monto) in costoPorCuentas)
+            {
+                var montoRedondeado = Math.Round(monto, 2);
+                lineas.Add(new LineaAsientoContable(cuentaCosto, montoRedondeado, 0));
+                lineas.Add(new LineaAsientoContable(cuentaInventario, 0, montoRedondeado));
+            }
+
+            return await _asientoContableRepository.Generar(OrigenAsientoContable.Venta, cabecera.Id, $"Venta {cabecera.Serie}-{cabecera.Correlativo}", lineas);
         }
 
         private async Task RestaurarStock(IEnumerable<ComprobanteDetalle> detalles, int comprobanteId, string referenciaTipo)

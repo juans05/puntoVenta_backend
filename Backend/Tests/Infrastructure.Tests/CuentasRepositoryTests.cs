@@ -240,7 +240,7 @@ public class CuentasRepositoryTests
         context.Producto.Add(producto);
         context.Metodopago.Add(new Metodopago { Id = 1, Nombre = "Efectivo" });
         await context.SaveChangesAsync();
-        var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new TaxCalculatorFactory());
+        var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new TaxCalculatorFactory());
 
         ComprobantePayload Payload(bool credito, string? doc) => new()
         {

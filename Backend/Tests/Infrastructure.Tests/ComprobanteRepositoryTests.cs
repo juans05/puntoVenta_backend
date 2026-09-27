@@ -110,7 +110,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 10);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -145,6 +145,105 @@ public class ComprobanteRepositoryTests
     }
 
     [Fact]
+    public async Task CrearComprobante_ProductoBien_GeneraAsientoDeIngresoYCosto()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        var producto = new Producto { Nombre = "Bien test", Precio = 10m, Stock = 10, CostoUnitario = 6m, RestriccionEdad = 0 };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var metodoPagoId = await SeedMetodoPagoAsync(context);
+
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+
+        var (estado, _, mensaje) = await repo.CrearComprobante(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            Total = 20m,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 2, ValorUnitario = 10m } },
+            DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 20m } }
+        });
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var cabecera = await context.ComprobanteCabecera.SingleAsync();
+        var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
+
+        Assert.Equal(asiento.Detalle.Sum(d => d.Debe), asiento.Detalle.Sum(d => d.Haber)); // partida doble cuadra
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "10" && d.Debe == cabecera.ValorSubtotal);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "70" && d.Haber > 0);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "69" && d.Debe == 12m); // costo 6 x 2
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == 12m);
+    }
+
+    [Fact]
+    public async Task CrearComprobante_ProductoServicio_AsientoSinCostoNiInventario()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        // Un servicio no maneja stock: Stock queda null/0 y CrearComprobante no lo valida ni descuenta
+        // (el descuento de stock solo corre para bienes en la practica -- aca solo importa EsServicio
+        // para que el asiento no genere lineas de costo/inventario).
+        var producto = new Producto { Nombre = "Servicio test", Precio = 50m, Stock = 999, CostoUnitario = 30m, EsServicio = true, RestriccionEdad = 0 };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var metodoPagoId = await SeedMetodoPagoAsync(context);
+
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+
+        var (estado, _, mensaje) = await repo.CrearComprobante(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            Total = 50m,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 1, ValorUnitario = 50m } },
+            DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 50m } }
+        });
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var cabecera = await context.ComprobanteCabecera.SingleAsync();
+        var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
+
+        Assert.Equal(2, asiento.Detalle.Count); // solo contraparte + ingreso, sin costo/inventario
+        Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "69" || d.CuentaContable!.Codigo == "20");
+    }
+
+    [Fact]
+    public async Task AnularVenta_MarcaElAsientoOriginalAnuladoYGeneraElReverso()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        var producto = new Producto { Nombre = "Bien test", Precio = 10m, Stock = 10, CostoUnitario = 6m, RestriccionEdad = 0 };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var metodoPagoId = await SeedMetodoPagoAsync(context);
+
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        await repo.CrearComprobante(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            Total = 20m,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 2, ValorUnitario = 10m } },
+            DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 20m } }
+        });
+        var cabecera = await context.ComprobanteCabecera.SingleAsync();
+
+        var (estado, _, mensaje) = await repo.AnularVenta(cabecera.Id, "Cliente se arrepintio");
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var asientos = await context.AsientoContable.Where(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id).ToListAsync();
+        Assert.Equal(2, asientos.Count);
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Anulado);
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Emitido);
+    }
+
+    [Fact]
     public async Task CrearComprobante_SucursalConSeriePropia_UsaLaSerieDeLaSucursalNoLaDelTenant()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
@@ -157,7 +256,7 @@ public class ComprobanteRepositoryTests
 
         var sucursal = await SeedSucursalAsync(context, "Sede Miraflores", serieFactura: "F002");
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -204,7 +303,7 @@ public class ComprobanteRepositoryTests
         // Sucursal sin SerieFactura configurada -- comportamiento de siempre, sin cambios.
         var sucursal = await SeedSucursalAsync(context, "Sede sin serie propia");
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -241,7 +340,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 1);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -283,7 +382,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 10);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var (_, cotizacionCreada, _) = await repo.CrearComprobante(new ComprobantePayload
         {
@@ -312,7 +411,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 10);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         await repo.CrearComprobante(new ComprobantePayload
         {
@@ -350,7 +449,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 10);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         ComprobantePayload BuildPayload() => new()
         {
@@ -409,7 +508,7 @@ public class ComprobanteRepositoryTests
         });
         await context.SaveChangesAsync();
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var (estado, _, _) = await repo.AnularVenta(cabecera.Id, "Cliente se arrepintio");
 
@@ -452,7 +551,7 @@ public class ComprobanteRepositoryTests
         context.ComprobanteCabecera.Add(cabecera);
         await context.SaveChangesAsync();
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var (estado, _, message) = await repo.AnularVenta(cabecera.Id, "Motivo");
 
@@ -473,7 +572,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 10);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -512,7 +611,7 @@ public class ComprobanteRepositoryTests
         var tipoIgvGravadoId = await SeedTipoIgvAsync(context, "10", aplicaPorcentajeImpuesto: true);
         var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -577,7 +676,7 @@ public class ComprobanteRepositoryTests
         });
         await context.SaveChangesAsync();
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new NotaPayload
         {
@@ -614,7 +713,7 @@ public class ComprobanteRepositoryTests
         await SeedTipoDocumentoVentaAsync(context);
         var motivoId = await SeedMotivoNotaAsync(context, tipoDocumentoVentaId: 4, revierteStock: true);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new NotaPayload
         {
@@ -669,7 +768,7 @@ public class ComprobanteRepositoryTests
         });
         await context.SaveChangesAsync();
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var (estadoNC, _, _) = await repo.CrearNotaCreditoDebito(new NotaPayload
         {
@@ -732,7 +831,7 @@ public class ComprobanteRepositoryTests
         });
         await context.SaveChangesAsync();
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var (estado, resultado, _) = await repo.ListarComprobantes(new ComprobanteQueryParams { Page = 1, Amount = 20 });
 
@@ -756,7 +855,7 @@ public class ComprobanteRepositoryTests
         var tipoIgvGravadoId = await SeedTipoIgvAsync(context, "10", aplicaPorcentajeImpuesto: true);
         var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {
@@ -802,7 +901,7 @@ public class ComprobanteRepositoryTests
         var productoId = await SeedProductoAsync(context, stock: 10);
         var metodoPagoId = await SeedMetodoPagoAsync(context);
 
-        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
         var payload = new ComprobantePayload
         {

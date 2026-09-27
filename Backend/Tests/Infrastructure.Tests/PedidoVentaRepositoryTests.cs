@@ -15,7 +15,7 @@ public class PedidoVentaRepositoryTests
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
         var repo = new PedidoVentaRepository(context, httpContextAccessor: null, new GuiaRemisionRepository(context, httpContextAccessor: null));
-        var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new TaxCalculatorFactory());
+        var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new TaxCalculatorFactory());
         var compra = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
         var config = new OrdenCompraRepository(context, compra, new DepartamentoRepository(context), new AsientoContableRepository(context), httpContextAccessor: null);
         return (repo, comprobante, config, context, connection);

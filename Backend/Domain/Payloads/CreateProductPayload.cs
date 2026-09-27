@@ -39,6 +39,10 @@ namespace Domain.Payloads
         public string? DestinoPreparacion { get; set; }
         public bool GestionLotes { get; set; }
         public bool MultiPrecioActivo { get; set; }
+        public bool EsServicio { get; set; }
+        public int? CuentaIngresoId { get; set; }
+        public int? CuentaInventarioId { get; set; }
+        public int? CuentaCostoId { get; set; }
         public List<PrecioAlternativoPayload>? PreciosAlternativos { get; set; }
         public List<PresentacionPayload>? Presentaciones { get; set; }
     }

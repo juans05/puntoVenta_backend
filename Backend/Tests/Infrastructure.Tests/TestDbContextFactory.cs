@@ -65,7 +65,10 @@ public static class TestDbContextFactory
             new CuentaContable { Codigo = "20", Nombre = "Mercaderías", Tipo = TipoCuentaContable.Activo, TenantId = tenantId },
             new CuentaContable { Codigo = "42", Nombre = "Cuentas por Pagar Comerciales Terceros", Tipo = TipoCuentaContable.Pasivo, TenantId = tenantId },
             new CuentaContable { Codigo = "4211", Nombre = "Facturas, boletas y otros comp. No emitidas", Tipo = TipoCuentaContable.Pasivo, TenantId = tenantId },
-            new CuentaContable { Codigo = "63", Nombre = "Gastos de Servicios Prestados por Terceros", Tipo = TipoCuentaContable.Gasto, TenantId = tenantId });
+            new CuentaContable { Codigo = "63", Nombre = "Gastos de Servicios Prestados por Terceros", Tipo = TipoCuentaContable.Gasto, TenantId = tenantId },
+            new CuentaContable { Codigo = "12", Nombre = "Cuentas por Cobrar Comerciales-Terceros", Tipo = TipoCuentaContable.Activo, TenantId = tenantId },
+            new CuentaContable { Codigo = "70", Nombre = "Ventas", Tipo = TipoCuentaContable.Ingreso, TenantId = tenantId },
+            new CuentaContable { Codigo = "69", Nombre = "Costos de Ventas", Tipo = TipoCuentaContable.Gasto, TenantId = tenantId });
         context.SaveChanges();
     }
 

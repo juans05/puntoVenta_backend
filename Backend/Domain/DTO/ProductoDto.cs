@@ -56,6 +56,10 @@ public record class ProductoDto
     public string? DestinoPreparacion { get; set; }
     public bool GestionLotes { get; set; }
     public bool MultiPrecioActivo { get; set; }
+    public bool EsServicio { get; set; }
+    public int? CuentaIngresoId { get; set; }
+    public int? CuentaInventarioId { get; set; }
+    public int? CuentaCostoId { get; set; }
     public List<PrecioAlternativoDto> PreciosAlternativos { get; set; } = new();
     public List<PresentacionDto> Presentaciones { get; set; } = new();
 

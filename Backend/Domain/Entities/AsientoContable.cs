@@ -6,6 +6,7 @@ public static class OrigenAsientoContable
     public const string MovimientoInventario = "MovimientoInventario";
     public const string Factura = "Factura";
     public const string Pago = "Pago";
+    public const string Venta = "Venta";
 }
 
 public static class EstadoAsientoContable
