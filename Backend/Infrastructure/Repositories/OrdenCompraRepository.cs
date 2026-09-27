@@ -98,7 +98,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
     private async Task<string> GenerarNumeroRecepcion()
         => $"REC-{((await _context.Recepcion.IgnoreQueryFilters().CountAsync(r => r.TenantId == _context.CurrentTenantName)) + 1).ToString().PadLeft(6, '0')}";
 
-    private static string? ValidarDetalle(List<OrdenCompraDetallePayload>? detalle)
+    private static string? ValidarDetalle(List<OrdenCompraDetallePayload>? detalle, string tipoOrden)
     {
         if (detalle == null || detalle.Count == 0)
             return "La orden debe incluir al menos un producto";
@@ -106,9 +106,28 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             return "Las cantidades deben ser mayores a cero";
         if (detalle.Any(d => d.CostoUnitario < 0))
             return "El costo no puede ser negativo";
-        if (detalle.GroupBy(d => d.ProductoId).Any(g => g.Count() > 1))
-            return "Un producto no puede repetirse en la misma orden";
+        if (tipoOrden == TipoOrdenCompra.Servicio)
+        {
+            if (detalle.Any(d => string.IsNullOrWhiteSpace(d.Descripcion)))
+                return "Indica la descripción de cada línea de servicio";
+        }
+        else
+        {
+            if (detalle.Any(d => d.ProductoId == null))
+                return "Elige un producto del catálogo para cada línea";
+            if (detalle.GroupBy(d => d.ProductoId).Any(g => g.Count() > 1))
+                return "Un producto no puede repetirse en la misma orden";
+        }
         return null;
+    }
+
+    // Servicio no tiene bien fisico: al quedar EMITIDA, sus lineas se marcan recibidas de una vez
+    // (nunca pasa por Recepcion ni genera InventoryMovement) para que el cruce de factura funcione igual.
+    private static void ProcesarServicioSiEmitida(OrdenCompra orden)
+    {
+        if (orden.TipoOrden != TipoOrdenCompra.Servicio || orden.EstadoOrden != EstadoOrdenCompra.Emitida) return;
+        foreach (var d in orden.Detalles) d.CantidadRecibida = d.CantidadPedida;
+        OrdenCompraEstado.Recalcular(orden);
     }
 
     // Segun el monto: sin umbral o total <= umbral -> EMITIDA; si lo supera -> PENDIENTE_APROBACION.
@@ -123,7 +142,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
     public async Task<(ServiceStatus, OrdenCompraDto?, string)> CrearOrden(CreateOrdenCompraPayload payload)
     {
         if (await ValidarFlujoCompleto() is { } noActivo) return (ServiceStatus.FailedValidation, null, noActivo);
-        if (ValidarDetalle(payload.Detalle) is { } error) return (ServiceStatus.FailedValidation, null, error);
+        if (payload.TipoOrden is not (TipoOrdenCompra.Bien or TipoOrdenCompra.Servicio))
+            return (ServiceStatus.FailedValidation, null, "Tipo de orden no válido");
+        if (ValidarDetalle(payload.Detalle, payload.TipoOrden) is { } error) return (ServiceStatus.FailedValidation, null, error);
 
         try
         {
@@ -136,15 +157,18 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 MonedaId = payload.MonedaId,
                 FechaEmision = NowLocal(),
                 Total = total,
+                TipoOrden = payload.TipoOrden,
                 Observacion = payload.Observacion,
                 EstadoOrden = payload.Borrador ? EstadoOrdenCompra.Borrador : await EstadoAlEmitir(total),
                 Detalles = payload.Detalle.Select(d => new OrdenCompraDetalle
                 {
                     ProductoId = d.ProductoId,
+                    Descripcion = d.Descripcion,
                     CantidadPedida = d.Cantidad,
                     CostoUnitario = d.CostoUnitario
                 }).ToList()
             };
+            ProcesarServicioSiEmitida(orden);
 
             _context.OrdenCompra.Add(orden);
             await _context.SaveChangesAsync();
@@ -160,7 +184,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
     public async Task<(ServiceStatus, OrdenCompraDto?, string)> ActualizarOrden(int id, CreateOrdenCompraPayload payload)
     {
         if (await ValidarFlujoCompleto() is { } noActivo) return (ServiceStatus.FailedValidation, null, noActivo);
-        if (ValidarDetalle(payload.Detalle) is { } error) return (ServiceStatus.FailedValidation, null, error);
+        if (payload.TipoOrden is not (TipoOrdenCompra.Bien or TipoOrdenCompra.Servicio))
+            return (ServiceStatus.FailedValidation, null, "Tipo de orden no válido");
+        if (ValidarDetalle(payload.Detalle, payload.TipoOrden) is { } error) return (ServiceStatus.FailedValidation, null, error);
 
         var orden = await _context.OrdenCompra.AsTracking().Include(o => o.Detalles).FirstOrDefaultAsync(o => o.Id == id);
         if (orden == null) return (ServiceStatus.NotFound, null, "Orden no encontrada");
@@ -168,9 +194,11 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             return (ServiceStatus.FailedValidation, null, "Solo se puede editar una orden en borrador");
 
         _context.OrdenCompraDetalle.RemoveRange(orden.Detalles);
+        orden.TipoOrden = payload.TipoOrden;
         orden.Detalles = payload.Detalle.Select(d => new OrdenCompraDetalle
         {
             ProductoId = d.ProductoId,
+            Descripcion = d.Descripcion,
             CantidadPedida = d.Cantidad,
             CostoUnitario = d.CostoUnitario
         }).ToList();
@@ -179,7 +207,11 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         orden.MonedaId = payload.MonedaId;
         orden.Observacion = payload.Observacion;
         orden.Total = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
-        if (!payload.Borrador) orden.EstadoOrden = await EstadoAlEmitir(orden.Total);
+        if (!payload.Borrador)
+        {
+            orden.EstadoOrden = await EstadoAlEmitir(orden.Total);
+            ProcesarServicioSiEmitida(orden);
+        }
 
         await _context.SaveChangesAsync();
         return await ObtenerOrden(id);
@@ -202,6 +234,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         FechaEmision = o.FechaEmision.ToString("dd/MM/yyyy HH:mm"),
         Total = o.Total,
         EstadoOrden = o.EstadoOrden,
+        TipoOrden = o.TipoOrden,
         Observacion = o.Observacion,
         AprobadoPor = o.AprobadoPor,
         MotivoCierre = o.MotivoCierre,
@@ -211,6 +244,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             Id = d.Id,
             ProductoId = d.ProductoId,
             Producto = d.Producto?.Nombre,
+            Descripcion = d.Descripcion,
             CantidadPedida = d.CantidadPedida,
             CantidadRecibida = d.CantidadRecibida,
             CantidadFacturada = d.CantidadFacturada,
@@ -273,6 +307,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             return (ServiceStatus.FailedValidation, null, "Solo se emite una orden en borrador");
 
         orden.EstadoOrden = await EstadoAlEmitir(orden.Total);
+        ProcesarServicioSiEmitida(orden);
         await _context.SaveChangesAsync();
         return await ObtenerOrden(id);
     }
@@ -288,6 +323,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         orden.EstadoOrden = EstadoOrdenCompra.Emitida;
         orden.AprobadoPor = usuario;
         orden.FechaAprobacion = NowLocal();
+        ProcesarServicioSiEmitida(orden);
         await _context.SaveChangesAsync();
         return await ObtenerOrden(id);
     }
@@ -336,6 +372,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
         var orden = await CargarTracking(ordenId);
         if (orden == null) return (ServiceStatus.NotFound, null, "Orden no encontrada");
+        if (orden.TipoOrden == TipoOrdenCompra.Servicio)
+            return (ServiceStatus.FailedValidation, null, "Una orden de servicio no requiere recepción");
         if (orden.EstadoOrden is not (EstadoOrdenCompra.Emitida or EstadoOrdenCompra.RecibidaParcial))
             return (ServiceStatus.FailedValidation, null, "Solo se recibe una orden emitida o con recepción parcial");
 
@@ -370,7 +408,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 {
                     RecepcionId = recepcion.Id,
                     OrdenCompraDetalleId = od.Id,
-                    ProductoId = od.ProductoId,
+                    ProductoId = od.ProductoId!.Value, // solo BIEN llega aqui (RegistrarRecepcion rechaza SERVICIO)
                     Cantidad = l.Cantidad
                 });
 
@@ -494,13 +532,33 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         var diferencias = new List<string>();
         foreach (var l in payload.Detalle)
         {
-            var od = orden.Detalles.FirstOrDefault(d => d.ProductoId == l.ProductoId);
+            // Bien: se matchea por ProductoId (unico en la orden). Servicio: no hay ProductoId,
+            // hace falta que el cliente indique a que linea de la orden corresponde.
+            OrdenCompraDetalle? od;
+            if (orden.TipoOrden == TipoOrdenCompra.Servicio)
+            {
+                if (l.OrdenCompraDetalleId == null)
+                    return (ServiceStatus.FailedValidation, null, "Indica la línea de servicio que se está facturando");
+                od = orden.Detalles.FirstOrDefault(d => d.Id == l.OrdenCompraDetalleId);
+            }
+            else
+            {
+                od = l.OrdenCompraDetalleId.HasValue
+                    ? orden.Detalles.FirstOrDefault(d => d.Id == l.OrdenCompraDetalleId)
+                    : orden.Detalles.FirstOrDefault(d => d.ProductoId == l.ProductoId);
+            }
             if (od == null)
                 return (ServiceStatus.FailedValidation, null, $"El producto {l.ProductoId} no pertenece a la orden");
             if (l.Cantidad <= 0)
                 return (ServiceStatus.FailedValidation, null, "Las cantidades deben ser mayores a cero");
 
-            var nombre = od.Producto?.Nombre ?? $"#{od.ProductoId}";
+            // El payload viaja hacia CrearCompraDeOrden: se fija aqui para que AjustarFacturadoOrden
+            // (que corre despues, ya sin acceso a esta orden) matchee por Id y no por ProductoId.
+            l.OrdenCompraDetalleId = od.Id;
+            l.ProductoId ??= od.ProductoId;
+            l.Descripcion ??= od.Descripcion;
+
+            var nombre = od.Producto?.Nombre ?? od.Descripcion ?? $"#{od.Id}";
             var pendiente = od.CantidadRecibida - od.CantidadFacturada;
             if (l.Cantidad > pendiente)
                 diferencias.Add($"{nombre}: facturas {l.Cantidad} pero solo hay {pendiente} recibidos por facturar");

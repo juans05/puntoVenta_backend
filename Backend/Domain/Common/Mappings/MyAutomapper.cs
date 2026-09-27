@@ -168,6 +168,7 @@ namespace Domain.Common.Mappings
 
             CreateMap<CompraDetalle, CompraDetalleDto>()
                 .ForMember(x => x.Producto, y => y.MapFrom(z => z.Producto != null ? z.Producto.Nombre : null))
+                .ForMember(x => x.Descripcion, y => y.MapFrom(z => z.Descripcion))
                 .ForMember(x => x.Subtotal, y => y.MapFrom(z => z.Cantidad * z.CostoUnitario));
 
             CreateMap<Gasto, GastoDto>()

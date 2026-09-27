@@ -43,6 +43,12 @@ public class OrdenCompraRepositoryTests
         Detalle = new() { new() { ProductoId = productoId, Cantidad = cantidad, CostoUnitario = costo } }
     };
 
+    private static CreateOrdenCompraPayload OrdenServicio(string descripcion = "Mantenimiento", int cantidad = 1, decimal costo = 500m) => new()
+    {
+        TipoOrden = TipoOrdenCompra.Servicio,
+        Detalle = new() { new() { Descripcion = descripcion, Cantidad = cantidad, CostoUnitario = costo } }
+    };
+
     [Fact]
     public async Task ModoSimplificado_NoPermiteCrearOrdenes()
     {
@@ -216,5 +222,78 @@ public class OrdenCompraRepositoryTests
         Assert.Equal(10, (await context.Producto.AsNoTracking().FirstAsync(p => p.Id == productoId)).Stock);
         var (_, ordenFinal, _) = await repo.ObtenerOrden(orden.Id);
         Assert.Equal(EstadoOrdenCompra.Recibida, ordenFinal!.EstadoOrden);
+    }
+
+    [Fact]
+    public async Task OrdenServicio_AlEmitirse_QuedaRecibidaSinInventoryMovement()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo);
+
+        var (estado, orden, _) = await repo.CrearOrden(OrdenServicio());
+
+        Assert.Equal(ServiceStatus.Ok, estado);
+        Assert.Equal(EstadoOrdenCompra.Recibida, orden!.EstadoOrden);
+        Assert.Equal(1, orden.Detalle[0].CantidadRecibida);
+        Assert.Empty(await context.InventoryMovement.AsNoTracking().ToListAsync());
+    }
+
+    [Fact]
+    public async Task OrdenServicio_NoSePuedeRecibir()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo);
+        var (_, orden, _) = await repo.CrearOrden(OrdenServicio());
+
+        var (estado, _, mensaje) = await repo.RegistrarRecepcion(orden!.Id, new CreateRecepcionPayload
+        {
+            Detalle = new() { new() { OrdenCompraDetalleId = orden.Detalle[0].Id, Cantidad = 1 } }
+        });
+
+        Assert.Equal(ServiceStatus.FailedValidation, estado);
+        Assert.Contains("no requiere recepción", mensaje);
+    }
+
+    [Fact]
+    public async Task OrdenServicio_SePuedeFacturarDirectoSinRecepcionYNoTocaStock()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo);
+        var productoId = await SeedProductoAsync(context, stock: 3); // producto ajeno, para confirmar que no se toca
+        var (_, orden, _) = await repo.CrearOrden(OrdenServicio(cantidad: 1, costo: 500m));
+
+        var (estado, compra, mensaje) = await repo.FacturarOrden(orden!.Id, new FacturarOrdenCompraPayload
+        {
+            Serie = "F001",
+            Numero = "1",
+            Detalle = new() { new() { OrdenCompraDetalleId = orden.Detalle[0].Id, Cantidad = 1, CostoUnitario = 500m } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(3, (await context.Producto.AsNoTracking().FirstAsync(p => p.Id == productoId)).Stock);
+        Assert.Null(compra!.Detalle[0].ProductoId);
+        Assert.Equal("Mantenimiento", compra.Detalle[0].Descripcion);
+        var (_, ordenFinal, _) = await repo.ObtenerOrden(orden.Id);
+        Assert.Equal(EstadoOrdenCompra.Cerrada, ordenFinal!.EstadoOrden);
+    }
+
+    [Fact]
+    public async Task OrdenServicio_SinDescripcion_EsRechazada()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo);
+
+        var (estado, _, mensaje) = await repo.CrearOrden(new CreateOrdenCompraPayload
+        {
+            TipoOrden = TipoOrdenCompra.Servicio,
+            Detalle = new() { new() { Cantidad = 1, CostoUnitario = 100m } }
+        });
+
+        Assert.Equal(ServiceStatus.FailedValidation, estado);
+        Assert.Contains("descripción", mensaje);
     }
 }

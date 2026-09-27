@@ -20,6 +20,7 @@ public class OrdenCompraDto
     public string FechaEmision { get; set; } = null!;
     public decimal Total { get; set; }
     public string EstadoOrden { get; set; } = null!;
+    public string TipoOrden { get; set; } = null!;
     public string? Observacion { get; set; }
     public string? AprobadoPor { get; set; }
     public string? MotivoCierre { get; set; }
@@ -31,8 +32,9 @@ public class OrdenCompraDto
 public class OrdenCompraDetalleDto
 {
     public int Id { get; set; }
-    public int ProductoId { get; set; }
+    public int? ProductoId { get; set; }
     public string? Producto { get; set; }
+    public string? Descripcion { get; set; }
     public int CantidadPedida { get; set; }
     public int CantidadRecibida { get; set; }
     public int CantidadFacturada { get; set; }

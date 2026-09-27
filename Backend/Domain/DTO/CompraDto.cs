@@ -35,8 +35,9 @@ public class CompraDto
 
 public class CompraDetalleDto
 {
-    public int ProductoId { get; set; }
+    public int? ProductoId { get; set; }
     public string? Producto { get; set; }
+    public string? Descripcion { get; set; }
     public int Cantidad { get; set; }
     public decimal CostoUnitario { get; set; }
     public decimal Subtotal { get; set; }

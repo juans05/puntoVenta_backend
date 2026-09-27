@@ -34,7 +34,12 @@ public class CreateCompraPayload
 
 public class CompraDetallePayload
 {
-    public int ProductoId { get; set; }
+    // Linea de bien: ProductoId del catalogo. Linea de servicio (viene de una Orden de Servicio):
+    // ProductoId null + Descripcion libre. OrdenCompraDetalleId identifica la linea de origen
+    // cuando la factura viene de una orden (FacturarOrden lo completa antes de llamar aqui).
+    public int? ProductoId { get; set; }
+    public string? Descripcion { get; set; }
+    public int? OrdenCompraDetalleId { get; set; }
     public int Cantidad { get; set; }
     public decimal CostoUnitario { get; set; }
 }

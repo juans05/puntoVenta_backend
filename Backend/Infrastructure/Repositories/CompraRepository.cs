@@ -104,7 +104,9 @@ public class CompraRepository : ICompraRepository
         var orden = await _context.OrdenCompra.AsTracking().Include(o => o.Detalles).FirstAsync(o => o.Id == ordenId);
         foreach (var l in lineas)
         {
-            var od = orden.Detalles.FirstOrDefault(d => d.ProductoId == l.ProductoId);
+            var od = l.OrdenCompraDetalleId.HasValue
+                ? orden.Detalles.FirstOrDefault(d => d.Id == l.OrdenCompraDetalleId)
+                : orden.Detalles.FirstOrDefault(d => d.ProductoId == l.ProductoId);
             if (od != null) od.CantidadFacturada = Math.Max(0, od.CantidadFacturada + signo * l.Cantidad);
         }
         OrdenCompraEstado.Recalcular(orden);
@@ -125,6 +127,12 @@ public class CompraRepository : ICompraRepository
     {
         if (payload.Detalle == null || payload.Detalle.Count == 0)
             return (ServiceStatus.FailedValidation, null, "La compra debe incluir al menos un producto");
+        // Fuera de una orden (compra simplificada), toda linea es un bien del catalogo: aun no hay
+        // flujo de compra directa de servicios sin orden.
+        if (!deOrden && payload.Detalle.Any(d => d.ProductoId == null))
+            return (ServiceStatus.FailedValidation, null, "Selecciona un producto del catálogo para cada línea");
+        if (payload.Detalle.Any(d => d.ProductoId == null && string.IsNullOrWhiteSpace(d.Descripcion)))
+            return (ServiceStatus.FailedValidation, null, "Indica la descripción de cada línea de servicio");
 
         await _context.Database.BeginTransactionAsync();
 
@@ -175,6 +183,8 @@ public class CompraRepository : ICompraRepository
             {
                 CompraId = compra.Id,
                 ProductoId = d.ProductoId,
+                Descripcion = d.Descripcion,
+                OrdenCompraDetalleId = d.OrdenCompraDetalleId,
                 Cantidad = d.Cantidad,
                 CostoUnitario = d.CostoUnitario
             }).ToList();

@@ -22,6 +22,8 @@ public class CreateOrdenCompraPayload
     public int? ProveedorId { get; set; }
     public int? MonedaId { get; set; }
     public string? Observacion { get; set; }
+    // BIEN (default) | SERVICIO -- una orden de servicio no pasa por Recepcion.
+    public string TipoOrden { get; set; } = Domain.Entities.TipoOrdenCompra.Bien;
     // true = queda en BORRADOR; false = se emite (o queda pendiente de aprobacion segun el monto).
     public bool Borrador { get; set; }
     public List<OrdenCompraDetallePayload> Detalle { get; set; } = new();
@@ -29,7 +31,9 @@ public class CreateOrdenCompraPayload
 
 public class OrdenCompraDetallePayload
 {
-    public int ProductoId { get; set; }
+    // Linea de bien: ProductoId del catalogo. Linea de servicio: ProductoId null + Descripcion.
+    public int? ProductoId { get; set; }
+    public string? Descripcion { get; set; }
     public int Cantidad { get; set; }
     public decimal CostoUnitario { get; set; }
 }
