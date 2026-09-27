@@ -229,5 +229,26 @@
     "moduloId": "1600",
     "usuarioCreacion": "ADMIN",
     "estado": "true"
+  },
+  {
+    "identificador": "1605",
+    "nombre": "Plan de Cuentas",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1606",
+    "nombre": "Asientos Contables",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1406",
+    "nombre": "Departamentos",
+    "moduloId": "1400",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
   }
 ]
