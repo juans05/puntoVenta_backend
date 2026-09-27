@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Entities.Identity;
 using Domain.Models;
 using Domain.Payloads;
 using Infrastructure.Data;
@@ -14,7 +15,7 @@ public class OrdenCompraRepositoryTests
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
         var compraRepo = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
-        var repo = new OrdenCompraRepository(context, compraRepo, httpContextAccessor: null);
+        var repo = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context), httpContextAccessor: null);
         return (repo, compraRepo, context, connection);
     }
 
@@ -117,27 +118,142 @@ public class OrdenCompraRepositoryTests
         Assert.Equal(0, (await context.Producto.AsNoTracking().FirstAsync(p => p.Id == productoId)).Stock);
     }
 
+    // DepartamentoAprobador.UserId es FK real hacia AspNetUsers: hace falta la fila de usuario
+    // (con su cadena Rubro/Tenant, igual que RoleRepositoryTests.SeedUsuarioAsync) para poder
+    // asignarlo como aprobador.
+    private static async Task SeedUsuarioAsync(SpaContext context, string userId)
+    {
+        var rubro = new Rubro { Nombre = "Test" };
+        context.Rubro.Add(rubro);
+        await context.SaveChangesAsync();
+
+        var tenant = new Tenant { Identificador = 1, Name = "TEST", TenantKey = "TEST", RubroId = rubro.Id };
+        context.Tenant.Add(tenant);
+        await context.SaveChangesAsync();
+
+        context.Users.Add(new User
+        {
+            Id = userId,
+            UserName = userId,
+            FirstName = "Test",
+            LastName = "User",
+            FechaCreacion = DateTime.UtcNow.ToString(),
+            Estado = true,
+            TenantId = tenant.Identificador
+        });
+        await context.SaveChangesRegularAsync();
+    }
+
+    private static async Task<int> SeedDepartamentoAsync(SpaContext context, string aprobadorId)
+    {
+        await SeedUsuarioAsync(context, aprobadorId);
+        var departamento = new Departamento { Nombre = "Logística" };
+        context.Departamento.Add(departamento);
+        await context.SaveChangesAsync();
+        context.DepartamentoAprobador.Add(new DepartamentoAprobador { DepartamentoId = departamento.Id, UserId = aprobadorId });
+        await context.SaveChangesAsync();
+        return departamento.Id;
+    }
+
     [Fact]
-    public async Task Aprobacion_PorMonto_BajoElUmbralEmiteYSobreElUmbralQuedaPendiente()
+    public async Task Aprobacion_PorMonto_BajoElUmbralEmiteDirectoYSobreElUmbralQuedaPendiente()
     {
         var (repo, _, context, connection) = Preparar();
         using var _ = connection; using var __ = context;
         await ConfigurarAsync(repo, umbral: 100m);
         var productoId = await SeedProductoAsync(context);
+        var departamentoId = await SeedDepartamentoAsync(context, "aprobador-1");
 
-        var (_, chica, _) = await repo.CrearOrden(Orden(productoId, cantidad: 10, costo: 5m)); // 50
-        var (_, grande, _) = await repo.CrearOrden(Orden(productoId, cantidad: 10, costo: 20m)); // 200
+        var (_, chica, _) = await repo.CrearOrden(Orden(productoId, cantidad: 10, costo: 5m)); // 50: no pide nada
+        var (estadoSinDepto, _, mensaje) = await repo.CrearOrden(Orden(productoId, cantidad: 10, costo: 20m)); // 200, sin elegir departamento
+        var (_, grande, _) = await repo.CrearOrden(new CreateOrdenCompraPayload
+        {
+            DepartamentoId = departamentoId,
+            AprobadorAsignadoId = "aprobador-1",
+            Detalle = new() { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
+        });
 
         Assert.Equal(EstadoOrdenCompra.Emitida, chica!.EstadoOrden);
+        Assert.Equal(ServiceStatus.FailedValidation, estadoSinDepto);
+        Assert.Contains("departamento", mensaje);
         Assert.Equal(EstadoOrdenCompra.PendienteAprobacion, grande!.EstadoOrden);
+        Assert.Equal("aprobador-1", grande.AprobadorAsignadoId);
 
         // Pendiente no se puede recibir hasta que se apruebe.
         var (estado, _, _) = await repo.RegistrarRecepcion(grande.Id, new CreateRecepcionPayload { Detalle = new() { new() { OrdenCompraDetalleId = grande.Detalle[0].Id, Cantidad = 1 } } });
         Assert.Equal(ServiceStatus.FailedValidation, estado);
+    }
 
-        var (_, aprobada, _) = await repo.AprobarOrden(grande.Id, "admin");
+    [Fact]
+    public async Task AprobarOrden_SoloElAprobadorAsignadoOUnAdministrador()
+    {
+        var (repo, compraRepo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo, umbral: 100m);
+        var productoId = await SeedProductoAsync(context);
+        var departamentoId = await SeedDepartamentoAsync(context, "aprobador-1");
+        var (_, orden, _) = await repo.CrearOrden(new CreateOrdenCompraPayload
+        {
+            DepartamentoId = departamentoId,
+            AprobadorAsignadoId = "aprobador-1",
+            Detalle = new() { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
+        });
+
+        var repoOtroUsuario = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context),
+            new FakeHttpContextAccessor("otro", userId: "otro-usuario"));
+        var (estadoRechazado, _, mensajeRechazo) = await repoOtroUsuario.AprobarOrden(orden!.Id, "otro");
+        Assert.Equal(ServiceStatus.FailedValidation, estadoRechazado);
+        Assert.Contains("aprobador asignado", mensajeRechazo);
+
+        var repoAdmin = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context),
+            new FakeHttpContextAccessor("admin", userId: "admin-id", "Administrador"));
+        var (estadoAdmin, aprobadaPorAdmin, _) = await repoAdmin.AprobarOrden(orden.Id, "admin");
+        Assert.Equal(ServiceStatus.Ok, estadoAdmin);
+        Assert.Equal(EstadoOrdenCompra.Emitida, aprobadaPorAdmin!.EstadoOrden);
+        Assert.Equal("admin", aprobadaPorAdmin.AprobadoPor);
+    }
+
+    [Fact]
+    public async Task AprobarOrden_ElAprobadorAsignadoSiPuede()
+    {
+        var (repo, compraRepo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo, umbral: 100m);
+        var productoId = await SeedProductoAsync(context);
+        var departamentoId = await SeedDepartamentoAsync(context, "aprobador-1");
+        var (_, orden, _) = await repo.CrearOrden(new CreateOrdenCompraPayload
+        {
+            DepartamentoId = departamentoId,
+            AprobadorAsignadoId = "aprobador-1",
+            Detalle = new() { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
+        });
+
+        var repoAprobador = new OrdenCompraRepository(context, compraRepo, new DepartamentoRepository(context),
+            new FakeHttpContextAccessor("jefe", userId: "aprobador-1"));
+        var (estado, aprobada, _) = await repoAprobador.AprobarOrden(orden!.Id, "jefe");
+
+        Assert.Equal(ServiceStatus.Ok, estado);
         Assert.Equal(EstadoOrdenCompra.Emitida, aprobada!.EstadoOrden);
-        Assert.Equal("admin", aprobada.AprobadoPor);
+    }
+
+    [Fact]
+    public async Task CrearOrden_AprobadorQueNoPerteneceAlDepartamento_EsRechazado()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo, umbral: 100m);
+        var productoId = await SeedProductoAsync(context);
+        var departamentoId = await SeedDepartamentoAsync(context, "aprobador-1");
+
+        var (estado, _, mensaje) = await repo.CrearOrden(new CreateOrdenCompraPayload
+        {
+            DepartamentoId = departamentoId,
+            AprobadorAsignadoId = "no-es-aprobador",
+            Detalle = new() { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
+        });
+
+        Assert.Equal(ServiceStatus.FailedValidation, estado);
+        Assert.Contains("no es aprobador", mensaje);
     }
 
     [Fact]

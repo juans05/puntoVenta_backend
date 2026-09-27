@@ -1,3 +1,5 @@
+using Domain.Entities.Identity;
+
 namespace Domain.Entities;
 
 public class OrdenCompra : EntityBase
@@ -19,6 +21,12 @@ public class OrdenCompra : EntityBase
     public string? AprobadoPor { get; set; }
     public DateTime? FechaAprobacion { get; set; }
     public string? MotivoCierre { get; set; }
+    // Solo llenos cuando la orden necesita aprobacion (total > ConfiguracionFlujo.MontoAprobacionOc):
+    // el departamento elegido y el UNICO aprobador de ese departamento asignado a esta orden.
+    public int? DepartamentoId { get; set; }
+    public Departamento? Departamento { get; set; }
+    public string? AprobadorAsignadoId { get; set; }
+    public User? AprobadorAsignado { get; set; }
     public List<OrdenCompraDetalle> Detalles { get; set; } = new();
     public List<Recepcion> Recepciones { get; set; } = new();
 }

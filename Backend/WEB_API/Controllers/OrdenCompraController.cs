@@ -40,10 +40,12 @@ public class OrdenCompraController : ControllerBase
     public async Task<IActionResult> Obtener(int id) => Ok(await _service.Obtener(id));
 
     [HttpPut("api/ordenes-compra/{id}/emitir")]
-    public async Task<IActionResult> Emitir(int id) => Ok(await _service.Emitir(id));
+    public async Task<IActionResult> Emitir(int id, [FromBody] EmitirOrdenCompraPayload? payload)
+        => Ok(await _service.Emitir(id, payload ?? new EmitirOrdenCompraPayload()));
 
+    // Sin policy: quien puede aprobar es el aprobador asignado a ESTA orden (o un administrador),
+    // validado dentro del repositorio -- no un permiso plano igual para todos.
     [HttpPut("api/ordenes-compra/{id}/aprobar")]
-    [Authorize(Policy = "RolesPermisosAdmin")]
     public async Task<IActionResult> Aprobar(int id)
         => Ok(await _service.Aprobar(id, User.FindFirstValue(ClaimTypes.Name) ?? User.Identity?.Name));
 

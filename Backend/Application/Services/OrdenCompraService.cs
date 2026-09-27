@@ -34,7 +34,7 @@ public class OrdenCompraService
     public async Task<MessageResult<object>> Actualizar(int id, CreateOrdenCompraPayload p) => Resolver(await _repo.ActualizarOrden(id, p));
     public async Task<MessageResult<object>> Listar(OrdenCompraQueryParams p) => Resolver(await _repo.ListarOrdenes(p));
     public async Task<MessageResult<object>> Obtener(int id) => Resolver(await _repo.ObtenerOrden(id));
-    public async Task<MessageResult<object>> Emitir(int id) => Resolver(await _repo.EmitirOrden(id));
+    public async Task<MessageResult<object>> Emitir(int id, EmitirOrdenCompraPayload p) => Resolver(await _repo.EmitirOrden(id, p));
     public async Task<MessageResult<object>> Aprobar(int id, string? usuario) => Resolver(await _repo.AprobarOrden(id, usuario));
     public async Task<MessageResult<object>> Anular(int id) => Resolver(await _repo.AnularOrden(id));
     public async Task<MessageResult<object>> Cerrar(int id, string? motivo) => Resolver(await _repo.CerrarOrden(id, motivo));

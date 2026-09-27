@@ -9,9 +9,14 @@ namespace Infrastructure.Tests;
 /// </summary>
 public class FakeHttpContextAccessor : IHttpContextAccessor
 {
-    public FakeHttpContextAccessor(string username)
+    // userId/roles: usados por OrdenCompraRepository para resolver el aprobador asignado
+    // (ClaimTypes.NameIdentifier) y el respaldo de administrador (IsInRole).
+    public FakeHttpContextAccessor(string username, string? userId = null, params string[] roles)
     {
-        var identity = new ClaimsIdentity(new[] { new Claim("username", username) }, "TestAuth");
+        var claims = new List<Claim> { new("username", username) };
+        if (userId != null) claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        var identity = new ClaimsIdentity(claims, "TestAuth");
         HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
     }
 

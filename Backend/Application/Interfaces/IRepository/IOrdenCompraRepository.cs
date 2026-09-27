@@ -14,7 +14,7 @@ public interface IOrdenCompraRepository
     Task<(ServiceStatus, OrdenCompraDto?, string)> ActualizarOrden(int id, CreateOrdenCompraPayload payload);
     Task<(ServiceStatus, DataCollection<OrdenCompraDto>?, string)> ListarOrdenes(OrdenCompraQueryParams payload);
     Task<(ServiceStatus, OrdenCompraDto?, string)> ObtenerOrden(int id);
-    Task<(ServiceStatus, OrdenCompraDto?, string)> EmitirOrden(int id);
+    Task<(ServiceStatus, OrdenCompraDto?, string)> EmitirOrden(int id, EmitirOrdenCompraPayload payload);
     Task<(ServiceStatus, OrdenCompraDto?, string)> AprobarOrden(int id, string? usuario);
     Task<(ServiceStatus, OrdenCompraDto?, string)> AnularOrden(int id);
     Task<(ServiceStatus, OrdenCompraDto?, string)> CerrarOrden(int id, string? motivo);

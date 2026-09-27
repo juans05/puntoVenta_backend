@@ -16,6 +16,10 @@ public class User : IdentityUser
     public int? SucursalId { get; set; }
     public Sucursal? Sucursal { get; set; }
 
+    // Departamento/jefatura del usuario: default al elegir aprobador de una orden que necesita aprobacion.
+    public int? DepartamentoId { get; set; }
+    public Departamento? Departamento { get; set; }
+
     public List<UserRol> UserRoles { get; set; } = new List<UserRol>();
     public List<AspNetUserSubModule> UserSubmodules { get; set; } = new List<AspNetUserSubModule>();
 

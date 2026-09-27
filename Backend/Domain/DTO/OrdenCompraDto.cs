@@ -25,6 +25,10 @@ public class OrdenCompraDto
     public string? AprobadoPor { get; set; }
     public string? MotivoCierre { get; set; }
     public string? Usuario { get; set; }
+    public int? DepartamentoId { get; set; }
+    public string? Departamento { get; set; }
+    public string? AprobadorAsignadoId { get; set; }
+    public string? AprobadorAsignado { get; set; }
     public List<OrdenCompraDetalleDto> Detalle { get; set; } = new();
     public List<RecepcionDto> Recepciones { get; set; } = new();
 }

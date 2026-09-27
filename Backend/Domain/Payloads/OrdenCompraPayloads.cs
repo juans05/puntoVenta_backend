@@ -26,6 +26,11 @@ public class CreateOrdenCompraPayload
     public string TipoOrden { get; set; } = Domain.Entities.TipoOrdenCompra.Bien;
     // true = queda en BORRADOR; false = se emite (o queda pendiente de aprobacion segun el monto).
     public bool Borrador { get; set; }
+    // Obligatorios solo si el total supera ConfiguracionFlujo.MontoAprobacionOc: el departamento
+    // (default: el del usuario que crea la orden, si tiene uno) y EL aprobador elegido de esa
+    // jefatura (debe estar en su lista de aprobadores).
+    public int? DepartamentoId { get; set; }
+    public string? AprobadorAsignadoId { get; set; }
     public List<OrdenCompraDetallePayload> Detalle { get; set; } = new();
 }
 
@@ -41,6 +46,13 @@ public class OrdenCompraDetallePayload
 public class CerrarOrdenCompraPayload
 {
     public string? Motivo { get; set; }
+}
+
+// Emitir un borrador cuyo total termina superando el umbral tambien necesita elegir aprobador.
+public class EmitirOrdenCompraPayload
+{
+    public int? DepartamentoId { get; set; }
+    public string? AprobadorAsignadoId { get; set; }
 }
 
 public class CreateRecepcionPayload

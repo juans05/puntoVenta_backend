@@ -17,7 +17,7 @@ public class PedidoVentaRepositoryTests
         var repo = new PedidoVentaRepository(context, httpContextAccessor: null, new GuiaRemisionRepository(context, httpContextAccessor: null));
         var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null, new TaxCalculatorFactory());
         var compra = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
-        var config = new OrdenCompraRepository(context, compra, httpContextAccessor: null);
+        var config = new OrdenCompraRepository(context, compra, new DepartamentoRepository(context), httpContextAccessor: null);
         return (repo, comprobante, config, context, connection);
     }
 

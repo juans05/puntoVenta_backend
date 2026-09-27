@@ -16,7 +16,7 @@ public class GuiaRemisionRepositoryTests
         var guiaRepo = new GuiaRemisionRepository(context, httpContextAccessor: null);
         var pedidoRepo = new PedidoVentaRepository(context, httpContextAccessor: null, guiaRepo);
         var compra = new CompraRepository(context, TestDbContextFactory.Mapper, httpContextAccessor: null);
-        var config = new OrdenCompraRepository(context, compra, httpContextAccessor: null);
+        var config = new OrdenCompraRepository(context, compra, new DepartamentoRepository(context), httpContextAccessor: null);
         return (guiaRepo, pedidoRepo, config, context, connection);
     }
 

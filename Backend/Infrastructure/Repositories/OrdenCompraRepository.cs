@@ -21,12 +21,15 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 {
     private readonly SpaContext _context;
     private readonly ICompraRepository _compraRepository;
+    private readonly IDepartamentoRepository _departamentoRepository;
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
-    public OrdenCompraRepository(SpaContext context, ICompraRepository compraRepository, IHttpContextAccessor? httpContextAccessor)
+    public OrdenCompraRepository(SpaContext context, ICompraRepository compraRepository,
+        IDepartamentoRepository departamentoRepository, IHttpContextAccessor? httpContextAccessor)
     {
         _context = context;
         _compraRepository = compraRepository;
+        _departamentoRepository = departamentoRepository;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -35,6 +38,12 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             && int.TryParse(claim, out var pais) ? pais : (int?)null;
 
     private DateTime NowLocal() => DateTimeHelper.LocalNow(PaisIdClaim);
+
+    private string? CallerId => _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    private bool CallerEsAdministrador =>
+        _httpContextAccessor?.HttpContext?.User.IsInRole("SuperAdmin") == true
+        || _httpContextAccessor?.HttpContext?.User.IsInRole("Administrador") == true;
 
     // ---------- Configuracion ----------
 
@@ -130,13 +139,29 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         OrdenCompraEstado.Recalcular(orden);
     }
 
-    // Segun el monto: sin umbral o total <= umbral -> EMITIDA; si lo supera -> PENDIENTE_APROBACION.
-    private async Task<string> EstadoAlEmitir(decimal total)
+    // Segun el monto: sin umbral o total <= umbral -> EMITIDA directo. Si lo supera, hace falta
+    // el departamento (default: el del usuario que emite, si tiene uno) y UN aprobador de esa
+    // jefatura -> PENDIENTE_APROBACION asignada solo a ese usuario.
+    private async Task<(string? Error, string Estado, int? DepartamentoId, string? AprobadorAsignadoId)> ResolverAprobacion(
+        decimal total, int? departamentoIdPayload, string? aprobadorIdPayload)
     {
         var config = await LeerConfiguracion();
-        return config?.MontoAprobacionOc is { } umbral && total > umbral
-            ? EstadoOrdenCompra.PendienteAprobacion
-            : EstadoOrdenCompra.Emitida;
+        if (config?.MontoAprobacionOc is not { } umbral || total <= umbral)
+            return (null, EstadoOrdenCompra.Emitida, null, null);
+
+        var departamentoId = departamentoIdPayload;
+        if (departamentoId == null && CallerId != null)
+            departamentoId = await _context.Users.AsNoTracking()
+                .Where(u => u.Id == CallerId).Select(u => u.DepartamentoId).FirstOrDefaultAsync();
+
+        if (departamentoId == null)
+            return ("Esta orden supera el monto de aprobación: elige el departamento que debe aprobarla", EstadoOrdenCompra.PendienteAprobacion, null, null);
+        if (string.IsNullOrWhiteSpace(aprobadorIdPayload))
+            return ("Elige un aprobador del departamento", EstadoOrdenCompra.PendienteAprobacion, departamentoId, null);
+        if (!await _departamentoRepository.EsAprobadorDelDepartamento(departamentoId.Value, aprobadorIdPayload))
+            return ("El usuario elegido no es aprobador de ese departamento", EstadoOrdenCompra.PendienteAprobacion, departamentoId, null);
+
+        return (null, EstadoOrdenCompra.PendienteAprobacion, departamentoId, aprobadorIdPayload);
     }
 
     public async Task<(ServiceStatus, OrdenCompraDto?, string)> CrearOrden(CreateOrdenCompraPayload payload)
@@ -149,6 +174,16 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         try
         {
             var total = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
+            string estadoOrden = EstadoOrdenCompra.Borrador;
+            int? departamentoId = null;
+            string? aprobadorId = null;
+            if (!payload.Borrador)
+            {
+                var r = await ResolverAprobacion(total, payload.DepartamentoId, payload.AprobadorAsignadoId);
+                if (r.Error != null) return (ServiceStatus.FailedValidation, null, r.Error);
+                (estadoOrden, departamentoId, aprobadorId) = (r.Estado, r.DepartamentoId, r.AprobadorAsignadoId);
+            }
+
             var orden = new OrdenCompra
             {
                 Numero = await GenerarNumero(),
@@ -159,7 +194,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 Total = total,
                 TipoOrden = payload.TipoOrden,
                 Observacion = payload.Observacion,
-                EstadoOrden = payload.Borrador ? EstadoOrdenCompra.Borrador : await EstadoAlEmitir(total),
+                EstadoOrden = estadoOrden,
+                DepartamentoId = departamentoId,
+                AprobadorAsignadoId = aprobadorId,
                 Detalles = payload.Detalle.Select(d => new OrdenCompraDetalle
                 {
                     ProductoId = d.ProductoId,
@@ -209,7 +246,11 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         orden.Total = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
         if (!payload.Borrador)
         {
-            orden.EstadoOrden = await EstadoAlEmitir(orden.Total);
+            var r = await ResolverAprobacion(orden.Total, payload.DepartamentoId, payload.AprobadorAsignadoId);
+            if (r.Error != null) return (ServiceStatus.FailedValidation, null, r.Error);
+            orden.EstadoOrden = r.Estado;
+            orden.DepartamentoId = r.DepartamentoId;
+            orden.AprobadorAsignadoId = r.AprobadorAsignadoId;
             ProcesarServicioSiEmitida(orden);
         }
 
@@ -219,6 +260,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
     private IQueryable<OrdenCompra> QueryOrdenes() => _context.OrdenCompra.AsNoTracking()
         .Include(o => o.Sucursal).Include(o => o.Proveedor)
+        .Include(o => o.Departamento).Include(o => o.AprobadorAsignado)
         .Include(o => o.Detalles).ThenInclude(d => d.Producto)
         .Include(o => o.Recepciones);
 
@@ -239,6 +281,10 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         AprobadoPor = o.AprobadoPor,
         MotivoCierre = o.MotivoCierre,
         Usuario = o.UsuarioCreacion,
+        DepartamentoId = o.DepartamentoId,
+        Departamento = o.Departamento?.Nombre,
+        AprobadorAsignadoId = o.AprobadorAsignadoId,
+        AprobadorAsignado = o.AprobadorAsignado != null ? $"{o.AprobadorAsignado.FirstName} {o.AprobadorAsignado.LastName}".Trim() : null,
         Detalle = o.Detalles.Select(d => new OrdenCompraDetalleDto
         {
             Id = d.Id,
@@ -298,7 +344,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
     private Task<OrdenCompra?> CargarTracking(int id)
         => _context.OrdenCompra.AsTracking().Include(o => o.Detalles).Include(o => o.Recepciones).FirstOrDefaultAsync(o => o.Id == id);
 
-    public async Task<(ServiceStatus, OrdenCompraDto?, string)> EmitirOrden(int id)
+    public async Task<(ServiceStatus, OrdenCompraDto?, string)> EmitirOrden(int id, EmitirOrdenCompraPayload payload)
     {
         if (await ValidarFlujoCompleto() is { } noActivo) return (ServiceStatus.FailedValidation, null, noActivo);
         var orden = await CargarTracking(id);
@@ -306,7 +352,11 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         if (orden.EstadoOrden != EstadoOrdenCompra.Borrador)
             return (ServiceStatus.FailedValidation, null, "Solo se emite una orden en borrador");
 
-        orden.EstadoOrden = await EstadoAlEmitir(orden.Total);
+        var r = await ResolverAprobacion(orden.Total, payload.DepartamentoId, payload.AprobadorAsignadoId);
+        if (r.Error != null) return (ServiceStatus.FailedValidation, null, r.Error);
+        orden.EstadoOrden = r.Estado;
+        orden.DepartamentoId = r.DepartamentoId;
+        orden.AprobadorAsignadoId = r.AprobadorAsignadoId;
         ProcesarServicioSiEmitida(orden);
         await _context.SaveChangesAsync();
         return await ObtenerOrden(id);
@@ -319,6 +369,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         if (orden == null) return (ServiceStatus.NotFound, null, "Orden no encontrada");
         if (orden.EstadoOrden != EstadoOrdenCompra.PendienteAprobacion)
             return (ServiceStatus.FailedValidation, null, "La orden no está pendiente de aprobación");
+        // Solo el aprobador elegido de la jefatura (o un administrador, como respaldo) puede aprobarla.
+        if (!CallerEsAdministrador && (CallerId == null || CallerId != orden.AprobadorAsignadoId))
+            return (ServiceStatus.FailedValidation, null, "No eres el aprobador asignado a esta orden");
 
         orden.EstadoOrden = EstadoOrdenCompra.Emitida;
         orden.AprobadoPor = usuario;
