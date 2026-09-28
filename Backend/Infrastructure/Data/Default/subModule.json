@@ -250,5 +250,19 @@
     "moduloId": "1400",
     "usuarioCreacion": "ADMIN",
     "estado": "true"
+  },
+  {
+    "identificador": "1607",
+    "nombre": "Estado de Resultados",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
+  },
+  {
+    "identificador": "1608",
+    "nombre": "Balance General",
+    "moduloId": "1600",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
   }
 ]

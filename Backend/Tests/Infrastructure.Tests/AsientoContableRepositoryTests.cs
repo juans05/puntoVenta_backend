@@ -89,4 +89,38 @@ public class AsientoContableRepositoryTests
 
         Assert.Equal(ServiceStatus.NotFound, estado);
     }
+
+    [Fact]
+    public async Task ObtenerEstadoResultados_SumaIngresosYGastosPorCuenta()
+    {
+        var (repo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await repo.Generar("Venta", 1, "Venta", new List<LineaAsientoContable> { new("10", 118m, 0), new("70", 0, 100m), new("40111", 0, 18m) });
+        await repo.Generar("Venta", 1, "Costo", new List<LineaAsientoContable> { new("69", 60m, 0), new("20", 0, 60m) });
+
+        var (estado, resultados, mensaje) = await repo.ObtenerEstadoResultados(null, null);
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(100m, Assert.Single(resultados!.Ingresos).Monto);
+        Assert.Equal(60m, Assert.Single(resultados.Gastos).Monto);
+        Assert.Equal(100m, resultados.TotalIngresos);
+        Assert.Equal(60m, resultados.TotalGastos);
+        Assert.Equal(40m, resultados.UtilidadNeta);
+    }
+
+    [Fact]
+    public async Task ObtenerBalanceGeneral_ActivoCuadraContraPasivoMasPatrimonioMasResultado()
+    {
+        var (repo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await repo.Generar("Venta", 1, "Venta", new List<LineaAsientoContable> { new("10", 118m, 0), new("70", 0, 100m), new("40111", 0, 18m) });
+        await repo.Generar("Venta", 1, "Costo", new List<LineaAsientoContable> { new("69", 60m, 0), new("20", 0, 60m) });
+
+        var (estado, balance, mensaje) = await repo.ObtenerBalanceGeneral(DateTime.UtcNow.AddHours(-5));
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(40m, balance!.ResultadoDelEjercicio);
+        Assert.Equal(balance.TotalActivo, balance.TotalPasivoYPatrimonio); // identidad contable: Activo = Pasivo + Patrimonio + Resultado
+        Assert.Equal(58m, balance.TotalActivo); // 118 (10, Debe) - 60 (20, Haber)
+    }
 }

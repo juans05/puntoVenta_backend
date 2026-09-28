@@ -191,7 +191,8 @@ namespace Infrastructure.Data
 
             // Backfill de submodulos nuevos ("1401" Catalogos de Documentos, "1402" Roles y
             // Permisos, "501" Recursos Humanos, "1406" Departamentos, "1605" Plan de Cuentas,
-            // "1606" Asientos Contables): AsociarModuleUser solo le da el catalogo COMPLETO de submodulos al
+            // "1606" Asientos Contables, "1607" Estado de Resultados, "1608" Balance General):
+            // AsociarModuleUser solo le da el catalogo COMPLETO de submodulos al
             // admin de un tenant en el momento en que ese tenant se crea, asi que un submodulo
             // agregado despues nunca le llega a un tenant ya existente. Se le otorga a cualquier
             // usuario que ya tenga "801" (Mi empresa) -- unico submodulo que, segun
@@ -206,7 +207,7 @@ namespace Infrastructure.Data
                 .Select(us => new { us.UserId, us.TenantId })
                 .ToListAsync();
 
-            var submodulosNuevosParaAdmins = new[] { "1401", "1402", "501", "1406", "1605", "1606" };
+            var submodulosNuevosParaAdmins = new[] { "1401", "1402", "501", "1406", "1605", "1606", "1607", "1608" };
 
             foreach (var submoduloId in submodulosNuevosParaAdmins)
             {

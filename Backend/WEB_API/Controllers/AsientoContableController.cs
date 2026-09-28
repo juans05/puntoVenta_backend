@@ -19,4 +19,12 @@ public class AsientoContableController : ControllerBase
     [HttpGet("listar")]
     public async Task<IActionResult> Listar([FromQuery] DateTime? desde, [FromQuery] DateTime? hasta, [FromQuery] string? origenTipo)
         => Ok(await _service.Listar(desde, hasta, origenTipo));
+
+    [HttpGet("estado-resultados")]
+    public async Task<IActionResult> ObtenerEstadoResultados([FromQuery] DateTime? desde, [FromQuery] DateTime? hasta)
+        => Ok(await _service.ObtenerEstadoResultados(desde, hasta));
+
+    [HttpGet("balance-general")]
+    public async Task<IActionResult> ObtenerBalanceGeneral([FromQuery] DateTime? hasta)
+        => Ok(await _service.ObtenerBalanceGeneral(hasta ?? DateTime.UtcNow.AddHours(-5)));
 }

@@ -142,6 +142,74 @@ public class AsientoContableRepository : IAsientoContableRepository
         return (ServiceStatus.Ok, asientos.Select(ToDto).ToList(), "Success");
     }
 
+    public async Task<(ServiceStatus, EstadoResultadosDto?, string)> ObtenerEstadoResultados(DateTime? desde, DateTime? hasta)
+    {
+        var query = _context.AsientoContableDetalle.AsNoTracking().Include(d => d.CuentaContable)
+            .Where(d => d.AsientoContable!.EstadoAsiento == EstadoAsientoContable.Emitido
+                     && (d.CuentaContable!.Tipo == TipoCuentaContable.Ingreso || d.CuentaContable.Tipo == TipoCuentaContable.Gasto));
+        if (desde.HasValue) query = query.Where(d => d.AsientoContable!.Fecha >= desde.Value.Date);
+        if (hasta.HasValue) query = query.Where(d => d.AsientoContable!.Fecha < hasta.Value.Date.AddDays(1));
+
+        var filas = await query.ToListAsync();
+
+        var ingresos = AgruparPorCuenta(filas, TipoCuentaContable.Ingreso, naturalezaDeudora: false);
+        var gastos = AgruparPorCuenta(filas, TipoCuentaContable.Gasto, naturalezaDeudora: true);
+        var totalIngresos = ingresos.Sum(l => l.Monto);
+        var totalGastos = gastos.Sum(l => l.Monto);
+
+        return (ServiceStatus.Ok, new EstadoResultadosDto
+        {
+            Ingresos = ingresos,
+            Gastos = gastos,
+            TotalIngresos = totalIngresos,
+            TotalGastos = totalGastos,
+            UtilidadNeta = totalIngresos - totalGastos
+        }, "Success");
+    }
+
+    // Sin asientos de cierre de periodo: el Balance General "a la fecha" suma todo el historico
+    // hasta esa fecha (naturaleza deudora para Activo, acreedora para Pasivo/Patrimonio), y agrega
+    // la Utilidad del Ejercicio (Ingresos - Gastos acumulados) como linea sintetica de Patrimonio
+    // para que Activo == Pasivo + Patrimonio siempre cuadre (identidad contable basica).
+    public async Task<(ServiceStatus, BalanceGeneralDto?, string)> ObtenerBalanceGeneral(DateTime hasta)
+    {
+        var filas = await _context.AsientoContableDetalle.AsNoTracking().Include(d => d.CuentaContable)
+            .Where(d => d.AsientoContable!.EstadoAsiento == EstadoAsientoContable.Emitido && d.AsientoContable.Fecha < hasta.Date.AddDays(1))
+            .ToListAsync();
+
+        var activo = AgruparPorCuenta(filas, TipoCuentaContable.Activo, naturalezaDeudora: true);
+        var pasivo = AgruparPorCuenta(filas, TipoCuentaContable.Pasivo, naturalezaDeudora: false);
+        var patrimonio = AgruparPorCuenta(filas, TipoCuentaContable.Patrimonio, naturalezaDeudora: false);
+
+        var totalIngresos = filas.Where(d => d.CuentaContable!.Tipo == TipoCuentaContable.Ingreso).Sum(d => d.Haber - d.Debe);
+        var totalGastos = filas.Where(d => d.CuentaContable!.Tipo == TipoCuentaContable.Gasto).Sum(d => d.Debe - d.Haber);
+        var resultado = totalIngresos - totalGastos;
+
+        return (ServiceStatus.Ok, new BalanceGeneralDto
+        {
+            Activo = activo,
+            Pasivo = pasivo,
+            Patrimonio = patrimonio,
+            ResultadoDelEjercicio = resultado,
+            TotalActivo = activo.Sum(l => l.Monto),
+            TotalPasivoYPatrimonio = pasivo.Sum(l => l.Monto) + patrimonio.Sum(l => l.Monto) + resultado
+        }, "Success");
+    }
+
+    private static List<LineaReporteContableDto> AgruparPorCuenta(List<AsientoContableDetalle> filas, string tipo, bool naturalezaDeudora) =>
+        filas.Where(d => d.CuentaContable!.Tipo == tipo)
+             .GroupBy(d => d.CuentaContable!)
+             .Select(g => new LineaReporteContableDto
+             {
+                 CuentaCodigo = g.Key.Codigo,
+                 CuentaNombre = g.Key.Nombre,
+                 Tipo = g.Key.Tipo,
+                 Monto = naturalezaDeudora ? g.Sum(d => d.Debe - d.Haber) : g.Sum(d => d.Haber - d.Debe)
+             })
+             .Where(l => l.Monto != 0)
+             .OrderBy(l => l.CuentaCodigo)
+             .ToList();
+
     private async Task<(ServiceStatus, AsientoContableDto?, string)> ObtenerConDetalle(int id)
     {
         var asiento = await _context.AsientoContable.AsNoTracking()

@@ -16,4 +16,6 @@ public interface IAsientoContableRepository
     // un documento existente pero son su propio movimiento contable, no una anulacion de aquel.
     Task<(ServiceStatus, AsientoContableDto?, string)> GenerarBasadoEn(string origenTipoBase, int origenIdBase, bool invertido, string nuevoOrigenTipo, int nuevoOrigenId, string glosa);
     Task<(ServiceStatus, List<AsientoContableDto>?, string)> Listar(DateTime? desde, DateTime? hasta, string? origenTipo);
+    Task<(ServiceStatus, EstadoResultadosDto?, string)> ObtenerEstadoResultados(DateTime? desde, DateTime? hasta);
+    Task<(ServiceStatus, BalanceGeneralDto?, string)> ObtenerBalanceGeneral(DateTime hasta);
 }
