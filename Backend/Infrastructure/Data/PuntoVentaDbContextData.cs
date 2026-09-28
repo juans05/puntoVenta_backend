@@ -70,7 +70,7 @@ namespace Infrastructure.Data
         {
             "Categoria", "Grupo", "Impuesto", "Metodopago", "Moneda", "Pais",
             "Producto", "Proveedor", "Rubro", "RubroModulo", "Seriecorrelativo",
-            "TipoDocumento", "TipoDocumentoVenta", "MotivoNota", "TipoIgv", "UnidadMedida", "TipoOperacion"
+            "TipoDocumento", "TipoDocumentoVenta", "MotivoNota", "TipoIgv", "TipoDetraccion", "UnidadMedida", "TipoOperacion"
         };
 
         private static async Task ResincronizarSecuenciasAsync(SpaContext context)
@@ -285,6 +285,19 @@ namespace Infrastructure.Data
             if (tipoIgvFaltante.Count > 0)
             {
                 await context.TipoIgv!.AddRangeAsync(tipoIgvFaltante);
+                await context.SaveChangesRegularAsync();
+            }
+
+            // TipoDetraccion: mismos 5 valores que antes vivian hardcodeados en el frontend
+            // (Ninguno/4%/10%/12%/15%), mismo criterio de catalogo nacional que TipoIgv arriba.
+            var tipoDetraccionData = File.ReadAllText(Path.Combine(DefaultDataPath, "tipodetraccion.json"));
+            var tipoDetraccion = JsonConvert.DeserializeObject<List<TipoDetraccion>>(tipoDetraccionData);
+            var tipoDetraccionExistente = await context.TipoDetraccion.Select(x => x.Id).ToListAsync();
+            var tipoDetraccionFaltante = tipoDetraccion.Where(x => !tipoDetraccionExistente.Contains(x.Id)).ToList();
+
+            if (tipoDetraccionFaltante.Count > 0)
+            {
+                await context.TipoDetraccion!.AddRangeAsync(tipoDetraccionFaltante);
                 await context.SaveChangesRegularAsync();
             }
 

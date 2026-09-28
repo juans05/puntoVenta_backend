@@ -154,6 +154,30 @@ namespace Application.Services
             return MessageResult<bool>.Of(message, true);
         }
 
+        public async Task<MessageResult<object>> ListarTiposDetraccion()
+        {
+            var (estado, resp, message) = await _extensionesRepository.ListarTiposDetraccion();
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError, message, resp);
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<object>> CrearTipoDetraccion(CreateTipoDetraccionPayload payload)
+        {
+            var (estado, resp, message) = await _extensionesRepository.CrearTipoDetraccion(payload);
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError, message, resp);
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<bool>> CambiarEstadoTipoDetraccion(int id, bool estado)
+        {
+            var (status, message) = await _extensionesRepository.CambiarEstadoTipoDetraccion(id, estado);
+            if (status != ServiceStatus.Ok)
+                throw new ErrorHandler(status == ServiceStatus.NotFound ? HttpStatusCode.NotFound : status == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError, message, null);
+            return MessageResult<bool>.Of(message, true);
+        }
+
         public async Task<MessageResult<object>> ListarUnidadesMedidaAdmin()
         {
             var (estado, resp, message) = await _extensionesRepository.ListarUnidadesMedidaAdmin();

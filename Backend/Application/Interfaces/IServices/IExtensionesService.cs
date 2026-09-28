@@ -10,6 +10,9 @@ namespace Application.Interfaces.IServices
         Task<MessageResult<object>> ListarTipoDocumentoVenta();
         Task<MessageResult<object>> ListarMotivosNota(int tipoDocumentoVentaId);
         Task<MessageResult<object>> ListarTiposIgv();
+        Task<MessageResult<object>> ListarTiposDetraccion();
+        Task<MessageResult<object>> CrearTipoDetraccion(CreateTipoDetraccionPayload payload);
+        Task<MessageResult<bool>> CambiarEstadoTipoDetraccion(int id, bool estado);
         Task<MessageResult<object>> ListarUnidadesMedida();
         Task<MessageResult<object>> ListarTiposOperacion();
         Task<MessageResult<object>> ListarMonedas();

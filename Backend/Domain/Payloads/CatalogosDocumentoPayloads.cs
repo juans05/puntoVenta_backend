@@ -12,6 +12,12 @@ public class CreateTipoIgvPayload
     public bool AplicaPorcentajeImpuesto { get; set; }
 }
 
+public class CreateTipoDetraccionPayload
+{
+    public decimal Porcentaje { get; set; }
+    public string? Descripcion { get; set; }
+}
+
 public class UpdateTipoIgvPayload
 {
     public string Codigo { get; set; } = null!;

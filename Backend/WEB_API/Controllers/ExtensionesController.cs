@@ -29,6 +29,17 @@ public class ExtensionesController : ControllerBase
     [HttpGet("tipos-igv")]
     public async Task<IActionResult> tiposIgv() => Ok(await _extensionesService.ListarTiposIgv());
 
+    [HttpGet("tipos-detraccion")]
+    public async Task<IActionResult> tiposDetraccion() => Ok(await _extensionesService.ListarTiposDetraccion());
+
+    [Authorize(Policy = "CatalogosDocumentosAdmin")]
+    [HttpPost("tipos-detraccion/crear")]
+    public async Task<IActionResult> CrearTipoDetraccion([FromBody] CreateTipoDetraccionPayload payload) => Ok(await _extensionesService.CrearTipoDetraccion(payload));
+
+    [Authorize(Policy = "CatalogosDocumentosAdmin")]
+    [HttpPut("tipos-detraccion/{id}/estado")]
+    public async Task<IActionResult> CambiarEstadoTipoDetraccion(int id, [FromBody] SetEstadoPayload payload) => Ok(await _extensionesService.CambiarEstadoTipoDetraccion(id, payload.Estado));
+
     [HttpGet("unidades-medida")]
     public async Task<IActionResult> unidadesMedida() => Ok(await _extensionesService.ListarUnidadesMedida());
 

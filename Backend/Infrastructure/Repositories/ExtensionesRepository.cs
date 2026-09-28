@@ -271,6 +271,69 @@ namespace Infrastructure.Repositories
             return (ServiceStatus.Ok, "Success");
         }
 
+        // ---- CRUD TipoDetraccion ----
+
+        public async Task<(ServiceStatus, object?, string)> ListarTiposDetraccion()
+        {
+            try
+            {
+                var data = await _context.TipoDetraccion.AsNoTracking()
+                                                         .Where(t => t.Estado)
+                                                         .OrderBy(t => t.Porcentaje)
+                                                         .Select(p => new
+                                                         {
+                                                             id = p.Id,
+                                                             porcentaje = p.Porcentaje,
+                                                             value = p.Porcentaje == 0 ? "Ninguno" : p.Porcentaje + "%",
+                                                             descripcion = p.Descripcion
+                                                         }).ToListAsync();
+
+                return (ServiceStatus.Ok, data, "Success");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.InternalError, null, $"Error Interno {e.Message ?? e.InnerException?.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, object?, string)> CrearTipoDetraccion(CreateTipoDetraccionPayload payload)
+        {
+            if (payload.Porcentaje < 0 || payload.Porcentaje > 100)
+                return (ServiceStatus.FailedValidation, null, "El porcentaje debe estar entre 0 y 100");
+
+            try
+            {
+                var entity = new TipoDetraccion
+                {
+                    Porcentaje = payload.Porcentaje,
+                    Descripcion = payload.Descripcion?.Trim()
+                };
+
+                await _context.TipoDetraccion.AddAsync(entity);
+                await _context.SaveChangesAsync();
+
+                return (ServiceStatus.Ok, entity, "Porcentaje de detracción registrado correctamente");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.FailedValidation, null, $"Error al registrar -> {e.InnerException?.Message ?? e.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, string)> CambiarEstadoTipoDetraccion(int id, bool estado)
+        {
+            var entity = await _context.TipoDetraccion.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (entity == null)
+                return (ServiceStatus.NotFound, $"No se encontró el tipo de detracción {id}");
+            if (entity.TenantId == null)
+                return (ServiceStatus.FailedValidation, "No se puede modificar un catálogo base de SUNAT, solo tus propios registros");
+
+            entity.Estado = estado;
+            await _context.SaveChangesAsync();
+
+            return (ServiceStatus.Ok, "Success");
+        }
+
         // ---- CRUD UnidadMedida ----
 
         public async Task<(ServiceStatus, object?, string)> ListarUnidadesMedidaAdmin()

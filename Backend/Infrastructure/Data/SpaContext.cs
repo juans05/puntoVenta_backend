@@ -66,6 +66,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<TipoDocumentoVenta> TipoDocumentoVenta => Set<TipoDocumentoVenta>();
     public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
     public DbSet<TipoIgv> TipoIgv => Set<TipoIgv>();
+    public DbSet<TipoDetraccion> TipoDetraccion => Set<TipoDetraccion>();
     public DbSet<UnidadMedida> UnidadMedida => Set<UnidadMedida>();
     public DbSet<PrecioAlternativo> PrecioAlternativo => Set<PrecioAlternativo>();
     public DbSet<Presentacion> Presentacion => Set<Presentacion>();
@@ -159,6 +160,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         // que ese negocio agrego/edito. Mismo criterio que Role arriba.
         modelBuilder.Entity<MotivoNota>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<TipoIgv>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<TipoDetraccion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<UnidadMedida>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<TipoOperacion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<Moneda>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);

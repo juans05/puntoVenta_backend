@@ -28,6 +28,11 @@ QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Config local por-maquina con datos sensibles reales (ver README_LOCAL_CONFIG.md) -- nunca se
+// commitea (.gitignore) y sobrescribe appsettings.Development.json, que solo debe tener
+// placeholders de localhost.
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScheduler();
