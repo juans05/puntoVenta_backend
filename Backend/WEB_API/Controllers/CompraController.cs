@@ -46,4 +46,13 @@ public class CompraController : ControllerBase
 
     [HttpGet("obtener-serie-numero")]
     public async Task<IActionResult> ObtenerSerieNumero([FromQuery] int? sucursalId) => Ok(await _compraService.ObtenerSerieNumero(sucursalId));
+
+    [HttpPost("notas/crear")]
+    public async Task<IActionResult> CrearNotaCompra([FromBody] CrearNotaCompraPayload payload) => Ok(await _compraService.CrearNotaCompra(payload));
+
+    [HttpPut("notas/{id}/anular")]
+    public async Task<IActionResult> AnularNotaCompra(int id) => Ok(await _compraService.AnularNotaCompra(id));
+
+    [HttpGet("{compraId}/notas")]
+    public async Task<IActionResult> ListarNotasCompra(int compraId) => Ok(await _compraService.ListarNotasCompra(compraId));
 }

@@ -91,6 +91,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<InventoryMovement> InventoryMovement => Set<InventoryMovement>();
     public DbSet<AuditLog> AuditLog => Set<AuditLog>();
     public DbSet<Compra> Compra => Set<Compra>();
+    public DbSet<NotaCompra> NotaCompra => Set<NotaCompra>();
     public DbSet<CompraDetalle> CompraDetalle => Set<CompraDetalle>();
     public DbSet<ConfiguracionFlujo> ConfiguracionFlujo => Set<ConfiguracionFlujo>();
     public DbSet<OrdenCompra> OrdenCompra => Set<OrdenCompra>();
@@ -186,6 +187,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<InventoryMovement>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Compra>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        modelBuilder.Entity<NotaCompra>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<ConfiguracionFlujo>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Cobranza>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<CobranzaDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));

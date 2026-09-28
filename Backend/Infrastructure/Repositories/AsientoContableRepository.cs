@@ -115,6 +115,22 @@ public class AsientoContableRepository : IAsientoContableRepository
         return await ObtenerConDetalle(reverso.Id);
     }
 
+    public async Task<(ServiceStatus, AsientoContableDto?, string)> GenerarBasadoEn(
+        string origenTipoBase, int origenIdBase, bool invertido, string nuevoOrigenTipo, int nuevoOrigenId, string glosa)
+    {
+        var basado = await _context.AsientoContable.AsNoTracking()
+            .Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .FirstOrDefaultAsync(a => a.OrigenTipo == origenTipoBase && a.OrigenId == origenIdBase && a.EstadoAsiento == EstadoAsientoContable.Emitido);
+        if (basado == null)
+            return (ServiceStatus.NotFound, null, "No hay un asiento activo para el documento original");
+
+        var lineas = basado.Detalle.Select(d => invertido
+            ? new LineaAsientoContable(d.CuentaContable!.Codigo, d.Haber, d.Debe)
+            : new LineaAsientoContable(d.CuentaContable!.Codigo, d.Debe, d.Haber)).ToList();
+
+        return await Generar(nuevoOrigenTipo, nuevoOrigenId, glosa, lineas);
+    }
+
     public async Task<(ServiceStatus, List<AsientoContableDto>?, string)> Listar(DateTime? desde, DateTime? hasta, string? origenTipo)
     {
         var query = _context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable).AsQueryable();

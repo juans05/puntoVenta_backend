@@ -149,4 +149,42 @@ public class CompraService : ICompraService
 
         return MessageResult<object>.Of(message, result);
     }
+
+    public async Task<MessageResult<object>> CrearNotaCompra(CrearNotaCompraPayload payload)
+    {
+        var (estado, result, message) = await _compraRepository.CrearNotaCompra(payload);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound ? HttpStatusCode.NotFound
+                    : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
+
+    public async Task<MessageResult<object>> AnularNotaCompra(int id)
+    {
+        var (estado, result, message) = await _compraRepository.AnularNotaCompra(id);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest
+                    : estado == ServiceStatus.NotFound ? HttpStatusCode.NotFound
+                    : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
+
+    public async Task<MessageResult<object>> ListarNotasCompra(int compraId)
+    {
+        var (estado, result, message) = await _compraRepository.ListarNotasCompra(compraId);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.InternalServerError, message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
 }

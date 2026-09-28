@@ -25,4 +25,8 @@ public interface ICompraService
     Task<MessageResult<List<ReporteDetalladoCompraDto>>> ObtenerReporteDetalladoCompras(ContabilidadQueryParams payload);
 
     Task<MessageResult<object>> ObtenerSerieNumero(int? sucursalId);
+
+    Task<MessageResult<object>> CrearNotaCompra(CrearNotaCompraPayload payload);
+    Task<MessageResult<object>> AnularNotaCompra(int id);
+    Task<MessageResult<object>> ListarNotasCompra(int compraId);
 }

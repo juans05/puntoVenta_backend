@@ -27,4 +27,8 @@ public interface ICompraRepository
     Task<(ServiceStatus, List<ReporteDetalladoCompraDto>?, string)> ObtenerReporteDetalladoCompras(ContabilidadQueryParams payload);
 
     Task<(ServiceStatus, object?, string)> ObtenerSerieNumero(int? sucursalId);
+
+    Task<(ServiceStatus, NotaCompraDto?, string)> CrearNotaCompra(CrearNotaCompraPayload payload);
+    Task<(ServiceStatus, NotaCompraDto?, string)> AnularNotaCompra(int id);
+    Task<(ServiceStatus, List<NotaCompraDto>?, string)> ListarNotasCompra(int compraId);
 }

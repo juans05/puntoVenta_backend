@@ -337,6 +337,181 @@ public class CompraRepository : ICompraRepository
         }
     }
 
+    // ---------- Notas de credito/debito de compra ----------
+    // Espejo de ComprobanteRepository.CrearNotaCreditoDebito (ventas): siempre afecta el monto
+    // completo de la Compra (no ajustes parciales linea por linea), reusa el mismo catalogo
+    // MotivoNota (TipoDocumentoVentaId 4=Credito/5=Debito) y genera su propio asiento -- no anula
+    // ni cambia el Estado de la Compra original, a diferencia de AnularCompra.
+    public async Task<(ServiceStatus, NotaCompraDto?, string)> CrearNotaCompra(CrearNotaCompraPayload payload)
+    {
+        if (payload.Tipo != TipoNotaCompra.Credito && payload.Tipo != TipoNotaCompra.Debito)
+            return (ServiceStatus.FailedValidation, null, "Tipo de nota inválido");
+
+        var compra = await _context.Compra.AsTracking().Include(c => c.CompraDetalles).FirstOrDefaultAsync(c => c.Id == payload.CompraId);
+        if (compra == null) return (ServiceStatus.NotFound, null, $"No se encontró la compra {payload.CompraId}");
+        if (compra.Estado == "ANULADO") return (ServiceStatus.FailedValidation, null, "La compra está anulada");
+
+        var motivo = await _context.MotivoNota.AsNoTracking().FirstOrDefaultAsync(m => m.Id == payload.MotivoNotaId);
+        if (motivo == null) return (ServiceStatus.FailedValidation, null, $"No se encontró el motivo {payload.MotivoNotaId}");
+
+        var tipoEsperado = payload.Tipo == TipoNotaCompra.Credito ? (int)TipoComprobante.NotaCredito : (int)TipoComprobante.NotaDebito;
+        if (motivo.TipoDocumentoVentaId != tipoEsperado)
+            return (ServiceStatus.FailedValidation, null, "El motivo no corresponde al tipo de nota elegido");
+
+        await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var prefijo = payload.Tipo == TipoNotaCompra.Credito ? "NCC" : "NCD";
+            var numero = $"{prefijo}-{((await _context.NotaCompra.IgnoreQueryFilters().CountAsync(n => n.TenantId == _context.CurrentTenantName)) + 1).ToString().PadLeft(6, '0')}";
+
+            var nota = new NotaCompra
+            {
+                Numero = numero,
+                CompraId = compra.Id,
+                Tipo = payload.Tipo,
+                MotivoNotaId = motivo.Id,
+                Fecha = NowLocal(),
+                Monto = compra.Total,
+                Observacion = payload.Observacion
+            };
+            _context.NotaCompra.Add(nota);
+            await _context.SaveChangesAsync();
+
+            // Reversa stock solo si es Credito con un motivo que revierte stock, y solo para
+            // lineas de bien (una linea de servicio, o una compra cuyo stock ya subio por otra via
+            // (StockYaIngresado), no tiene inventario que devolver).
+            if (payload.Tipo == TipoNotaCompra.Credito && motivo.RevierteStock && !compra.StockYaIngresado)
+            {
+                foreach (var item in compra.CompraDetalles.Where(d => d.ProductoId.HasValue))
+                {
+                    var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
+                    if (producto == null) continue;
+
+                    var stockAnterior = producto.Stock ?? 0;
+                    var stockNuevo = stockAnterior - item.Cantidad;
+                    if (stockNuevo < 0)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                        return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para revertir la nota del producto {producto.Nombre}");
+                    }
+                    producto.Stock = stockNuevo;
+
+                    _context.InventoryMovement.Add(new InventoryMovement
+                    {
+                        ProductoId = producto.Id,
+                        TipoMovimiento = (int)TipoMovimientoInventario.DevolucionCompra,
+                        Cantidad = item.Cantidad,
+                        StockAnterior = stockAnterior,
+                        StockPosterior = stockNuevo,
+                        ReferenciaTipo = "NotaCompra",
+                        ReferenciaId = nota.Id
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            var glosa = $"Nota {(payload.Tipo == TipoNotaCompra.Credito ? "crédito" : "débito")} {numero} sobre compra {compra.NumeroCompra}";
+            var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.GenerarBasadoEn(
+                OrigenAsientoContable.Factura, compra.Id, invertido: payload.Tipo == TipoNotaCompra.Credito,
+                OrigenAsientoContable.NotaCompra, nota.Id, glosa);
+            if (estadoAsiento != ServiceStatus.Ok)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+            }
+
+            await _context.Database.CommitTransactionAsync();
+            return await ObtenerNotaCompra(nota.Id);
+        }
+        catch (Exception e)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            return (ServiceStatus.FailedValidation, null, $"Error al crear la nota -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    public async Task<(ServiceStatus, NotaCompraDto?, string)> AnularNotaCompra(int id)
+    {
+        var nota = await _context.NotaCompra.AsTracking().FirstOrDefaultAsync(n => n.Id == id);
+        if (nota == null) return (ServiceStatus.NotFound, null, "Nota no encontrada");
+        if (nota.EstadoNota == EstadoNotaCompra.Anulada) return (ServiceStatus.FailedValidation, null, "La nota ya está anulada");
+
+        await _context.Database.BeginTransactionAsync();
+        try
+        {
+            // Devuelve el stock que la nota hubiera restado (si fue credito con reversion de stock).
+            var movimientos = await _context.InventoryMovement.AsTracking()
+                .Where(m => m.ReferenciaTipo == "NotaCompra" && m.ReferenciaId == nota.Id).ToListAsync();
+            foreach (var mov in movimientos)
+            {
+                var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == mov.ProductoId);
+                if (producto == null) continue;
+
+                var stockAnterior = producto.Stock ?? 0;
+                var stockNuevo = stockAnterior + mov.Cantidad;
+                producto.Stock = stockNuevo;
+
+                _context.InventoryMovement.Add(new InventoryMovement
+                {
+                    ProductoId = producto.Id,
+                    TipoMovimiento = (int)TipoMovimientoInventario.Compra,
+                    Cantidad = mov.Cantidad,
+                    StockAnterior = stockAnterior,
+                    StockPosterior = stockNuevo,
+                    ReferenciaTipo = "NotaCompraAnulada",
+                    ReferenciaId = nota.Id
+                });
+            }
+
+            nota.EstadoNota = EstadoNotaCompra.Anulada;
+            await _context.SaveChangesAsync();
+
+            await _asientoContableRepository.Reversar(OrigenAsientoContable.NotaCompra, nota.Id);
+
+            await _context.Database.CommitTransactionAsync();
+            return await ObtenerNotaCompra(nota.Id);
+        }
+        catch (Exception e)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            return (ServiceStatus.FailedValidation, null, $"Error al anular la nota -> {e.InnerException?.Message ?? e.Message}");
+        }
+    }
+
+    public async Task<(ServiceStatus, List<NotaCompraDto>?, string)> ListarNotasCompra(int compraId)
+    {
+        var notas = await _context.NotaCompra.AsNoTracking()
+            .Include(n => n.Compra).Include(n => n.MotivoNota)
+            .Where(n => n.CompraId == compraId)
+            .OrderByDescending(n => n.Id)
+            .ToListAsync();
+        return (ServiceStatus.Ok, notas.Select(ToNotaDto).ToList(), "Success");
+    }
+
+    private async Task<(ServiceStatus, NotaCompraDto?, string)> ObtenerNotaCompra(int id)
+    {
+        var nota = await _context.NotaCompra.AsNoTracking()
+            .Include(n => n.Compra).Include(n => n.MotivoNota)
+            .FirstOrDefaultAsync(n => n.Id == id);
+        return nota == null
+            ? (ServiceStatus.NotFound, null, "Nota no encontrada")
+            : (ServiceStatus.Ok, ToNotaDto(nota), "Success");
+    }
+
+    private static NotaCompraDto ToNotaDto(NotaCompra n) => new()
+    {
+        Id = n.Id,
+        Numero = n.Numero,
+        CompraId = n.CompraId,
+        NumeroCompra = n.Compra?.NumeroCompra,
+        Tipo = n.Tipo,
+        MotivoDescripcion = n.MotivoNota?.Descripcion,
+        Fecha = n.Fecha.ToString("dd/MM/yyyy HH:mm"),
+        Monto = n.Monto,
+        EstadoNota = n.EstadoNota,
+        Observacion = n.Observacion
+    };
+
     public async Task<(ServiceStatus, DataCollection<CompraDto>?, string)> ListarCompras(CompraQueryParams payload)
     {
         try

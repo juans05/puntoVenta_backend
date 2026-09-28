@@ -50,6 +50,22 @@ public class CompraRepositoryTests
         return tipoIgv.Id;
     }
 
+    // TipoDocumentoVentaId 4=NotaCredito/5=NotaDebito, mismo catalogo que usa Ventas (ver
+    // ComprobanteRepositoryTests.SeedMotivoNotaAsync) -- NotaCompra lo reusa tal cual.
+    private static async Task<int> SeedMotivoNotaCompraAsync(Infrastructure.Data.SpaContext context, bool esCredito, bool revierteStock)
+    {
+        var motivo = new MotivoNota
+        {
+            TipoDocumentoVentaId = esCredito ? 4 : 5,
+            Codigo = "01",
+            Descripcion = esCredito ? "Devolucion" : "Cargo adicional",
+            RevierteStock = revierteStock
+        };
+        context.MotivoNota.Add(motivo);
+        await context.SaveChangesAsync();
+        return motivo.Id;
+    }
+
     [Fact]
     public async Task ImportarXmlCompra_ProveedorNuevo_LoCreaYDevuelveLasLineas()
     {
@@ -127,6 +143,100 @@ public class CompraRepositoryTests
         Assert.Equal(118m, dto!.Total);
         Assert.Equal(100.00m, dto.ValorGravada);
         Assert.Equal(18.00m, dto.ValorIgv);
+    }
+
+    [Fact]
+    public async Task NotaCredito_RevierteStockYGeneraAsientoInvertidoDeLaFactura()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+        var (_, compra, _) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 3, CostoUnitario = 10m } }
+        });
+        var stockTrasCompra = (await context.Producto.AsNoTracking().SingleAsync()).Stock;
+        var motivoId = await SeedMotivoNotaCompraAsync(context, esCredito: true, revierteStock: true);
+
+        var (estado, nota, mensaje) = await repo.CrearNotaCompra(new CrearNotaCompraPayload
+        {
+            CompraId = compra!.Id, Tipo = TipoNotaCompra.Credito, MotivoNotaId = motivoId
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(compra.Total, nota!.Monto);
+        Assert.Equal(stockTrasCompra - 3, (await context.Producto.AsNoTracking().SingleAsync()).Stock);
+
+        var asientoFactura = await context.AsientoContable.AsNoTracking()
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == compra.Id);
+        Assert.Equal(EstadoAsientoContable.Emitido, asientoFactura.EstadoAsiento); // la nota NO anula la factura original
+
+        var asientoNota = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota.Id);
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Debe == compra.Total); // invertido vs la factura
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == compra.Total);
+    }
+
+    [Fact]
+    public async Task NotaDebito_NoTocaStockYGeneraAsientoEnElMismoSentidoDeLaFactura()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+        var (_, compra, _) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 3, CostoUnitario = 10m } }
+        });
+        var stockTrasCompra = (await context.Producto.AsNoTracking().SingleAsync()).Stock;
+        var motivoId = await SeedMotivoNotaCompraAsync(context, esCredito: false, revierteStock: false);
+
+        var (estado, nota, mensaje) = await repo.CrearNotaCompra(new CrearNotaCompraPayload
+        {
+            CompraId = compra!.Id, Tipo = TipoNotaCompra.Debito, MotivoNotaId = motivoId
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(stockTrasCompra, (await context.Producto.AsNoTracking().SingleAsync()).Stock); // sin cambios
+
+        var asientoNota = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota!.Id);
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == compra.Total); // mismo sentido que la factura
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Haber == compra.Total);
+    }
+
+    [Fact]
+    public async Task AnularNotaCompra_DevuelveElStockYReversaElAsiento()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+        var (_, compra, _) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 3, CostoUnitario = 10m } }
+        });
+        var motivoId = await SeedMotivoNotaCompraAsync(context, esCredito: true, revierteStock: true);
+        var (_, nota, _) = await repo.CrearNotaCompra(new CrearNotaCompraPayload
+        {
+            CompraId = compra!.Id, Tipo = TipoNotaCompra.Credito, MotivoNotaId = motivoId
+        });
+        var stockTrasNota = (await context.Producto.AsNoTracking().SingleAsync()).Stock;
+
+        var (estado, anulada, mensaje) = await repo.AnularNotaCompra(nota!.Id);
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(EstadoNotaCompra.Anulada, anulada!.EstadoNota);
+        Assert.Equal(stockTrasNota + 3, (await context.Producto.AsNoTracking().SingleAsync()).Stock);
+
+        var asientos = await context.AsientoContable.AsNoTracking().Where(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota.Id).ToListAsync();
+        Assert.Equal(2, asientos.Count);
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Anulado);
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Emitido);
     }
 
     [Fact]
