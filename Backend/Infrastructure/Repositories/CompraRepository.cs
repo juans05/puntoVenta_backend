@@ -223,12 +223,11 @@ public class CompraRepository : ICompraRepository
 
             await _context.SaveChangesAsync();
 
-            // Asiento contable de la factura. ponytail: usa subtotalProductos (sin IGV) en vez de
-            // compra.Total en ambos lados para que la cuenta puente (4211) cierre exacto contra lo
-            // que el movimiento de inventario le abonó -- el IGV no esta desagregado en su propia
-            // cuenta (fuera de alcance, ver plan Pieza 3); si se necesita que "42" cuadre con el
-            // total realmente pagado, agregar el IGV como tercera pata de este asiento.
-            if (subtotalProductos > 0)
+            // Asiento contable de la factura. "42" lleva el TOTAL con IGV -- lo que realmente se le
+            // debe al proveedor -- y el IGV se reconoce aparte en 40111 (credito fiscal) en vez de
+            // mezclarse con el costo/gasto/puente. Usa gravada (post-descuento, pre-IGV) en vez de
+            // subtotalProductos (pre-descuento) para que cuadre con compra.Total/ValorIgv.
+            if (gravada > 0)
             {
                 var cuentaDebe = "20"; // compra directa (!deOrden): mercaderia recibida en el mismo paso, sube stock ahora mismo.
                 if (deOrden)
@@ -238,9 +237,12 @@ public class CompraRepository : ICompraRepository
                     cuentaDebe = tipoOrden == TipoOrdenCompra.Servicio ? "63" : "4211";
                 }
 
+                var lineasFactura = new List<LineaAsientoContable> { new(cuentaDebe, gravada, 0) };
+                if (igv > 0) lineasFactura.Add(new LineaAsientoContable("40111", igv, 0));
+                lineasFactura.Add(new LineaAsientoContable("42", 0, total));
+
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
-                    OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}",
-                    new List<LineaAsientoContable> { new(cuentaDebe, subtotalProductos, 0), new("42", 0, subtotalProductos) });
+                    OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}", lineasFactura);
                 if (estadoAsiento != ServiceStatus.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();

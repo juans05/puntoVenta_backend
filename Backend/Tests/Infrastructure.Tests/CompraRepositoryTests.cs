@@ -176,7 +176,8 @@ public class CompraRepositoryTests
         var asientoNota = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota.Id);
         Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Debe == compra.Total); // invertido vs la factura
-        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == compra.Total);
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == compra.ValorGravada);
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "40111" && d.Haber == compra.ValorIgv);
     }
 
     [Fact]
@@ -204,7 +205,8 @@ public class CompraRepositoryTests
 
         var asientoNota = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota!.Id);
-        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == compra.Total); // mismo sentido que la factura
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == compra.ValorGravada); // mismo sentido que la factura
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "40111" && d.Debe == compra.ValorIgv);
         Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Haber == compra.Total);
     }
 

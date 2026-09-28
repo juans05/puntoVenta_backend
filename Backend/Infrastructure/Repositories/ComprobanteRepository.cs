@@ -738,12 +738,13 @@ namespace Infrastructure.Repositories
 
         }
 
-        // Asiento contable de la venta. ponytail: usa cabecera.ValorSubtotal (sin IGV) en la
-        // contraparte (Caja/Cuentas por Cobrar) en vez de ValorTotal, para que cuadre exacto contra
-        // la suma de Ingresos por linea (tambien sin IGV) sin desagregar el IGV en su propia cuenta
-        // -- mismo criterio de simplificacion que CompraRepository.CrearCompraCore (Pieza 3).
+        // Asiento contable de la venta. La contraparte (Caja/Cuentas por Cobrar) lleva el TOTAL con
+        // IGV -- lo que el cliente realmente debe/paga -- y el IGV se reconoce aparte en 40111 (IGV
+        // Cuenta propia), separado de los Ingresos (que quedan sin IGV). Esto es lo que hace que
+        // "10"/"12" cuadren exacto contra Pago/Cobro (que ya usan el monto con IGV).
         // Cuentas por defecto (PCGE): 10 Efectivo, 12 Cuentas por Cobrar, 70 Ventas, 69 Costo de
-        // Ventas, 20 Mercaderias -- cada producto puede sobreescribirlas desde su tab Contabilidad.
+        // Ventas, 20 Mercaderias, 40111 IGV Cuenta propia -- cada producto puede sobreescribir
+        // Ingresos/Costo/Inventario desde su tab Contabilidad.
         private async Task<(ServiceStatus, Domain.DTO.AsientoContableDto?, string)> GenerarAsientoVenta(
             ComprobanteCabecera cabecera, List<ComprobanteDetalle> detalle, bool esCredito, Dictionary<int, Producto> productos)
         {
@@ -758,8 +759,10 @@ namespace Infrastructure.Repositories
 
             var lineas = new List<LineaAsientoContable>
             {
-                new(esCredito ? "12" : "10", cabecera.ValorSubtotal, 0)
+                new(esCredito ? "12" : "10", cabecera.ValorTotal, 0)
             };
+            if (cabecera.ValorIgv > 0)
+                lineas.Add(new LineaAsientoContable("40111", 0, cabecera.ValorIgv));
 
             var ingresosPorCuenta = new Dictionary<string, decimal>();
             var costoPorCuentas = new Dictionary<(string Costo, string Inventario), decimal>();

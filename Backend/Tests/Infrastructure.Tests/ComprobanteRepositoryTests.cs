@@ -172,8 +172,9 @@ public class ComprobanteRepositoryTests
             .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
 
         Assert.Equal(asiento.Detalle.Sum(d => d.Debe), asiento.Detalle.Sum(d => d.Haber)); // partida doble cuadra
-        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "10" && d.Debe == cabecera.ValorSubtotal);
-        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "70" && d.Haber > 0);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "10" && d.Debe == cabecera.ValorTotal); // con IGV
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "40111" && d.Haber == cabecera.ValorIgv);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "70" && d.Haber == cabecera.ValorSubtotal);
         Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "69" && d.Debe == 12m); // costo 6 x 2
         Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == 12m);
     }
@@ -208,7 +209,7 @@ public class ComprobanteRepositoryTests
         var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
 
-        Assert.Equal(2, asiento.Detalle.Count); // solo contraparte + ingreso, sin costo/inventario
+        Assert.Equal(3, asiento.Detalle.Count); // contraparte + IGV + ingreso, sin costo/inventario
         Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "69" || d.CuentaContable!.Codigo == "20");
     }
 
