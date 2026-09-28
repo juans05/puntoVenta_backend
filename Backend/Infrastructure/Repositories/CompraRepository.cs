@@ -204,7 +204,7 @@ public class CompraRepository : ICompraRepository
 
                 var stockAnterior = producto.Stock ?? 0;
                 producto.Stock = stockAnterior + item.Cantidad;
-                producto.CostoUnitario = item.CostoUnitario;
+                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
@@ -291,19 +291,11 @@ public class CompraRepository : ICompraRepository
                 if (stockNuevo < 0)
                     return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para revertir la compra del producto {producto.Nombre}");
 
+                // Le quita a Producto.CostoUnitario (promedio ponderado) la contribucion de esta
+                // compra ANTES de bajar el stock -- QuitarDePromedio necesita el stock/costo tal
+                // como estaban con esta compra todavia adentro de la mezcla.
+                producto.CostoUnitario = CosteoInventario.QuitarDePromedio(stockAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
                 producto.Stock = stockNuevo;
-
-                // El costo del producto es "última compra registrada" (ver CrearCompra), no un
-                // promedio con historial propio: al anular hay que recalcularlo desde la compra
-                // vigente más reciente, o se queda con el precio de la compra anulada para siempre.
-                producto.CostoUnitario = await _context.CompraDetalle
-                    .Where(cd => cd.ProductoId == item.ProductoId
-                              && cd.CompraId != compra.Id
-                              && cd.Compra.Estado != "ANULADO")
-                    .OrderByDescending(cd => cd.Compra.FechaCompra)
-                    .ThenByDescending(cd => cd.Id)
-                    .Select(cd => (decimal?)cd.CostoUnitario)
-                    .FirstOrDefaultAsync();
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
@@ -687,7 +679,7 @@ public class CompraRepository : ICompraRepository
 
                 var stockAnterior = producto.Stock ?? 0;
                 producto.Stock = stockAnterior + item.Cantidad;
-                producto.CostoUnitario = item.CostoUnitario;
+                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {

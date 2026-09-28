@@ -126,6 +126,35 @@ public class CompraRepositoryTests
     }
 
     [Fact]
+    public async Task CrearCompra_SegundaCompraADistintoPrecio_PromediaElCosto()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 10m } }
+        });
+        var (_, compra2, _) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 10, CostoUnitario = 20m } }
+        });
+
+        var producto = await context.Producto.AsNoTracking().SingleAsync();
+        Assert.Equal(20, producto.Stock);
+        Assert.Equal(15m, producto.CostoUnitario); // (10*10 + 10*20) / 20
+
+        await repo.AnularCompra(compra2!.Id);
+
+        var productoTrasAnular = await context.Producto.AsNoTracking().SingleAsync();
+        Assert.Equal(10, productoTrasAnular.Stock);
+        Assert.Equal(10m, productoTrasAnular.CostoUnitario); // vuelve al costo de la primera compra
+    }
+
+    [Fact]
     public async Task CrearCompra_SinTipoIgvNiDescuento_TotalIgualQueAntes()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();

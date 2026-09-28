@@ -481,7 +481,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
                 var stockAnterior = producto.Stock ?? 0;
                 producto.Stock = stockAnterior + l.Cantidad;
-                producto.CostoUnitario = od.CostoUnitario;
+                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockAnterior, producto.CostoUnitario ?? 0, l.Cantidad, od.CostoUnitario);
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
