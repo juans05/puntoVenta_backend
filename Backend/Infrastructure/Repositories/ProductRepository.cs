@@ -220,7 +220,9 @@ public class ProductRepository : IProductRepository
                 lista = await dbContext.Producto.AsNoTracking()
                     .Where( p => p.Estado == true &&
                                 (payload.CategoriaId == null || p.CategoriaId == payload.CategoriaId) &&
-                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId))
+                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId) &&
+                                (payload.SeVende == null || p.SeVende == payload.SeVende) &&
+                                (payload.SeCompra == null || p.SeCompra == payload.SeCompra))
                     .Include(i => i.Proveedor)
                     //.Include(i => i.Comentarios)
                     .Include(i => i.Categoria)
@@ -237,7 +239,9 @@ public class ProductRepository : IProductRepository
                         //.Include(i => i.Comentarios)
                         .Where(p => p.Id == Convert.ToInt32(payload.Value) &&
                                 (payload.CategoriaId == null || p.CategoriaId == payload.CategoriaId) &&
-                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId)
+                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId) &&
+                                (payload.SeVende == null || p.SeVende == payload.SeVende) &&
+                                (payload.SeCompra == null || p.SeCompra == payload.SeCompra)
                         )
                         .ProjectTo<ProductoDto>(mapper.ConfigurationProvider)
                         .GetPagedAsync(payload.Page, payload.Amount);
@@ -251,7 +255,9 @@ public class ProductRepository : IProductRepository
                         //.Include(i => i.Comentarios)
                         .Where(p => p.Nombre.Contains(payload.Value) &&
                                 (payload.CategoriaId == null || p.CategoriaId == payload.CategoriaId) &&
-                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId)
+                                (payload.GrupoId == null || p.GrupoId == payload.GrupoId) &&
+                                (payload.SeVende == null || p.SeVende == payload.SeVende) &&
+                                (payload.SeCompra == null || p.SeCompra == payload.SeCompra)
                         )
                         .ProjectTo<ProductoDto>(mapper.ConfigurationProvider)
                         .GetPagedAsync(payload.Page, payload.Amount);
