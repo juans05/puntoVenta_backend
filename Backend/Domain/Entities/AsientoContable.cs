@@ -7,6 +7,7 @@ public static class OrigenAsientoContable
     public const string Factura = "Factura";
     public const string Pago = "Pago";
     public const string Venta = "Venta";
+    public const string Cobro = "Cobro";
 }
 
 public static class EstadoAsientoContable

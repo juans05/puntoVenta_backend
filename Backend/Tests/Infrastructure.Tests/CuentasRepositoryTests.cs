@@ -160,6 +160,42 @@ public class CuentasRepositoryTests
     }
 
     [Fact]
+    public async Task CobroTotal_GeneraAsientoDebeEfectivoHaberCuentasPorCobrar()
+    {
+        var (repo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        var metodo = await SeedMetodoPago(context, 2);
+        var (clienteId, ventaId) = await SeedVentaCredito(context, 100m);
+
+        var (_, cobro, mensaje) = await repo.RegistrarPago(true, Pago(clienteId, metodo, ventaId, 100m));
+        Assert.NotNull(cobro);
+
+        var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Cobro" && a.OrigenId == cobro!.Id);
+        Assert.Equal(EstadoAsientoContable.Emitido, asiento.EstadoAsiento);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "10" && d.Debe == 100m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "12" && d.Haber == 100m);
+    }
+
+    [Fact]
+    public async Task AnularCobro_MarcaElAsientoOriginalAnuladoYGeneraElReverso()
+    {
+        var (repo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        var metodo = await SeedMetodoPago(context, 2);
+        var (clienteId, ventaId) = await SeedVentaCredito(context, 100m);
+        var (_, cobro, _) = await repo.RegistrarPago(true, Pago(clienteId, metodo, ventaId, 100m));
+
+        var (estado, _, mensaje) = await repo.AnularPago(true, cobro!.Id);
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var asientos = await context.AsientoContable.Where(a => a.OrigenTipo == "Cobro" && a.OrigenId == cobro.Id).ToListAsync();
+        Assert.Equal(2, asientos.Count);
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Anulado);
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Emitido);
+    }
+
+    [Fact]
     public async Task Antiguedad_ClasificaPorTramosSegunVencimiento()
     {
         var (repo, context, connection) = Preparar();

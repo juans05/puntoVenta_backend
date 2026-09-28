@@ -236,6 +236,18 @@ public class CuentasRepository : ICuentasRepository
                     _context.Pago.Add(new Pago { ComprobanteCabeceraId = d.ComprobanteCabeceraId, MetodoPagoId = payload.MetodoPagoId, Monto = d.MontoAplicado });
                 await _context.SaveChangesAsync();
                 id = cobranza.Id;
+
+                // Cierra la cuenta por cobrar que quedo abierta al vender a credito (ver
+                // ComprobanteRepository.GenerarAsientoVenta): Debe 10 Efectivo, Haber 12 Cuentas
+                // por Cobrar. Sin esto "12" nunca se cerraba aunque el cliente ya hubiera pagado.
+                var (estadoAsientoCobro, _, mensajeAsientoCobro) = await _asientoContableRepository.Generar(
+                    OrigenAsientoContable.Cobro, cobranza.Id, $"Cobro {numero}",
+                    new List<LineaAsientoContable> { new("10", total, 0), new("12", 0, total) });
+                if (estadoAsientoCobro != ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsientoCobro}");
+                }
             }
             else
             {
@@ -310,8 +322,7 @@ public class CuentasRepository : ICuentasRepository
 
             await _context.SaveChangesAsync();
 
-            if (!cobrar)
-                await _asientoContableRepository.Reversar(OrigenAsientoContable.Pago, id);
+            await _asientoContableRepository.Reversar(cobrar ? OrigenAsientoContable.Cobro : OrigenAsientoContable.Pago, id);
 
             await _context.Database.CommitTransactionAsync();
             return await ObtenerPago(cobrar, id);
