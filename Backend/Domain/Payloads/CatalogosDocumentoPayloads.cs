@@ -18,6 +18,11 @@ public class CreateTipoDetraccionPayload
     public string? Descripcion { get; set; }
 }
 
+public class CreateCentroCostoPayload
+{
+    public string Nombre { get; set; } = null!;
+}
+
 public class UpdateTipoIgvPayload
 {
     public string Codigo { get; set; } = null!;

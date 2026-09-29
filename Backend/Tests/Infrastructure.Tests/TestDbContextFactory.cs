@@ -49,8 +49,40 @@ public static class TestDbContextFactory
         var context = new SpaContext(options, tenantResolver ?? new FakeTenantResolver());
         context.Database.EnsureCreated();
         SeedCuentasContables(context);
+        SeedSucursalBase(context);
 
         return (context, connection);
+    }
+
+    // StockSucursalHelper.Ajustar cae a "la primera sucursal del tenant" cuando ni el
+    // documento ni el producto traen SucursalId -- en produccion siempre hay al menos una
+    // (todo tenant real se siembra con una). Sin esto, cualquier test que mueva stock sin
+    // fijar SucursalId explicito fallaria con "No hay una sucursal registrada...".
+    private static void SeedSucursalBase(SpaContext context)
+    {
+        // TenantId puesto a mano (no via SaveChangesAsync, que es donde SpaContext lo
+        // autoasigna) -- mismo motivo que SeedCuentasContables: aqui se usa el SaveChanges
+        // sincrono, que no pasa por ese override. Pais.Codigo es unico global (no por tenant),
+        // asi que si algun test crea su propio Pais "PE" (ComprobanteRepositoryTests.SeedSucursalAsync)
+        // hay que reusarlo en vez de duplicarlo.
+        var tenantId = context.CurrentTenantName;
+        var pais = context.Pais.FirstOrDefault(p => p.Codigo == "PE");
+        if (pais == null)
+        {
+            pais = new Pais { Codigo = "PE", Nombre = "Peru", Idioma = "es", MonedaCodigo = "PEN", TimeZone = "America/Lima", EsquemaFiscal = "SUNAT" };
+            context.Pais.Add(pais);
+            context.SaveChanges();
+        }
+
+        var moneda = new Moneda { Codigo = "PEN", Simbolo = "S/", Locale = "es-PE", PaisId = pais.Id, TenantId = tenantId };
+        context.Moneda.Add(moneda);
+
+        var rubro = new Rubro { Nombre = "General" };
+        context.Rubro.Add(rubro);
+        context.SaveChanges();
+
+        context.Sucursal.Add(new Sucursal { Nombre = "Sucursal Test", MonedaId = moneda.Id, PaisId = pais.Id, RubroId = rubro.Id, TenantId = tenantId });
+        context.SaveChanges();
     }
 
     // Subconjunto minimo del plan de cuentas (PCGE) que usan los asientos automaticos de

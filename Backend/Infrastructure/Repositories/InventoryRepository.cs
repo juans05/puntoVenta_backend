@@ -9,6 +9,7 @@ using Domain.Enumerations;
 using Domain.Models;
 using Domain.Payloads;
 using Domain.Tenant;
+using Infrastructure.Common;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ public class InventoryRepository : IInventoryRepository
             or TipoMovimientoInventario.AjusteEntrada
             or TipoMovimientoInventario.DevolucionVenta;
 
-    public async Task<(ServiceStatus, InventoryMovementDto?, string)> RegistrarMovimiento(int productoId, TipoMovimientoInventario tipo, int cantidad, string? referenciaTipo = null, int? referenciaId = null)
+    public async Task<(ServiceStatus, InventoryMovementDto?, string)> RegistrarMovimiento(int productoId, TipoMovimientoInventario tipo, int cantidad, string? referenciaTipo = null, int? referenciaId = null, int? sucursalId = null)
     {
         try
         {
@@ -52,21 +53,20 @@ public class InventoryRepository : IInventoryRepository
             if (producto == null)
                 return (ServiceStatus.NotFound, null, $"No se encontro el producto {productoId}");
 
-            var stockAnterior = producto.Stock ?? 0;
-            var stockNuevo = EsEntrada(tipo) ? stockAnterior + cantidad : stockAnterior - cantidad;
+            var delta = EsEntrada(tipo) ? cantidad : -cantidad;
+            var ajuste = await StockSucursalHelper.Ajustar(_context, producto, sucursalId, delta);
 
-            if (stockNuevo < 0)
-                return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para el producto {producto.Nombre}");
-
-            producto.Stock = stockNuevo;
+            if (!ajuste.Ok)
+                return (ServiceStatus.FailedValidation, null, ajuste.Error);
 
             var movimiento = new InventoryMovement
             {
                 ProductoId = producto.Id,
+                SucursalId = ajuste.SucursalIdUsada,
                 TipoMovimiento = (int)tipo,
                 Cantidad = cantidad,
-                StockAnterior = stockAnterior,
-                StockPosterior = stockNuevo,
+                StockAnterior = ajuste.StockAnteriorSucursal,
+                StockPosterior = ajuste.StockPosteriorSucursal,
                 ReferenciaTipo = referenciaTipo,
                 ReferenciaId = referenciaId
             };
@@ -100,7 +100,7 @@ public class InventoryRepository : IInventoryRepository
         if (payload.Cantidad <= 0)
             return (ServiceStatus.FailedValidation, null, "La cantidad debe ser mayor a cero");
 
-        return await RegistrarMovimiento(payload.ProductoId, tipo, payload.Cantidad, "Ajuste", null);
+        return await RegistrarMovimiento(payload.ProductoId, tipo, payload.Cantidad, "Ajuste", null, payload.SucursalId);
     }
 
     public async Task<(ServiceStatus, DataCollection<InventoryMovementDto>?, string)> ListarMovimientos(InventoryMovementQuery payload)

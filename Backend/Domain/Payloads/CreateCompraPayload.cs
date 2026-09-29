@@ -17,6 +17,10 @@ public class CreateCompraPayload
     public decimal? OtrosCargos { get; set; }
     public bool EsCredito { get; set; }
     public DateTime? FechaVencimiento { get; set; }
+    public decimal? TipoCambio { get; set; }
+    public int? TipoDetraccionId { get; set; }
+    public string? NumeroDetraccion { get; set; }
+    public DateTime? FechaDetraccion { get; set; }
 
     // Datos del proveedor cuando aun no existe en el catalogo local: si ProveedorId viene vacio
     // pero hay Ruc, se busca/crea por Ruc (mismo criterio que la importacion de XML).
@@ -42,4 +46,6 @@ public class CompraDetallePayload
     public int? OrdenCompraDetalleId { get; set; }
     public int Cantidad { get; set; }
     public decimal CostoUnitario { get; set; }
+    public int? CentroCostoId { get; set; }
+    public int? CuentaContableId { get; set; }
 }

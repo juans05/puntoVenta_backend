@@ -13,6 +13,7 @@ using Domain.Common.Utils;
 using AutoMapper.QueryableExtensions;
 using Application.Interfaces.IRepository;
 using Domain.Entities;
+using Infrastructure.Common;
 
 namespace Infrastructure.Repositories;
 
@@ -33,6 +34,9 @@ public class ProveedorRepository : IProveedorRepository
     {
         try
         {
+            if (ValidacionContacto.Validar(payload.Email, payload.Telefono, payload.Celular) is { } errorContacto)
+                return (ServiceStatus.FailedValidation, null, errorContacto);
+
             var entity = mapper.Map<Proveedor>(payload);
 
             await dbContext.Proveedor.AddAsync(entity);

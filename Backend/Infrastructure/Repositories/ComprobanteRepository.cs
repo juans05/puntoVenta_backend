@@ -264,16 +264,18 @@ namespace Infrastructure.Repositories
                     if ((producto.Stock ?? 0) < item.Cantidad)
                         return (ServiceStatus.FailedValidation, null, $"No hay stock disponible para el producto {producto.Nombre}");
 
-                    var stockAnterior = producto.Stock ?? 0;
-                    producto.Stock = stockAnterior - item.Cantidad;
+                    var ajuste = await StockSucursalHelper.Ajustar(_context, producto, cabecera.SucursalId, -item.Cantidad);
+                    if (!ajuste.Ok)
+                        return (ServiceStatus.FailedValidation, null, ajuste.Error);
 
                     _context.InventoryMovement.Add(new InventoryMovement
                     {
                         ProductoId = producto.Id,
+                        SucursalId = ajuste.SucursalIdUsada,
                         TipoMovimiento = (int)TipoMovimientoInventario.Venta,
                         Cantidad = item.Cantidad,
-                        StockAnterior = stockAnterior,
-                        StockPosterior = producto.Stock.Value,
+                        StockAnterior = ajuste.StockAnteriorSucursal,
+                        StockPosterior = ajuste.StockPosteriorSucursal,
                         ReferenciaTipo = "Venta",
                         ReferenciaId = cabecera.Id
                     });
@@ -714,8 +716,11 @@ namespace Infrastructure.Repositories
                 if (entity.StockYaDescontado && entity.PedidoVentaId.HasValue)
                     await PedidoVentaFacturacion.Aplicar(_context, entity.PedidoVentaId.Value,
                         entity.ComprobanteDetalles.Select(d => (d.ProductoId, d.Cantidad)), -1);
-                else
-                    await RestaurarStock(entity.ComprobanteDetalles, entity.Id, "VentaAnulada");
+                else if (await RestaurarStock(entity.ComprobanteDetalles, entity.Id, "VentaAnulada", entity.SucursalId) is { } errorStock)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, errorStock);
+                }
 
                 entity.EstadoComprobante = EstatusComprobante.Anulado;
 
@@ -798,7 +803,9 @@ namespace Infrastructure.Repositories
             return await _asientoContableRepository.Generar(OrigenAsientoContable.Venta, cabecera.Id, $"Venta {cabecera.Serie}-{cabecera.Correlativo}", lineas);
         }
 
-        private async Task RestaurarStock(IEnumerable<ComprobanteDetalle> detalles, int comprobanteId, string referenciaTipo)
+        // Devuelve null si todo ok, o el mensaje de error de la primera línea que no se pudo revertir
+        // (mismo patrón que los demás repositorios que usan StockSucursalHelper).
+        private async Task<string?> RestaurarStock(IEnumerable<ComprobanteDetalle> detalles, int comprobanteId, string referenciaTipo, int? sucursalId)
         {
             foreach (var item in detalles)
             {
@@ -806,22 +813,22 @@ namespace Infrastructure.Repositories
 
                 if (producto == null) continue;
 
-                var stockAnterior = producto.Stock ?? 0;
-                var stockNuevo = stockAnterior + item.Cantidad;
-
-                producto.Stock = stockNuevo;
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, sucursalId, item.Cantidad);
+                if (!ajuste.Ok) return ajuste.Error;
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
                     ProductoId = producto.Id,
+                    SucursalId = ajuste.SucursalIdUsada,
                     TipoMovimiento = (int)TipoMovimientoInventario.DevolucionVenta,
                     Cantidad = item.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = stockNuevo,
+                    StockAnterior = ajuste.StockAnteriorSucursal,
+                    StockPosterior = ajuste.StockPosteriorSucursal,
                     ReferenciaTipo = referenciaTipo,
                     ReferenciaId = comprobanteId
                 });
             }
+            return null;
         }
 
         public async Task<(ServiceStatus, object?, string)> CrearNotaCreditoDebito(NotaPayload payload)
@@ -919,8 +926,12 @@ namespace Infrastructure.Repositories
 
                 await _context.SaveChangesAsync();
 
-                if (payload.TipoDocumentoVentaId == (int)TipoComprobante.NotaCredito && motivo.RevierteStock)
-                    await RestaurarStock(detalleNuevo, cabecera.Id, "NotaCredito");
+                if (payload.TipoDocumentoVentaId == (int)TipoComprobante.NotaCredito && motivo.RevierteStock
+                    && await RestaurarStock(detalleNuevo, cabecera.Id, "NotaCredito", afectado.SucursalId) is { } errorStock)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, errorStock);
+                }
 
                 await _context.SaveChangesAsync();
 

@@ -122,8 +122,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<ClienteCuenta> ClienteCuenta => Set<ClienteCuenta>();
     public DbSet<Salon> Salon => Set<Salon>();
     public DbSet<CuentaContable> CuentaContable => Set<CuentaContable>();
+    public DbSet<CentroCosto> CentroCosto => Set<CentroCosto>();
     public DbSet<AsientoContable> AsientoContable => Set<AsientoContable>();
     public DbSet<AsientoContableDetalle> AsientoContableDetalle => Set<AsientoContableDetalle>();
+    public DbSet<ProductoSucursalStock> ProductoSucursalStock => Set<ProductoSucursalStock>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,10 +141,26 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Grupo>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<Proveedor>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<Departamento>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<CentroCosto>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<DepartamentoAprobador>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<CuentaContable>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        // CuentaContable tiene 7 auto-referencias mas (Cargo/Abono x3 + Cierre) ademas de CuentaPadre
+        // -- con tantas la convencion de EF no las distingue solita, hay que declararlas a mano.
+        // Restrict (no cascade): borrar una cuenta no debe arrastrar a otra que la referencia como
+        // cargo/abono/cierre.
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaCargo1).WithMany().HasForeignKey(c => c.CuentaCargo1Id).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaAbono1).WithMany().HasForeignKey(c => c.CuentaAbono1Id).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaCargo2).WithMany().HasForeignKey(c => c.CuentaCargo2Id).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaAbono2).WithMany().HasForeignKey(c => c.CuentaAbono2Id).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaCargo3).WithMany().HasForeignKey(c => c.CuentaCargo3Id).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaAbono3).WithMany().HasForeignKey(c => c.CuentaAbono3Id).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CuentaContable>().HasOne(c => c.CuentaCierre).WithMany().HasForeignKey(c => c.CuentaCierreId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<AsientoContable>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<AsientoContableDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        // A diferencia de Producto (SucursalId nullable = compartido entre sedes), cada fila de
+        // ProductoSucursalStock es SIEMPRE de una sucursal concreta -- sin bypass por null.
+        modelBuilder.Entity<ProductoSucursalStock>().HasQueryFilter(e => e.TenantId == _tenant.Name && e.SucursalId == _tenant.SucursalId);
+        modelBuilder.Entity<ProductoSucursalStock>().HasIndex(e => new { e.ProductoId, e.SucursalId }).IsUnique();
         modelBuilder.Entity<Comentario>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         // TipoDocumento y TipoDocumentoVenta son catálogos nacionales SUNAT (DNI/RUC/Pasaporte,
         // Boleta/Factura): idénticos para cualquier negocio, no hay filtro por tenant. Id es la

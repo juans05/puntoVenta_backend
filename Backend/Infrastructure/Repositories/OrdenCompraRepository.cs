@@ -7,6 +7,7 @@ using Domain.Enumerations;
 using Domain.Models;
 using Domain.Payloads;
 using Domain.Tenant;
+using Infrastructure.Common;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -205,7 +206,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                     ProductoId = d.ProductoId,
                     Descripcion = d.Descripcion,
                     CantidadPedida = d.Cantidad,
-                    CostoUnitario = d.CostoUnitario
+                    CostoUnitario = d.CostoUnitario,
+                    CentroCostoId = d.CentroCostoId,
+                    CuentaContableId = d.CuentaContableId
                 }).ToList()
             };
             ProcesarServicioSiEmitida(orden);
@@ -240,7 +243,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             ProductoId = d.ProductoId,
             Descripcion = d.Descripcion,
             CantidadPedida = d.Cantidad,
-            CostoUnitario = d.CostoUnitario
+            CostoUnitario = d.CostoUnitario,
+            CentroCostoId = d.CentroCostoId,
+            CuentaContableId = d.CuentaContableId
         }).ToList();
         orden.SucursalId = payload.SucursalId;
         orden.ProveedorId = payload.ProveedorId;
@@ -265,6 +270,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         .Include(o => o.Sucursal).Include(o => o.Proveedor)
         .Include(o => o.Departamento).Include(o => o.AprobadorAsignado)
         .Include(o => o.Detalles).ThenInclude(d => d.Producto)
+        .Include(o => o.Detalles).ThenInclude(d => d.CentroCosto)
+        .Include(o => o.Detalles).ThenInclude(d => d.CuentaContable)
         .Include(o => o.Recepciones);
 
     private static OrdenCompraDto ToDto(OrdenCompra o) => new()
@@ -297,7 +304,11 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             CantidadPedida = d.CantidadPedida,
             CantidadRecibida = d.CantidadRecibida,
             CantidadFacturada = d.CantidadFacturada,
-            CostoUnitario = d.CostoUnitario
+            CostoUnitario = d.CostoUnitario,
+            CentroCostoId = d.CentroCostoId,
+            CentroCosto = d.CentroCosto?.Nombre,
+            CuentaContableId = d.CuentaContableId,
+            CuentaContable = d.CuentaContable != null ? $"{d.CuentaContable.Codigo} - {d.CuentaContable.Nombre}" : null
         }).ToList(),
         Recepciones = o.Recepciones.OrderBy(r => r.Id).Select(r => new RecepcionDto
         {
@@ -479,17 +490,24 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                     return (ServiceStatus.FailedValidation, null, $"No se encontró el producto {od.ProductoId}");
                 }
 
-                var stockAnterior = producto.Stock ?? 0;
-                producto.Stock = stockAnterior + l.Cantidad;
-                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockAnterior, producto.CostoUnitario ?? 0, l.Cantidad, od.CostoUnitario);
+                var stockTotalAnterior = producto.Stock ?? 0;
+                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, l.Cantidad, od.CostoUnitario);
+
+                var ajusteRecepcion = await StockSucursalHelper.Ajustar(_context, producto, recepcion.SucursalId, l.Cantidad);
+                if (!ajusteRecepcion.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, ajusteRecepcion.Error);
+                }
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajusteRecepcion.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.Compra,
                     Cantidad = l.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = producto.Stock.Value,
+                    StockAnterior = ajusteRecepcion.StockAnteriorSucursal,
+                    StockPosterior = ajusteRecepcion.StockPosteriorSucursal,
                     ReferenciaTipo = "Recepcion",
                     ReferenciaId = recepcion.Id
                 });
@@ -552,22 +570,21 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == d.ProductoId);
                 if (producto == null) continue;
 
-                var stockAnterior = producto.Stock ?? 0;
-                var stockNuevo = stockAnterior - d.Cantidad;
-                if (stockNuevo < 0)
+                var ajusteAnularRecepcion = await StockSucursalHelper.Ajustar(_context, producto, recepcion.SucursalId, -d.Cantidad);
+                if (!ajusteAnularRecepcion.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();
-                    return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para revertir la recepción del producto {producto.Nombre}");
+                    return (ServiceStatus.FailedValidation, null, ajusteAnularRecepcion.Error);
                 }
 
-                producto.Stock = stockNuevo;
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajusteAnularRecepcion.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.DevolucionCompra,
                     Cantidad = d.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = stockNuevo,
+                    StockAnterior = ajusteAnularRecepcion.StockAnteriorSucursal,
+                    StockPosterior = ajusteAnularRecepcion.StockPosteriorSucursal,
                     ReferenciaTipo = "RecepcionAnulada",
                     ReferenciaId = recepcion.Id
                 });

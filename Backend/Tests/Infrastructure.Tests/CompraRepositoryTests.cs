@@ -174,6 +174,39 @@ public class CompraRepositoryTests
         Assert.Equal(18.00m, dto.ValorIgv);
     }
 
+    // Dos lineas con distinta CuentaContableId (o sin elegir, que cae en la cuenta por defecto de
+    // compra directa "20") deben separarse en el asiento, sumando exacto a ValorGravada.
+    [Fact]
+    public async Task CrearCompra_ConCuentaContablePorLinea_AgrupaElAsientoPorCuentaYCuadraConGravada()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId1 = await SeedProductoAsync(context);
+        var productoId2 = await SeedProductoAsync(context);
+        var cuenta63Id = await context.CuentaContable.AsNoTracking().Where(c => c.Codigo == "63").Select(c => c.Id).SingleAsync();
+        var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            TipoIgvId = tipoIgvExoneradoId,
+            Detalle = new List<CompraDetallePayload>
+            {
+                new() { ProductoId = productoId1, Cantidad = 1, CostoUnitario = 100m }, // sin cuenta -> "20"
+                new() { ProductoId = productoId2, Cantidad = 1, CostoUnitario = 50m, CuentaContableId = cuenta63Id },
+            }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(150m, dto!.ValorGravada);
+
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == 100m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "63" && d.Debe == 50m);
+    }
+
     [Fact]
     public async Task NotaCredito_RevierteStockYGeneraAsientoInvertidoDeLaFactura()
     {

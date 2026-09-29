@@ -30,6 +30,12 @@ public class CompraDto
     public string? FechaVencimiento { get; set; }
     public decimal ValorGravada { get; set; }
     public decimal ValorIgv { get; set; }
+    public decimal? TipoCambio { get; set; }
+    public int? TipoDetraccionId { get; set; }
+    public string? TipoDetraccion { get; set; }
+    public decimal? PorcentajeDetraccion { get; set; }
+    public string? NumeroDetraccion { get; set; }
+    public string? FechaDetraccion { get; set; }
     public List<CompraDetalleDto> Detalle { get; set; } = new();
 }
 
@@ -41,4 +47,8 @@ public class CompraDetalleDto
     public int Cantidad { get; set; }
     public decimal CostoUnitario { get; set; }
     public decimal Subtotal { get; set; }
+    public int? CentroCostoId { get; set; }
+    public string? CentroCosto { get; set; }
+    public int? CuentaContableId { get; set; }
+    public string? CuentaContable { get; set; }
 }

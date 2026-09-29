@@ -41,6 +41,8 @@ public class OrdenCompraDetallePayload
     public string? Descripcion { get; set; }
     public int Cantidad { get; set; }
     public decimal CostoUnitario { get; set; }
+    public int? CentroCostoId { get; set; }
+    public int? CuentaContableId { get; set; }
 }
 
 public class CerrarOrdenCompraPayload

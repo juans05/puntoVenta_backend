@@ -8,7 +8,7 @@ namespace Application.Interfaces.IRepository;
 
 public interface IInventoryRepository
 {
-    Task<(ServiceStatus, InventoryMovementDto?, string)> RegistrarMovimiento(int productoId, TipoMovimientoInventario tipo, int cantidad, string? referenciaTipo = null, int? referenciaId = null);
+    Task<(ServiceStatus, InventoryMovementDto?, string)> RegistrarMovimiento(int productoId, TipoMovimientoInventario tipo, int cantidad, string? referenciaTipo = null, int? referenciaId = null, int? sucursalId = null);
 
     Task<(ServiceStatus, InventoryMovementDto?, string)> AjustarStock(CreateAjusteInventarioPayload payload);
 

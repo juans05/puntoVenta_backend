@@ -28,6 +28,14 @@ public class Compra : EntityBase
     public DateTime? FechaVencimiento { get; set; }
     public decimal ValorGravada { get; set; }
     public decimal ValorIgv { get; set; }
+    // Tipo de cambio del dia si Moneda != la moneda base del negocio (referencial, no convierte los
+    // montos ya guardados en Total/ValorGravada/ValorIgv).
+    public decimal? TipoCambio { get; set; }
+    // Detraccion SUNAT (SPOT) sobre esta compra: null = no aplica.
+    public int? TipoDetraccionId { get; set; }
+    public TipoDetraccion? TipoDetraccion { get; set; }
+    public string? NumeroDetraccion { get; set; }
+    public DateTime? FechaDetraccion { get; set; }
     // Factura de una orden de compra (flujo completo): el stock ya subio en la recepcion.
     public int? OrdenCompraId { get; set; }
     public bool StockYaIngresado { get; set; }

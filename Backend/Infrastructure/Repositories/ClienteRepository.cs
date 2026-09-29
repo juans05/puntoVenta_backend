@@ -13,6 +13,7 @@ using Domain.Common.Utils;
 using AutoMapper.QueryableExtensions;
 using Application.Interfaces.IRepository;
 using Domain.Entities;
+using Infrastructure.Common;
 
 namespace Infrastructure.Repositories;
 
@@ -31,6 +32,9 @@ public class ClienteRepository :  IClienteRepository
     {
         try
         {
+            if (ValidacionContacto.Validar(payload.Email, payload.Telefono) is { } errorContacto)
+                return (ServiceStatus.FailedValidation, null, errorContacto);
+
             var entity = mapper.Map<Cliente>(payload);
 
             var busquedaPaciente = await dbContext.Cliente.FirstOrDefaultAsync(p => p.NumeroDocumento == payload.NumeroDocumento);

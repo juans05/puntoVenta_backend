@@ -44,6 +44,12 @@ public class OrdenCompraDetalle : EntityBase
     public int CantidadRecibida { get; set; }
     public int CantidadFacturada { get; set; }
     public decimal CostoUnitario { get; set; }
+    // Mismo criterio que CompraDetalle: clasificacion contable opcional de la linea, capturada ya
+    // desde la orden para que la factura (CrearCompraDeOrden) pueda arrastrarla.
+    public int? CentroCostoId { get; set; }
+    public CentroCosto? CentroCosto { get; set; }
+    public int? CuentaContableId { get; set; }
+    public CuentaContable? CuentaContable { get; set; }
 }
 
 public class Recepcion : EntityBase

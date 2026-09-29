@@ -14,6 +14,8 @@ namespace Application.Interfaces.IRepository
         Task<(ServiceStatus, object?, string)> ListarTiposDetraccion();
         Task<(ServiceStatus, object?, string)> CrearTipoDetraccion(CreateTipoDetraccionPayload payload);
         Task<(ServiceStatus, string)> CambiarEstadoTipoDetraccion(int id, bool estado);
+        Task<(ServiceStatus, object?, string)> ListarCentrosCosto();
+        Task<(ServiceStatus, object?, string)> CrearCentroCosto(CreateCentroCostoPayload payload);
         Task<(ServiceStatus, object?, string)> ListarUnidadesMedida();
         Task<(ServiceStatus, object?, string)> ListarTiposOperacion();
         Task<(ServiceStatus, object?, string)> ListarMonedas();

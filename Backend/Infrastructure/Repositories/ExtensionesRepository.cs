@@ -334,6 +334,46 @@ namespace Infrastructure.Repositories
             return (ServiceStatus.Ok, "Success");
         }
 
+        // ---- CRUD CentroCosto ----
+
+        public async Task<(ServiceStatus, object?, string)> ListarCentrosCosto()
+        {
+            try
+            {
+                var data = await _context.CentroCosto.AsNoTracking()
+                                                       .Where(c => c.Estado)
+                                                       .OrderBy(c => c.Nombre)
+                                                       .Select(c => new { id = c.Id, value = c.Nombre })
+                                                       .ToListAsync();
+
+                return (ServiceStatus.Ok, data, "Success");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.InternalError, null, $"Error Interno {e.Message ?? e.InnerException?.Message}");
+            }
+        }
+
+        public async Task<(ServiceStatus, object?, string)> CrearCentroCosto(CreateCentroCostoPayload payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload.Nombre))
+                return (ServiceStatus.FailedValidation, null, "El nombre del centro de costo es obligatorio");
+
+            try
+            {
+                var entity = new CentroCosto { Nombre = payload.Nombre.Trim() };
+
+                await _context.CentroCosto.AddAsync(entity);
+                await _context.SaveChangesAsync();
+
+                return (ServiceStatus.Ok, new { id = entity.Id, value = entity.Nombre }, "Centro de costo registrado correctamente");
+            }
+            catch (Exception e)
+            {
+                return (ServiceStatus.FailedValidation, null, $"Error al registrar -> {e.InnerException?.Message ?? e.Message}");
+            }
+        }
+
         // ---- CRUD UnidadMedida ----
 
         public async Task<(ServiceStatus, object?, string)> ListarUnidadesMedidaAdmin()

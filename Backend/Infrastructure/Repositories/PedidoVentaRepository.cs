@@ -7,6 +7,7 @@ using Domain.Enumerations;
 using Domain.Models;
 using Domain.Payloads;
 using Domain.Tenant;
+using Infrastructure.Common;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -369,15 +370,14 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                     return (ServiceStatus.FailedValidation, null, $"No se encontró el producto {pd.ProductoId}");
                 }
 
-                var stockAnterior = producto.Stock ?? 0;
-                if (stockAnterior < l.Cantidad)
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, entrega.SucursalId, -l.Cantidad);
+                if (!ajuste.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();
-                    return (ServiceStatus.FailedValidation, null, $"No hay stock disponible para {producto.Nombre}");
+                    return (ServiceStatus.FailedValidation, null, ajuste.Error);
                 }
 
                 pd.CantidadEntregada += l.Cantidad;
-                producto.Stock = stockAnterior - l.Cantidad;
 
                 _context.EntregaDetalle.Add(new EntregaDetalle
                 {
@@ -389,10 +389,11 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
                     ProductoId = producto.Id,
+                    SucursalId = ajuste.SucursalIdUsada,
                     TipoMovimiento = (int)TipoMovimientoInventario.Venta,
                     Cantidad = l.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = producto.Stock.Value,
+                    StockAnterior = ajuste.StockAnteriorSucursal,
+                    StockPosterior = ajuste.StockPosteriorSucursal,
                     ReferenciaTipo = "Entrega",
                     ReferenciaId = entrega.Id
                 });
@@ -443,15 +444,20 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == d.ProductoId);
                 if (producto == null) continue;
 
-                var stockAnterior = producto.Stock ?? 0;
-                producto.Stock = stockAnterior + d.Cantidad;
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, entrega.SucursalId, d.Cantidad);
+                if (!ajuste.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, ajuste.Error);
+                }
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
                     ProductoId = producto.Id,
+                    SucursalId = ajuste.SucursalIdUsada,
                     TipoMovimiento = (int)TipoMovimientoInventario.DevolucionVenta,
                     Cantidad = d.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = producto.Stock.Value,
+                    StockAnterior = ajuste.StockAnteriorSucursal,
+                    StockPosterior = ajuste.StockPosteriorSucursal,
                     ReferenciaTipo = "EntregaAnulada",
                     ReferenciaId = entrega.Id
                 });

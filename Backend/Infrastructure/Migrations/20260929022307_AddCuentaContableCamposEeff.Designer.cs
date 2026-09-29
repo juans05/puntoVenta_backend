@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SpaContext))]
-    partial class SpaContextModelSnapshot : ModelSnapshot
+    [Migration("20260929022307_AddCuentaContableCamposEeff")]
+    partial class AddCuentaContableCamposEeff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1399,9 +1401,6 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("AjusteDifCambio")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("CentroCostoId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ClaseCuenta")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -1418,34 +1417,37 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<string>("CodigoEeffNiif")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
                     b.Property<string>("CodigoEeffTributario")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaAbono1Id")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaAbono1")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaAbono2Id")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaAbono2")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaAbono3Id")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaAbono3")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaCargo1Id")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaCargo1")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaCargo2Id")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaCargo2")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaCargo3Id")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaCargo3")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
-                    b.Property<int?>("CuentaCierreId")
-                        .HasColumnType("integer");
+                    b.Property<string>("CuentaCierre")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<bool>("CuentaMonetaria")
                         .HasColumnType("boolean");
@@ -1478,6 +1480,9 @@ namespace Infrastructure.Migrations
                     b.Property<decimal?>("PorcentajeDestino3")
                         .HasColumnType("numeric(13,2)");
 
+                    b.Property<bool>("RequiereCentroCosto")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("TenantId")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -1494,22 +1499,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CentroCostoId");
-
-                    b.HasIndex("CuentaAbono1Id");
-
-                    b.HasIndex("CuentaAbono2Id");
-
-                    b.HasIndex("CuentaAbono3Id");
-
-                    b.HasIndex("CuentaCargo1Id");
-
-                    b.HasIndex("CuentaCargo2Id");
-
-                    b.HasIndex("CuentaCargo3Id");
-
-                    b.HasIndex("CuentaCierreId");
 
                     b.HasIndex("CuentaPadreId");
 
@@ -5075,64 +5064,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.CuentaContable", b =>
                 {
-                    b.HasOne("Domain.Entities.CentroCosto", "CentroCosto")
-                        .WithMany()
-                        .HasForeignKey("CentroCostoId");
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaAbono1")
-                        .WithMany()
-                        .HasForeignKey("CuentaAbono1Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaAbono2")
-                        .WithMany()
-                        .HasForeignKey("CuentaAbono2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaAbono3")
-                        .WithMany()
-                        .HasForeignKey("CuentaAbono3Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaCargo1")
-                        .WithMany()
-                        .HasForeignKey("CuentaCargo1Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaCargo2")
-                        .WithMany()
-                        .HasForeignKey("CuentaCargo2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaCargo3")
-                        .WithMany()
-                        .HasForeignKey("CuentaCargo3Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaCierre")
-                        .WithMany()
-                        .HasForeignKey("CuentaCierreId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Domain.Entities.CuentaContable", "CuentaPadre")
                         .WithMany()
                         .HasForeignKey("CuentaPadreId");
-
-                    b.Navigation("CentroCosto");
-
-                    b.Navigation("CuentaAbono1");
-
-                    b.Navigation("CuentaAbono2");
-
-                    b.Navigation("CuentaAbono3");
-
-                    b.Navigation("CuentaCargo1");
-
-                    b.Navigation("CuentaCargo2");
-
-                    b.Navigation("CuentaCargo3");
-
-                    b.Navigation("CuentaCierre");
 
                     b.Navigation("CuentaPadre");
                 });

@@ -9,4 +9,6 @@ public class CreateAjusteInventarioPayload
     public int Cantidad { get; set; }
 
     public string? Motivo { get; set; }
+
+    public int? SucursalId { get; set; }
 }

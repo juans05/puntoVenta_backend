@@ -40,6 +40,13 @@ public class ExtensionesController : ControllerBase
     [HttpPut("tipos-detraccion/{id}/estado")]
     public async Task<IActionResult> CambiarEstadoTipoDetraccion(int id, [FromBody] SetEstadoPayload payload) => Ok(await _extensionesService.CambiarEstadoTipoDetraccion(id, payload.Estado));
 
+    [HttpGet("centros-costo")]
+    public async Task<IActionResult> centrosCosto() => Ok(await _extensionesService.ListarCentrosCosto());
+
+    [Authorize(Policy = "CatalogosDocumentosAdmin")]
+    [HttpPost("centros-costo/crear")]
+    public async Task<IActionResult> CrearCentroCosto([FromBody] CreateCentroCostoPayload payload) => Ok(await _extensionesService.CrearCentroCosto(payload));
+
     [HttpGet("unidades-medida")]
     public async Task<IActionResult> unidadesMedida() => Ok(await _extensionesService.ListarUnidadesMedida());
 

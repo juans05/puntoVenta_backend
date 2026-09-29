@@ -10,6 +10,7 @@ using Domain.Enumerations;
 using Domain.Models;
 using Domain.Payloads;
 using Domain.Tenant;
+using Infrastructure.Common;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +101,39 @@ public class CompraRepository : ICompraRepository
         return (montoDescuento, otrosCargos, gravada, igv, baseConDescuento);
     }
 
+    // Reparte el debe del asiento entre las cuentas contables que se hayan elegido linea por linea
+    // (CompraDetalle.CuentaContableId), agrupando por cuenta y escalando los montos crudos
+    // (Cantidad*CostoUnitario, pre-descuento) a la proporcion de "gravada" (post-descuento/otros
+    // cargos, pre-IGV) para que la suma cuadre exacto -- el ultimo grupo absorbe el redondeo.
+    // Lineas sin cuenta elegida caen en cuentaDebePorDefecto (mismo criterio que antes de esto).
+    private async Task<List<LineaAsientoContable>> LineasDebePorCuenta(
+        List<CompraDetalle> detalle, decimal subtotalProductos, decimal gravada, string cuentaDebePorDefecto)
+    {
+        var cuentaIds = detalle.Where(d => d.CuentaContableId.HasValue).Select(d => d.CuentaContableId!.Value).Distinct().ToList();
+        var codigos = cuentaIds.Count == 0
+            ? new Dictionary<int, string>()
+            : await _context.CuentaContable.AsNoTracking().Where(c => cuentaIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Codigo);
+
+        var factor = subtotalProductos > 0 ? gravada / subtotalProductos : 1m;
+        var grupos = detalle
+            .GroupBy(d => d.CuentaContableId.HasValue && codigos.TryGetValue(d.CuentaContableId.Value, out var cod) ? cod : cuentaDebePorDefecto)
+            .Select(g => (Cuenta: g.Key, Monto: Math.Round(g.Sum(d => d.Cantidad * d.CostoUnitario) * factor, 2)))
+            .Where(g => g.Monto != 0)
+            .ToList();
+
+        if (grupos.Count == 0) return new List<LineaAsientoContable> { new(cuentaDebePorDefecto, gravada, 0) };
+
+        // Ajusta el ultimo grupo para que la suma cuadre exacto con "gravada" pese al redondeo por grupo.
+        var diferencia = gravada - grupos.Sum(g => g.Monto);
+        if (diferencia != 0)
+        {
+            var ultimo = grupos[^1];
+            grupos[^1] = (ultimo.Cuenta, ultimo.Monto + diferencia);
+        }
+
+        return grupos.Select(g => new LineaAsientoContable(g.Cuenta, g.Monto, 0)).ToList();
+    }
+
     // Suma (+1) o resta (-1) lo facturado en las lineas de la orden y recalcula su estado
     // (RECIBIDA totalmente facturada -> CERRADA; al anular la factura se reabre).
     private async Task AjustarFacturadoOrden(int ordenId, IEnumerable<CompraDetalle> lineas, int signo)
@@ -175,6 +209,10 @@ public class CompraRepository : ICompraRepository
                 FechaVencimiento = payload.FechaVencimiento,
                 ValorGravada = gravada,
                 ValorIgv = igv,
+                TipoCambio = payload.TipoCambio,
+                TipoDetraccionId = payload.TipoDetraccionId,
+                NumeroDetraccion = payload.NumeroDetraccion,
+                FechaDetraccion = payload.FechaDetraccion,
                 OrdenCompraId = deOrden ? payload.OrdenCompraId : null,
                 StockYaIngresado = deOrden
             };
@@ -182,14 +220,29 @@ public class CompraRepository : ICompraRepository
             await _context.Compra.AddAsync(compra);
             await _context.SaveChangesAsync();
 
-            var detalle = payload.Detalle.Select(d => new CompraDetalle
+            // Si la linea viene de una orden y no trae su propio Centro de Costo/Cuenta, hereda lo
+            // que ya se eligio al crear la orden -- evita pedirselo de nuevo al facturar.
+            var ordenDetalleIds = payload.Detalle.Where(d => d.OrdenCompraDetalleId.HasValue && (d.CentroCostoId == null || d.CuentaContableId == null))
+                .Select(d => d.OrdenCompraDetalleId!.Value).ToList();
+            var clasificacionOrden = ordenDetalleIds.Count == 0
+                ? new Dictionary<int, (int? CentroCostoId, int? CuentaContableId)>()
+                : await _context.OrdenCompraDetalle.AsNoTracking().Where(od => ordenDetalleIds.Contains(od.Id))
+                    .ToDictionaryAsync(od => od.Id, od => (od.CentroCostoId, od.CuentaContableId));
+
+            var detalle = payload.Detalle.Select(d =>
             {
-                CompraId = compra.Id,
-                ProductoId = d.ProductoId,
-                Descripcion = d.Descripcion,
-                OrdenCompraDetalleId = d.OrdenCompraDetalleId,
-                Cantidad = d.Cantidad,
-                CostoUnitario = d.CostoUnitario
+                var heredado = d.OrdenCompraDetalleId.HasValue && clasificacionOrden.TryGetValue(d.OrdenCompraDetalleId.Value, out var c) ? c : default;
+                return new CompraDetalle
+                {
+                    CompraId = compra.Id,
+                    ProductoId = d.ProductoId,
+                    Descripcion = d.Descripcion,
+                    OrdenCompraDetalleId = d.OrdenCompraDetalleId,
+                    Cantidad = d.Cantidad,
+                    CostoUnitario = d.CostoUnitario,
+                    CentroCostoId = d.CentroCostoId ?? heredado.CentroCostoId,
+                    CuentaContableId = d.CuentaContableId ?? heredado.CuentaContableId
+                };
             }).ToList();
 
             await _context.CompraDetalle.AddRangeAsync(detalle);
@@ -202,17 +255,26 @@ public class CompraRepository : ICompraRepository
                 if (producto == null)
                     return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
 
-                var stockAnterior = producto.Stock ?? 0;
-                producto.Stock = stockAnterior + item.Cantidad;
-                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
+                // El costo (promedio ponderado) es del producto en general, no por sucursal -- se
+                // calcula con el stock TOTAL antes de que el ajuste de sucursal lo modifique.
+                var stockTotalAnterior = producto.Stock ?? 0;
+                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
+
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, item.Cantidad);
+                if (!ajuste.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, ajuste.Error);
+                }
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajuste.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.Compra,
                     Cantidad = item.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = producto.Stock.Value,
+                    StockAnterior = ajuste.StockAnteriorSucursal,
+                    StockPosterior = ajuste.StockPosteriorSucursal,
                     ReferenciaTipo = "Compra",
                     ReferenciaId = compra.Id
                 });
@@ -229,15 +291,16 @@ public class CompraRepository : ICompraRepository
             // subtotalProductos (pre-descuento) para que cuadre con compra.Total/ValorIgv.
             if (gravada > 0)
             {
-                var cuentaDebe = "20"; // compra directa (!deOrden): mercaderia recibida en el mismo paso, sube stock ahora mismo.
+                var cuentaDebePorDefecto = "20"; // compra directa (!deOrden): mercaderia recibida en el mismo paso, sube stock ahora mismo.
                 if (deOrden)
                 {
                     var tipoOrden = await _context.OrdenCompra.AsNoTracking()
                         .Where(o => o.Id == compra.OrdenCompraId).Select(o => o.TipoOrden).FirstOrDefaultAsync();
-                    cuentaDebe = tipoOrden == TipoOrdenCompra.Servicio ? "63" : "4211";
+                    cuentaDebePorDefecto = tipoOrden == TipoOrdenCompra.Servicio ? "63" : "4211";
                 }
 
-                var lineasFactura = new List<LineaAsientoContable> { new(cuentaDebe, gravada, 0) };
+                var lineasFactura = new List<LineaAsientoContable>();
+                lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada, cuentaDebePorDefecto));
                 if (igv > 0) lineasFactura.Add(new LineaAsientoContable("40111", igv, 0));
                 lineasFactura.Add(new LineaAsientoContable("42", 0, total));
 
@@ -285,25 +348,27 @@ public class CompraRepository : ICompraRepository
 
                 if (producto == null) continue;
 
-                var stockAnterior = producto.Stock ?? 0;
-                var stockNuevo = stockAnterior - item.Cantidad;
-
-                if (stockNuevo < 0)
-                    return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para revertir la compra del producto {producto.Nombre}");
-
                 // Le quita a Producto.CostoUnitario (promedio ponderado) la contribucion de esta
-                // compra ANTES de bajar el stock -- QuitarDePromedio necesita el stock/costo tal
-                // como estaban con esta compra todavia adentro de la mezcla.
-                producto.CostoUnitario = CosteoInventario.QuitarDePromedio(stockAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
-                producto.Stock = stockNuevo;
+                // compra ANTES de bajar el stock -- QuitarDePromedio necesita el stock/costo total
+                // tal como estaban con esta compra todavia adentro de la mezcla.
+                var stockTotalAnterior = producto.Stock ?? 0;
+                producto.CostoUnitario = CosteoInventario.QuitarDePromedio(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
+
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
+                if (!ajuste.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, ajuste.Error);
+                }
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajuste.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.DevolucionCompra,
                     Cantidad = item.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = stockNuevo,
+                    StockAnterior = ajuste.StockAnteriorSucursal,
+                    StockPosterior = ajuste.StockPosteriorSucursal,
                     ReferenciaTipo = "CompraAnulada",
                     ReferenciaId = compra.Id
                 });
@@ -381,22 +446,21 @@ public class CompraRepository : ICompraRepository
                     var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
                     if (producto == null) continue;
 
-                    var stockAnterior = producto.Stock ?? 0;
-                    var stockNuevo = stockAnterior - item.Cantidad;
-                    if (stockNuevo < 0)
+                    var ajusteNota = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
+                    if (!ajusteNota.Ok)
                     {
                         await _context.Database.RollbackTransactionAsync();
-                        return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para revertir la nota del producto {producto.Nombre}");
+                        return (ServiceStatus.FailedValidation, null, ajusteNota.Error);
                     }
-                    producto.Stock = stockNuevo;
 
                     _context.InventoryMovement.Add(new InventoryMovement
                     {
+                        SucursalId = ajusteNota.SucursalIdUsada,
                         ProductoId = producto.Id,
                         TipoMovimiento = (int)TipoMovimientoInventario.DevolucionCompra,
                         Cantidad = item.Cantidad,
-                        StockAnterior = stockAnterior,
-                        StockPosterior = stockNuevo,
+                        StockAnterior = ajusteNota.StockAnteriorSucursal,
+                        StockPosterior = ajusteNota.StockPosteriorSucursal,
                         ReferenciaTipo = "NotaCompra",
                         ReferenciaId = nota.Id
                     });
@@ -434,24 +498,35 @@ public class CompraRepository : ICompraRepository
         try
         {
             // Devuelve el stock que la nota hubiera restado (si fue credito con reversion de stock).
-            var movimientos = await _context.InventoryMovement.AsTracking()
-                .Where(m => m.ReferenciaTipo == "NotaCompra" && m.ReferenciaId == nota.Id).ToListAsync();
+            // IgnoreQueryFilters: los movimientos quedaron con la sucursal REAL de la compra, que
+            // puede no coincidir con la sucursal ambiental de quien anula (mismo motivo que
+            // StockSucursalHelper.Ajustar) -- el filtro por sucursal los esconderia igual que si no
+            // existieran, y la nota se marcaria anulada sin devolver el stock.
+            var movimientos = await _context.InventoryMovement.IgnoreQueryFilters().AsTracking()
+                .Where(m => m.TenantId == _context.CurrentTenantName && m.ReferenciaTipo == "NotaCompra" && m.ReferenciaId == nota.Id).ToListAsync();
             foreach (var mov in movimientos)
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == mov.ProductoId);
                 if (producto == null) continue;
 
-                var stockAnterior = producto.Stock ?? 0;
-                var stockNuevo = stockAnterior + mov.Cantidad;
-                producto.Stock = stockNuevo;
+                // Se devuelve a la MISMA sucursal donde el movimiento original la habia descontado
+                // (mov.SucursalId), no a la sucursal actual de la compra (que pudo cambiar desde
+                // entonces si la compra se edito).
+                var ajusteAnular = await StockSucursalHelper.Ajustar(_context, producto, mov.SucursalId, mov.Cantidad);
+                if (!ajusteAnular.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, ajusteAnular.Error);
+                }
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajusteAnular.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.Compra,
                     Cantidad = mov.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = stockNuevo,
+                    StockAnterior = ajusteAnular.StockAnteriorSucursal,
+                    StockPosterior = ajusteAnular.StockPosteriorSucursal,
                     ReferenciaTipo = "NotaCompraAnulada",
                     ReferenciaId = nota.Id
                 });
@@ -551,8 +626,13 @@ public class CompraRepository : ICompraRepository
                                 .Include(c => c.Metodopago)
                                 .Include(c => c.Moneda)
                                 .Include(c => c.TipoIgv)
+                                .Include(c => c.TipoDetraccion)
                                 .Include(c => c.CompraDetalles)
                                     .ThenInclude(d => d.Producto)
+                                .Include(c => c.CompraDetalles)
+                                    .ThenInclude(d => d.CentroCosto)
+                                .Include(c => c.CompraDetalles)
+                                    .ThenInclude(d => d.CuentaContable)
                                 .ProjectTo<CompraDto>(_mapper.ConfigurationProvider)
                                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -608,21 +688,18 @@ public class CompraRepository : ICompraRepository
 
                 if (producto == null) continue;
 
-                var stockAnterior = producto.Stock ?? 0;
-                var stockNuevo = stockAnterior - item.Cantidad;
-
-                if (stockNuevo < 0)
+                var ajusteRevertir = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
+                if (!ajusteRevertir.Ok)
                     return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para editar la compra: el producto {producto.Nombre} ya no tiene suficiente stock para revertir la cantidad original");
-
-                producto.Stock = stockNuevo;
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajusteRevertir.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.DevolucionCompra,
                     Cantidad = item.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = stockNuevo,
+                    StockAnterior = ajusteRevertir.StockAnteriorSucursal,
+                    StockPosterior = ajusteRevertir.StockPosteriorSucursal,
                     ReferenciaTipo = "CompraEditada",
                     ReferenciaId = compra.Id
                 });
@@ -635,7 +712,9 @@ public class CompraRepository : ICompraRepository
                 CompraId = compra.Id,
                 ProductoId = d.ProductoId,
                 Cantidad = d.Cantidad,
-                CostoUnitario = d.CostoUnitario
+                CostoUnitario = d.CostoUnitario,
+                CentroCostoId = d.CentroCostoId,
+                CuentaContableId = d.CuentaContableId
             }).ToList();
 
             var subtotalProductos = nuevoDetalle.Sum(d => d.Cantidad * d.CostoUnitario);
@@ -665,6 +744,10 @@ public class CompraRepository : ICompraRepository
             compra.ValorGravada = gravada;
             compra.ValorIgv = igv;
             compra.Total = total;
+            compra.TipoCambio = payload.TipoCambio;
+            compra.TipoDetraccionId = payload.TipoDetraccionId;
+            compra.NumeroDetraccion = payload.NumeroDetraccion;
+            compra.FechaDetraccion = payload.FechaDetraccion;
 
             await _context.CompraDetalle.AddRangeAsync(nuevoDetalle);
             await _context.SaveChangesAsync();
@@ -677,17 +760,21 @@ public class CompraRepository : ICompraRepository
                 if (producto == null)
                     return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
 
-                var stockAnterior = producto.Stock ?? 0;
-                producto.Stock = stockAnterior + item.Cantidad;
-                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
+                var stockTotalAnterior = producto.Stock ?? 0;
+                producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
+
+                var ajusteNuevo = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, item.Cantidad);
+                if (!ajusteNuevo.Ok)
+                    return (ServiceStatus.FailedValidation, null, ajusteNuevo.Error);
 
                 _context.InventoryMovement.Add(new InventoryMovement
                 {
+                    SucursalId = ajusteNuevo.SucursalIdUsada,
                     ProductoId = producto.Id,
                     TipoMovimiento = (int)TipoMovimientoInventario.Compra,
                     Cantidad = item.Cantidad,
-                    StockAnterior = stockAnterior,
-                    StockPosterior = producto.Stock.Value,
+                    StockAnterior = ajusteNuevo.StockAnteriorSucursal,
+                    StockPosterior = ajusteNuevo.StockPosteriorSucursal,
                     ReferenciaTipo = "CompraEditada",
                     ReferenciaId = compra.Id
                 });

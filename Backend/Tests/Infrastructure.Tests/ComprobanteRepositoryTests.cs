@@ -83,12 +83,22 @@ public class ComprobanteRepositoryTests
 
     private static async Task<Sucursal> SeedSucursalAsync(Infrastructure.Data.SpaContext context, string nombre, string? serieFactura = null)
     {
-        var pais = new Pais { Codigo = "PE", Nombre = "Peru", Idioma = "es", MonedaCodigo = "PEN", TimeZone = "America/Lima", EsquemaFiscal = "SUNAT" };
-        context.Pais.Add(pais);
-        await context.SaveChangesAsync();
+        // TestDbContextFactory ya siembra un Pais "PE" base (para StockSucursalHelper) --
+        // Pais.Codigo es unico global, asi que se reusa en vez de duplicarlo.
+        var pais = await context.Pais.FirstOrDefaultAsync(p => p.Codigo == "PE");
+        if (pais == null)
+        {
+            pais = new Pais { Codigo = "PE", Nombre = "Peru", Idioma = "es", MonedaCodigo = "PEN", TimeZone = "America/Lima", EsquemaFiscal = "SUNAT" };
+            context.Pais.Add(pais);
+            await context.SaveChangesAsync();
+        }
 
-        var moneda = new Moneda { Codigo = "PEN", Simbolo = "S/", Locale = "es-PE", PaisId = pais.Id };
-        context.Moneda.Add(moneda);
+        var moneda = await context.Moneda.FirstOrDefaultAsync(m => m.Codigo == "PEN");
+        if (moneda == null)
+        {
+            moneda = new Moneda { Codigo = "PEN", Simbolo = "S/", Locale = "es-PE", PaisId = pais.Id };
+            context.Moneda.Add(moneda);
+        }
 
         var rubro = new Rubro { Nombre = "General" };
         context.Rubro.Add(rubro);
@@ -521,7 +531,10 @@ public class ComprobanteRepositoryTests
         var cabeceraActualizada = await context.ComprobanteCabecera.SingleAsync();
         Assert.Equal(EstatusComprobante.Anulado, cabeceraActualizada.EstadoComprobante);
 
-        var movimiento = await context.InventoryMovement.SingleAsync();
+        // IgnoreQueryFilters: el movimiento quedo con una sucursal real (la unica del tenant de
+        // prueba); el FakeTenantResolver por defecto no simula ninguna sucursal seleccionada, y el
+        // filtro por sucursal de InventoryMovement lo esconderia -- ver StockSucursalHelper.
+        var movimiento = await context.InventoryMovement.IgnoreQueryFilters().SingleAsync();
         Assert.Equal((int)TipoMovimientoInventario.DevolucionVenta, movimiento.TipoMovimiento);
         Assert.Equal(2, movimiento.Cantidad);
         Assert.Equal(5, movimiento.StockAnterior);

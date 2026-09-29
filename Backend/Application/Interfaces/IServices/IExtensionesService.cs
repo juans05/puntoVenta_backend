@@ -13,6 +13,8 @@ namespace Application.Interfaces.IServices
         Task<MessageResult<object>> ListarTiposDetraccion();
         Task<MessageResult<object>> CrearTipoDetraccion(CreateTipoDetraccionPayload payload);
         Task<MessageResult<bool>> CambiarEstadoTipoDetraccion(int id, bool estado);
+        Task<MessageResult<object>> ListarCentrosCosto();
+        Task<MessageResult<object>> CrearCentroCosto(CreateCentroCostoPayload payload);
         Task<MessageResult<object>> ListarUnidadesMedida();
         Task<MessageResult<object>> ListarTiposOperacion();
         Task<MessageResult<object>> ListarMonedas();

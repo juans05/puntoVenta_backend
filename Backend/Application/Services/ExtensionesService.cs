@@ -178,6 +178,22 @@ namespace Application.Services
             return MessageResult<bool>.Of(message, true);
         }
 
+        public async Task<MessageResult<object>> ListarCentrosCosto()
+        {
+            var (estado, resp, message) = await _extensionesRepository.ListarCentrosCosto();
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError, message, resp);
+            return MessageResult<object>.Of(message, resp);
+        }
+
+        public async Task<MessageResult<object>> CrearCentroCosto(CreateCentroCostoPayload payload)
+        {
+            var (estado, resp, message) = await _extensionesRepository.CrearCentroCosto(payload);
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError, message, resp);
+            return MessageResult<object>.Of(message, resp);
+        }
+
         public async Task<MessageResult<object>> ListarUnidadesMedidaAdmin()
         {
             var (estado, resp, message) = await _extensionesRepository.ListarUnidadesMedidaAdmin();

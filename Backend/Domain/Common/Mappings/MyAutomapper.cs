@@ -167,12 +167,17 @@ namespace Domain.Common.Mappings
                 .ForMember(x => x.Usuario, y => y.MapFrom(z => z.UsuarioCreacion))
                 .ForMember(x => x.Moneda, y => y.MapFrom(z => z.Moneda != null ? z.Moneda.Codigo : null))
                 .ForMember(x => x.TipoIgv, y => y.MapFrom(z => z.TipoIgv != null ? z.TipoIgv.Descripcion : null))
+                .ForMember(x => x.TipoDetraccion, y => y.MapFrom(z => z.TipoDetraccion != null ? (z.TipoDetraccion.Porcentaje == 0 ? "Ninguno" : z.TipoDetraccion.Porcentaje + "%") : null))
+                .ForMember(x => x.PorcentajeDetraccion, y => y.MapFrom(z => z.TipoDetraccion != null ? z.TipoDetraccion.Porcentaje : (decimal?)null))
+                .ForMember(x => x.FechaDetraccion, y => y.MapFrom(z => z.FechaDetraccion.HasValue ? z.FechaDetraccion.Value.ToString("yyyy-MM-dd") : null))
                 .ForMember(x => x.Detalle, y => y.MapFrom(z => z.CompraDetalles));
 
             CreateMap<CompraDetalle, CompraDetalleDto>()
                 .ForMember(x => x.Producto, y => y.MapFrom(z => z.Producto != null ? z.Producto.Nombre : null))
                 .ForMember(x => x.Descripcion, y => y.MapFrom(z => z.Descripcion))
-                .ForMember(x => x.Subtotal, y => y.MapFrom(z => z.Cantidad * z.CostoUnitario));
+                .ForMember(x => x.Subtotal, y => y.MapFrom(z => z.Cantidad * z.CostoUnitario))
+                .ForMember(x => x.CentroCosto, y => y.MapFrom(z => z.CentroCosto != null ? z.CentroCosto.Nombre : null))
+                .ForMember(x => x.CuentaContable, y => y.MapFrom(z => z.CuentaContable != null ? z.CuentaContable.Codigo + " - " + z.CuentaContable.Nombre : null));
 
             CreateMap<Gasto, GastoDto>()
                 .ForMember(x => x.MetodoPago, y => y.MapFrom(z => z.Metodopago != null ? z.Metodopago.Descripcion ?? z.Metodopago.Nombre : null))

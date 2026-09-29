@@ -43,6 +43,10 @@ public class OrdenCompraDetalleDto
     public int CantidadRecibida { get; set; }
     public int CantidadFacturada { get; set; }
     public decimal CostoUnitario { get; set; }
+    public int? CentroCostoId { get; set; }
+    public string? CentroCosto { get; set; }
+    public int? CuentaContableId { get; set; }
+    public string? CuentaContable { get; set; }
 }
 
 public class RecepcionDto
