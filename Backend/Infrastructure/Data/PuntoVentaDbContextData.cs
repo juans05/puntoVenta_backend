@@ -416,32 +416,97 @@ namespace Infrastructure.Data
             {
                 var cuentaContableData = File.ReadAllText(Path.Combine(DefaultDataPath, "cuentacontable.json"));
                 var filas = JsonConvert.DeserializeObject<List<CuentaContableSeedRow>>(cuentaContableData);
-
-                // El JSON esta en preorden (cada cuenta seguida de sus hijas): se reconstruye la
-                // jerarquia con un stack por prefijo de Codigo, y se enlaza CuentaPadre (objeto en
-                // memoria, no un Id) para que EF resuelva el CuentaPadreId real al guardar el grafo.
-                var cuentas = new List<CuentaContable>(filas.Count);
-                var ancestros = new List<CuentaContable>();
-                foreach (var fila in filas)
-                {
-                    while (ancestros.Count > 0 && !fila.Codigo.StartsWith(ancestros[^1].Codigo))
-                        ancestros.RemoveAt(ancestros.Count - 1);
-
-                    var cuenta = new CuentaContable
-                    {
-                        Codigo = fila.Codigo,
-                        Nombre = fila.Nombre,
-                        Tipo = fila.Tipo,
-                        TenantId = tenantId,
-                        CuentaPadre = ancestros.Count > 0 ? ancestros[^1] : null
-                    };
-                    cuentas.Add(cuenta);
-                    ancestros.Add(cuenta);
-                }
+                var cuentas = ConstruirCuentas(filas, tenantId);
 
                 await context.CuentaContable.AddRangeAsync(cuentas);
                 await context.SaveChangesRegularAsync();
             }
+
+            // Tenants sembrados con el formato viejo (solo codigo/nombre/tipo) reciben los campos del
+            // PCGE nuevo; el marcador es que ninguna cuenta tenga CodigoEeff. Solo copia campos, no
+            // crea ni borra cuentas.
+            if (!context.CuentaContable.IgnoreQueryFilters().Any(x => x.TenantId == tenantId && x.CodigoEeff != null))
+            {
+                var nuevas = ConstruirCuentas(JsonConvert.DeserializeObject<List<CuentaContableSeedRow>>(
+                    File.ReadAllText(Path.Combine(DefaultDataPath, "cuentacontable.json"))), tenantId)
+                    .ToDictionary(c => c.Codigo);
+                var existentes = context.CuentaContable.IgnoreQueryFilters().Where(x => x.TenantId == tenantId).ToList();
+                var existentesPorCodigo = existentes.ToDictionary(c => c.Codigo);
+                foreach (var c in existentes.Where(c => nuevas.ContainsKey(c.Codigo)))
+                {
+                    var n = nuevas[c.Codigo];
+                    CuentaContable? Ref(CuentaContable? x) => x != null && existentesPorCodigo.TryGetValue(x.Codigo, out var e) ? e : null;
+                    c.TipoAnexo = n.TipoAnexo; c.TipoAnexoClase = n.TipoAnexoClase;
+                    c.CuentaMonetaria = n.CuentaMonetaria; c.AjusteDifCambio = n.AjusteDifCambio;
+                    c.ModoCentroCosto = n.ModoCentroCosto;
+                    c.CodigoEeff = n.CodigoEeff; c.CodigoEeffTributario = n.CodigoEeffTributario;
+                    c.ClasificacionBienServicio = n.ClasificacionBienServicio; c.Destino = n.Destino;
+                    c.CuentaCargo1 = Ref(n.CuentaCargo1); c.CuentaAbono1 = Ref(n.CuentaAbono1); c.PorcentajeDestino1 = n.PorcentajeDestino1;
+                    c.CuentaCargo2 = Ref(n.CuentaCargo2); c.CuentaAbono2 = Ref(n.CuentaAbono2); c.PorcentajeDestino2 = n.PorcentajeDestino2;
+                    c.CuentaCargo3 = Ref(n.CuentaCargo3); c.CuentaAbono3 = Ref(n.CuentaAbono3); c.PorcentajeDestino3 = n.PorcentajeDestino3;
+                }
+                await context.SaveChangesRegularAsync();
+            }
+
+            // Clases 8 (determinacion del resultado) y 9 (analitica) que usa el asistente de cierre
+            // anual: tenants ya sembrados antes de este catalogo reciben solo estas cuentas.
+            if (!context.CuentaContable.IgnoreQueryFilters().Any(x => x.TenantId == tenantId && x.Codigo == "89"))
+            {
+                var cierreData = File.ReadAllText(Path.Combine(DefaultDataPath, "cuentacontable_cierre.json"));
+                var cuentasCierre = ConstruirCuentas(JsonConvert.DeserializeObject<List<CuentaContableSeedRow>>(cierreData), tenantId);
+                await context.CuentaContable.AddRangeAsync(cuentasCierre);
+                await context.SaveChangesRegularAsync();
+            }
+        }
+
+        // El JSON esta en preorden (cada cuenta seguida de sus hijas): se reconstruye la jerarquia
+        // con un stack por prefijo de Codigo y se enlaza CuentaPadre como objeto en memoria.
+        // Cargo/Abono de destino se resuelven por Codigo dentro del mismo lote.
+        private static List<CuentaContable> ConstruirCuentas(List<CuentaContableSeedRow> filas, string tenantId)
+        {
+            var cuentas = new List<CuentaContable>(filas.Count);
+            var porCodigo = new Dictionary<string, CuentaContable>(filas.Count);
+            var ancestros = new List<CuentaContable>();
+            foreach (var fila in filas)
+            {
+                while (ancestros.Count > 0 && !fila.Codigo.StartsWith(ancestros[^1].Codigo))
+                    ancestros.RemoveAt(ancestros.Count - 1);
+
+                var cuenta = new CuentaContable
+                {
+                    Codigo = fila.Codigo,
+                    Nombre = fila.Nombre,
+                    Tipo = fila.Tipo,
+                    TenantId = tenantId,
+                    Nivel = fila.Codigo.Length switch { 2 => 1, 3 => 2, 4 => 3, 5 => 4, _ => 5 },
+                    ClaseCuenta = fila.Codigo[..2],
+                    CuentaPadre = ancestros.Count > 0 ? ancestros[^1] : null,
+                    TipoAnexo = fila.TipoAnexo != null,
+                    TipoAnexoClase = fila.TipoAnexo,
+                    CuentaMonetaria = fila.CuentaMonetaria,
+                    AjusteDifCambio = fila.AjusteDifCambio,
+                    ModoCentroCosto = fila.CentroCosto ? ModoCentroCostoCuenta.Opcional : ModoCentroCostoCuenta.Ninguno,
+                    CodigoEeff = fila.CodigoEeff,
+                    CodigoEeffTributario = fila.CodigoEeffTributario,
+                    ClasificacionBienServicio = fila.ClasificacionBienServicio,
+                    Destino = fila.Destino,
+                    PorcentajeDestino1 = fila.Porcentaje1,
+                    PorcentajeDestino2 = fila.Porcentaje2,
+                    PorcentajeDestino3 = fila.Porcentaje3
+                };
+                cuentas.Add(cuenta);
+                porCodigo[cuenta.Codigo] = cuenta;
+                ancestros.Add(cuenta);
+            }
+            foreach (var (cuenta, fila) in cuentas.Zip(filas))
+            {
+                CuentaContable? Ref(string? codigo) => codigo != null ? porCodigo[codigo] : null;
+                cuenta.CuentaCargo1 = Ref(fila.Cargo1); cuenta.CuentaAbono1 = Ref(fila.Abono1);
+                cuenta.CuentaCargo2 = Ref(fila.Cargo2); cuenta.CuentaAbono2 = Ref(fila.Abono2);
+                cuenta.CuentaCargo3 = Ref(fila.Cargo3); cuenta.CuentaAbono3 = Ref(fila.Abono3);
+                cuenta.CuentaCierre = Ref(fila.CuentaCierre);
+            }
+            return cuentas;
         }
 
         private class CuentaContableSeedRow
@@ -449,6 +514,24 @@ namespace Infrastructure.Data
             public string Codigo { get; set; } = null!;
             public string Nombre { get; set; } = null!;
             public string Tipo { get; set; } = null!;
+            public string? TipoAnexo { get; set; }
+            public bool CuentaMonetaria { get; set; }
+            public bool AjusteDifCambio { get; set; }
+            public bool CentroCosto { get; set; }
+            public string? CodigoEeff { get; set; }
+            public string? CodigoEeffTributario { get; set; }
+            public string? ClasificacionBienServicio { get; set; }
+            public bool Destino { get; set; }
+            public string? Cargo1 { get; set; }
+            public string? Abono1 { get; set; }
+            public decimal? Porcentaje1 { get; set; }
+            public string? Cargo2 { get; set; }
+            public string? Abono2 { get; set; }
+            public decimal? Porcentaje2 { get; set; }
+            public string? Cargo3 { get; set; }
+            public string? Abono3 { get; set; }
+            public decimal? Porcentaje3 { get; set; }
+            public string? CuentaCierre { get; set; }
         }
     }
 }

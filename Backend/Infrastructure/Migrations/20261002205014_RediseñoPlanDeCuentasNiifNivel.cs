@@ -29,6 +29,9 @@ namespace Infrastructure.Migrations
                 table: "CuentaContable",
                 newName: "IX_CuentaContable_CodigoEeffNiifId");
 
+            // Filas previas con Nivel NULL: se calcula del largo del codigo (2/3/4/5/8 digitos -> 1..5).
+            migrationBuilder.Sql("UPDATE \"CuentaContable\" SET \"Nivel\" = CASE length(\"Codigo\") WHEN 2 THEN 1 WHEN 3 THEN 2 WHEN 4 THEN 3 WHEN 5 THEN 4 ELSE 5 END WHERE \"Nivel\" IS NULL;");
+
             migrationBuilder.AlterColumn<int>(
                 name: "Nivel",
                 table: "CuentaContable",

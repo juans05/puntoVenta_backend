@@ -19,6 +19,8 @@ public class CuentaContableRepository : ICuentaContableRepository
         TipoCuentaContable.Ingreso, TipoCuentaContable.Gasto
     };
 
+    private static readonly string[] ClasificacionesBienServicioValidas = { "BIEN", "SERV", "NO_APL" };
+
     private static readonly string[] ModosCentroCostoValidos =
     {
         ModoCentroCostoCuenta.Ninguno, ModoCentroCostoCuenta.Opcional, ModoCentroCostoCuenta.Obligatorio
@@ -103,15 +105,17 @@ public class CuentaContableRepository : ICuentaContableRepository
         cuenta.ClasificacionBienServicio = payload.ClasificacionBienServicio?.Trim();
         cuenta.Destino = payload.Destino;
         cuenta.ModoCentroCosto = string.IsNullOrWhiteSpace(payload.ModoCentroCosto) ? ModoCentroCostoCuenta.Ninguno : payload.ModoCentroCosto;
-        cuenta.CuentaCargo1Id = payload.CuentaCargo1Id;
-        cuenta.CuentaAbono1Id = payload.CuentaAbono1Id;
-        cuenta.PorcentajeDestino1 = payload.PorcentajeDestino1;
-        cuenta.CuentaCargo2Id = payload.CuentaCargo2Id;
-        cuenta.CuentaAbono2Id = payload.CuentaAbono2Id;
-        cuenta.PorcentajeDestino2 = payload.PorcentajeDestino2;
-        cuenta.CuentaCargo3Id = payload.CuentaCargo3Id;
-        cuenta.CuentaAbono3Id = payload.CuentaAbono3Id;
-        cuenta.PorcentajeDestino3 = payload.PorcentajeDestino3;
+        // Sin Destino activo, las lineas de distribucion no aplican y se limpian.
+        var d = payload.Destino;
+        cuenta.CuentaCargo1Id = d ? payload.CuentaCargo1Id : null;
+        cuenta.CuentaAbono1Id = d ? payload.CuentaAbono1Id : null;
+        cuenta.PorcentajeDestino1 = d ? payload.PorcentajeDestino1 : null;
+        cuenta.CuentaCargo2Id = d ? payload.CuentaCargo2Id : null;
+        cuenta.CuentaAbono2Id = d ? payload.CuentaAbono2Id : null;
+        cuenta.PorcentajeDestino2 = d ? payload.PorcentajeDestino2 : null;
+        cuenta.CuentaCargo3Id = d ? payload.CuentaCargo3Id : null;
+        cuenta.CuentaAbono3Id = d ? payload.CuentaAbono3Id : null;
+        cuenta.PorcentajeDestino3 = d ? payload.PorcentajeDestino3 : null;
         cuenta.CuentaCierreId = payload.CuentaCierreId;
     }
 
@@ -146,6 +150,15 @@ public class CuentaContableRepository : ICuentaContableRepository
         if (!TiposValidos.Contains(payload.Tipo)) return "Tipo de cuenta inválido";
         if (!string.IsNullOrWhiteSpace(payload.ModoCentroCosto) && !ModosCentroCostoValidos.Contains(payload.ModoCentroCosto))
             return "Modo de centro de costo inválido";
+        if (!string.IsNullOrWhiteSpace(payload.ClasificacionBienServicio) &&
+            !ClasificacionesBienServicioValidas.Contains(payload.ClasificacionBienServicio.Trim()))
+            return "Clasificación Bien/Servicio inválida (BIEN, SERV o NO_APL)";
+        if (payload.Destino)
+        {
+            // Solo cuentan las lineas con porcentaje; la suma debe cerrar en 100%.
+            var porcentajes = new[] { payload.PorcentajeDestino1, payload.PorcentajeDestino2, payload.PorcentajeDestino3 };
+            if (porcentajes.Sum(p => p ?? 0) != 100) return "La suma de los porcentajes de destino debe ser 100%";
+        }
         if (await _context.CuentaContable.AsNoTracking()
                 .AnyAsync(c => c.Codigo == codigo && c.Id != idActual))
             return "Ya existe una cuenta con ese código";

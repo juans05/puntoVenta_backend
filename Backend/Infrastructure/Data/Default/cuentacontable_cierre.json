@@ -1,0 +1,329 @@
+[
+ {
+  "codigo": "80",
+  "nombre": "Margen Comercial",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "801",
+  "nombre": "Margen Comercial",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8011",
+  "nombre": "Margen Comercial",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "80111",
+  "nombre": "Margen Comercial",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "80111000",
+  "nombre": "Margen Comercial",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "81",
+  "nombre": "Producción del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "811",
+  "nombre": "Producción del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8111",
+  "nombre": "Producción del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "81111",
+  "nombre": "Producción del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "81111000",
+  "nombre": "Producción del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "82",
+  "nombre": "Valor Agregado",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "821",
+  "nombre": "Valor Agregado",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8211",
+  "nombre": "Valor Agregado",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "82111",
+  "nombre": "Valor Agregado",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "82111000",
+  "nombre": "Valor Agregado",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "83",
+  "nombre": "Excedente Bruto (Insuficiencia Bruta) de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "831",
+  "nombre": "Excedente Bruto (Insuficiencia Bruta) de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8311",
+  "nombre": "Excedente Bruto (Insuficiencia Bruta) de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "83111",
+  "nombre": "Excedente Bruto (Insuficiencia Bruta) de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "83111000",
+  "nombre": "Excedente Bruto (Insuficiencia Bruta) de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "84",
+  "nombre": "Resultado de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "841",
+  "nombre": "Resultado de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8411",
+  "nombre": "Resultado de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "84111",
+  "nombre": "Resultado de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "84111000",
+  "nombre": "Resultado de Explotación",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "85",
+  "nombre": "Resultado antes de Participaciones e Impuestos",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "851",
+  "nombre": "Resultado antes de Participaciones e Impuestos",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8511",
+  "nombre": "Resultado antes de Participaciones e Impuestos",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "85111",
+  "nombre": "Resultado antes de Participaciones e Impuestos",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "85111000",
+  "nombre": "Resultado antes de Participaciones e Impuestos",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "87",
+  "nombre": "Participaciones de los Trabajadores",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "871",
+  "nombre": "Participaciones de los Trabajadores",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8711",
+  "nombre": "Participaciones de los Trabajadores",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "87111",
+  "nombre": "Participaciones de los Trabajadores",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "87111000",
+  "nombre": "Participaciones de los Trabajadores",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "88",
+  "nombre": "Impuesto a la Renta",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "881",
+  "nombre": "Impuesto a la Renta",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "8811",
+  "nombre": "Impuesto a la Renta",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "88111",
+  "nombre": "Impuesto a la Renta",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "88111000",
+  "nombre": "Impuesto a la Renta",
+  "tipo": "Gasto",
+  "codigoEeff": "CTH88",
+  "codigoEeffTributario": "CTH88"
+ },
+ {
+  "codigo": "89",
+  "nombre": "Determinación del Resultado del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "891",
+  "nombre": "Determinación del Resultado del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "8911",
+  "nombre": "Determinación del Resultado del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "89111",
+  "nombre": "Determinación del Resultado del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "89111000",
+  "nombre": "Determinación del Resultado del Ejercicio",
+  "tipo": "Patrimonio"
+ },
+ {
+  "codigo": "90",
+  "nombre": "Costos de Producción",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "901",
+  "nombre": "Costos de Producción",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "9011",
+  "nombre": "Costos de Producción",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "90111",
+  "nombre": "Costos de Producción",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "90111000",
+  "nombre": "Costos de Producción",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "91",
+  "nombre": "Gastos de Administración",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "911",
+  "nombre": "Gastos de Administración",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "9111",
+  "nombre": "Gastos de Administración",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "91111",
+  "nombre": "Gastos de Administración",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "91111000",
+  "nombre": "Gastos de Administración",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "92",
+  "nombre": "Gastos de Ventas",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "921",
+  "nombre": "Gastos de Ventas",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "9211",
+  "nombre": "Gastos de Ventas",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "92111",
+  "nombre": "Gastos de Ventas",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "92111000",
+  "nombre": "Gastos de Ventas",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "93",
+  "nombre": "Gastos Financieros",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "931",
+  "nombre": "Gastos Financieros",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "9311",
+  "nombre": "Gastos Financieros",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "93111",
+  "nombre": "Gastos Financieros",
+  "tipo": "Gasto"
+ },
+ {
+  "codigo": "93111000",
+  "nombre": "Gastos Financieros",
+  "tipo": "Gasto"
+ }
+]

@@ -146,6 +146,7 @@ public class AsientoContableRepository : IAsientoContableRepository
     {
         var query = _context.AsientoContableDetalle.AsNoTracking().Include(d => d.CuentaContable)
             .Where(d => d.AsientoContable!.EstadoAsiento == EstadoAsientoContable.Emitido
+                     && d.AsientoContable.OrigenTipo != "CierreAnual" // el cierre anula los resultados; el reporte los muestra antes del cierre
                      && (d.CuentaContable!.Tipo == TipoCuentaContable.Ingreso || d.CuentaContable.Tipo == TipoCuentaContable.Gasto));
         if (desde.HasValue) query = query.Where(d => d.AsientoContable!.Fecha >= desde.Value.Date);
         if (hasta.HasValue) query = query.Where(d => d.AsientoContable!.Fecha < hasta.Value.Date.AddDays(1));
