@@ -27,6 +27,9 @@ public class CuentaContableController : ControllerBase
     [HttpGet("listar")]
     public async Task<IActionResult> Listar([FromQuery] bool incluirInactivas = false) => Ok(await _service.Listar(incluirInactivas));
 
+    [HttpGet("codigos-eeff-niif")]
+    public async Task<IActionResult> CodigosEeffNiif() => Ok(await _service.ListarCodigosEeffNiif());
+
     [HttpGet("{id}")]
     public async Task<IActionResult> Obtener(int id) => Ok(await _service.Obtener(id));
 }

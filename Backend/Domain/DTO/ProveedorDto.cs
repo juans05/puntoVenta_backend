@@ -22,6 +22,7 @@ namespace Domain.DTO
         public string? UbigeoId { get; set; }
         public Ubigeo? Ubigeo { get; set; }
         public string? DetalleAdicional { get; set; }
+        public int? CuentaPorPagarId { get; set; }
         public string? UsuarioCreacion { get; set; }
         public DateTime FechaCreacion { get; set; }
         public bool Estado { get; set; }

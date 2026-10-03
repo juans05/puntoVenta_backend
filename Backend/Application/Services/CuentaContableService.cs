@@ -30,4 +30,5 @@ public class CuentaContableService
     public async Task<MessageResult<object>> Actualizar(int id, ActualizarCuentaContablePayload p) => Resolver(await _repo.Actualizar(id, p));
     public async Task<MessageResult<object>> Listar(bool incluirInactivas) => Resolver(await _repo.Listar(incluirInactivas));
     public async Task<MessageResult<object>> Obtener(int id) => Resolver(await _repo.Obtener(id));
+    public async Task<MessageResult<object>> ListarCodigosEeffNiif() => Resolver(await _repo.ListarCodigosEeffNiif());
 }

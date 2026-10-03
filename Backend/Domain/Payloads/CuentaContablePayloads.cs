@@ -7,18 +7,20 @@ public class CrearCuentaContablePayload
     public string Tipo { get; set; } = null!;
     public int? CuentaPadreId { get; set; }
 
-    public int? Nivel { get; set; }
-    public string? ClaseCuenta { get; set; }
+    // Nivel y ClaseCuenta NO se reciben aca: se calculan del Codigo (ver
+    // CuentaContableRepository.AplicarCampos).
     public bool TipoAnexo { get; set; }
+    public string? TipoAnexoClase { get; set; }
     public bool CuentaMonetaria { get; set; }
     public bool AjusteDifCambio { get; set; }
     public string? CodigoEeff { get; set; }
     public string? CodigoEeffTributario { get; set; }
-    public string? CodigoEeffNiif { get; set; }
+    public int? CodigoEeffNiifId { get; set; }
     public string? ClasificacionBienServicio { get; set; }
     public bool Destino { get; set; }
 
-    public int? CentroCostoId { get; set; }
+    // NINGUNO (default) / OPCIONAL / OBLIGATORIO -- ver ModoCentroCostoCuenta.
+    public string? ModoCentroCosto { get; set; }
     public int? CuentaCargo1Id { get; set; }
     public int? CuentaAbono1Id { get; set; }
     public decimal? PorcentajeDestino1 { get; set; }

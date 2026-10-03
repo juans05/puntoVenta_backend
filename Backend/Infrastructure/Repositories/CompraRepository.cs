@@ -134,6 +134,23 @@ public class CompraRepository : ICompraRepository
         return grupos.Select(g => new LineaAsientoContable(g.Cuenta, g.Monto, 0)).ToList();
     }
 
+    // Si una linea postea a una cuenta con ModoCentroCosto=OBLIGATORIO, esa linea debe traer su
+    // propio CentroCostoId (ver CuentaContable.ModoCentroCosto / "configuracion plan de cuentas
+    // ERPdocx.docx": "fundamental para las cuentas de gastos y costos").
+    private async Task<string?> ValidarCentroCostoObligatorio(List<CompraDetalle> detalle)
+    {
+        var cuentaIds = detalle.Where(d => d.CuentaContableId.HasValue).Select(d => d.CuentaContableId!.Value).Distinct().ToList();
+        if (cuentaIds.Count == 0) return null;
+
+        var obligatorias = await _context.CuentaContable.AsNoTracking()
+            .Where(c => cuentaIds.Contains(c.Id) && c.ModoCentroCosto == ModoCentroCostoCuenta.Obligatorio)
+            .ToDictionaryAsync(c => c.Id, c => $"{c.Codigo} - {c.Nombre}");
+        if (obligatorias.Count == 0) return null;
+
+        var faltante = detalle.FirstOrDefault(d => d.CuentaContableId.HasValue && obligatorias.ContainsKey(d.CuentaContableId.Value) && d.CentroCostoId == null);
+        return faltante == null ? null : $"La cuenta {obligatorias[faltante.CuentaContableId!.Value]} exige centro de costo en cada línea";
+    }
+
     // Suma (+1) o resta (-1) lo facturado en las lineas de la orden y recalcula su estado
     // (RECIBIDA totalmente facturada -> CERRADA; al anular la factura se reabre).
     private async Task AjustarFacturadoOrden(int ordenId, IEnumerable<CompraDetalle> lineas, int signo)
@@ -245,6 +262,12 @@ public class CompraRepository : ICompraRepository
                 };
             }).ToList();
 
+            if (await ValidarCentroCostoObligatorio(detalle) is { } errorCentroCosto)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                return (ServiceStatus.FailedValidation, null, errorCentroCosto);
+            }
+
             await _context.CompraDetalle.AddRangeAsync(detalle);
             await _context.SaveChangesAsync();
 
@@ -299,10 +322,17 @@ public class CompraRepository : ICompraRepository
                     cuentaDebePorDefecto = tipoOrden == TipoOrdenCompra.Servicio ? "63" : "4211";
                 }
 
+                // Si el proveedor tiene su propia Cuenta por Pagar (configurada al crearlo), la
+                // factura postea ahi en vez de "42" -- mismo patron que Producto.CuentaIngresoId.
+                var cuentaPorPagarCodigo = compra.ProveedorId.HasValue
+                    ? await _context.Proveedor.AsNoTracking().Where(p => p.Id == compra.ProveedorId)
+                        .Select(p => p.CuentaPorPagarId.HasValue ? p.CuentaPorPagar!.Codigo : null).FirstOrDefaultAsync()
+                    : null;
+
                 var lineasFactura = new List<LineaAsientoContable>();
                 lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada, cuentaDebePorDefecto));
                 if (igv > 0) lineasFactura.Add(new LineaAsientoContable("40111", igv, 0));
-                lineasFactura.Add(new LineaAsientoContable("42", 0, total));
+                lineasFactura.Add(new LineaAsientoContable(cuentaPorPagarCodigo ?? "42", 0, total));
 
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
                     OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}", lineasFactura);

@@ -15,6 +15,11 @@ public class Cliente : EntityBase
     public string? UbigeoId { get; set; }
     public Ubigeo? Ubigeo { get; set; }
 
+    // Cuenta por Cobrar propia del cliente: si no se elige, la venta a credito postea contra "12"
+    // (ver ComprobanteRepository.GenerarAsientoVenta) -- mismo patron que Producto.CuentaIngresoId.
+    public int? CuentaPorCobrarId { get; set; }
+    public CuentaContable? CuentaPorCobrar { get; set; }
+
     public TipoDocumento? TipoDocumento { get; set; }
     public List<ComprobanteCabecera> ComprobanteCabeceras { get; set; } = new List<ComprobanteCabecera>();
 }

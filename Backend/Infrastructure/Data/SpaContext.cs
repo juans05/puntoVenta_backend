@@ -123,6 +123,8 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<Salon> Salon => Set<Salon>();
     public DbSet<CuentaContable> CuentaContable => Set<CuentaContable>();
     public DbSet<CentroCosto> CentroCosto => Set<CentroCosto>();
+    // Catalogo NIIF global, sin HasQueryFilter: no es por tenant (ver comentario en la entidad).
+    public DbSet<CodigoEeffNiif> CodigoEeffNiif => Set<CodigoEeffNiif>();
     public DbSet<AsientoContable> AsientoContable => Set<AsientoContable>();
     public DbSet<AsientoContableDetalle> AsientoContableDetalle => Set<AsientoContableDetalle>();
     public DbSet<ProductoSucursalStock> ProductoSucursalStock => Set<ProductoSucursalStock>();

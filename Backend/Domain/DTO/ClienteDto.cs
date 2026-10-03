@@ -16,5 +16,6 @@ namespace Domain.DTO
         public string FechaNacimiento { get; set; }
         public string UbigeoId { get; set; }
         public Ubigeo Ubigeo { get; set; }
+        public int? CuentaPorCobrarId { get; set; }
     }
 }

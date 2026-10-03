@@ -13,4 +13,6 @@ public interface ICuentaContableRepository
 
     // Usado por AsientoContableRepository para resolver cuentas por codigo al generar asientos.
     Task<CuentaContableDto?> ObtenerPorCodigo(string codigo);
+
+    Task<(ServiceStatus, object?, string)> ListarCodigosEeffNiif();
 }

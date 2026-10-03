@@ -18,6 +18,7 @@ namespace Domain.Payloads
         public string? Celular { get; set; }
         public string? UbigeoId { get; set; }
         public string? DetalleAdicional { get; set; }
+        public int? CuentaPorPagarId { get; set; }
         public string? UsuarioCreacion { get; set; }
 
     }

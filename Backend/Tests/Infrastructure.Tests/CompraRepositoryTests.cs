@@ -175,6 +175,37 @@ public class CompraRepositoryTests
     }
 
     // Dos lineas con distinta CuentaContableId (o sin elegir, que cae en la cuenta por defecto de
+    // Si el proveedor tiene su propia Cuenta por Pagar (configurada al crearlo), la factura postea
+    // ahi en vez de "42" -- ver "la configuracion de la cuenta contable va a ser al momento de
+    // crear ... un socio de negocio".
+    [Fact]
+    public async Task CrearCompra_ConProveedorConCuentaPorPagarPropia_PosteaEnEsaCuentaEnVezDe42()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var cuenta4212 = new CuentaContable { Codigo = "42120000", Nombre = "Proveedor especial", Tipo = TipoCuentaContable.Pasivo, Nivel = 5, ClaseCuenta = "42" };
+        context.CuentaContable.Add(cuenta4212);
+        var proveedor = new Proveedor { Nombre = "Proveedor especial", CuentaPorPagar = cuenta4212 };
+        context.Proveedor.Add(proveedor);
+        await context.SaveChangesAsync();
+
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            ProveedorId = proveedor.Id,
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 118m } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto!.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "42120000" && d.Haber == dto!.Total);
+        Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "42");
+    }
+
     // compra directa "20") deben separarse en el asiento, sumando exacto a ValorGravada.
     [Fact]
     public async Task CrearCompra_ConCuentaContablePorLinea_AgrupaElAsientoPorCuentaYCuadraConGravada()
@@ -205,6 +236,56 @@ public class CompraRepositoryTests
             .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto.Id);
         Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == 100m);
         Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "63" && d.Debe == 50m);
+    }
+
+    // ModoCentroCosto=OBLIGATORIO en la cuenta (ver "configuracion plan de cuentas ERPdocx.docx"):
+    // cada linea que postee a esa cuenta debe traer su propio CentroCostoId. Dos tests separados
+    // (no uno con dos llamadas en el mismo context): el primer CrearCompra hace rollback de
+    // transaccion y el Compra creado queda trackeado en memoria, chocando con el Id del segundo.
+    [Fact]
+    public async Task CrearCompra_ConCuentaQueExigeCentroCosto_SinCentroCosto_FailedValidation()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var cuenta63 = await context.CuentaContable.AsTracking().SingleAsync(c => c.Codigo == "63");
+        cuenta63.ModoCentroCosto = ModoCentroCostoCuenta.Obligatorio;
+        await context.SaveChangesAsync();
+
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, _, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 10m, CuentaContableId = cuenta63.Id } }
+        });
+
+        Assert.Equal(ServiceStatus.FailedValidation, estado);
+        Assert.Contains("centro de costo", mensaje, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CrearCompra_ConCuentaQueExigeCentroCosto_ConCentroCosto_Ok()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var cuenta63 = await context.CuentaContable.AsTracking().SingleAsync(c => c.Codigo == "63");
+        cuenta63.ModoCentroCosto = ModoCentroCostoCuenta.Obligatorio;
+        var centroCosto = new CentroCosto { Nombre = "Administración" };
+        context.CentroCosto.Add(centroCosto);
+        await context.SaveChangesAsync();
+
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 10m, CuentaContableId = cuenta63.Id, CentroCostoId = centroCosto.Id } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.NotNull(dto);
     }
 
     [Fact]

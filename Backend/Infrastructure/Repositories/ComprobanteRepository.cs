@@ -753,8 +753,15 @@ namespace Infrastructure.Repositories
         private async Task<(ServiceStatus, Domain.DTO.AsientoContableDto?, string)> GenerarAsientoVenta(
             ComprobanteCabecera cabecera, List<ComprobanteDetalle> detalle, bool esCredito, Dictionary<int, Producto> productos)
         {
+            // Si el cliente tiene su propia Cuenta por Cobrar (configurada al crearlo), la venta a
+            // credito postea ahi en vez de "12" -- mismo patron que Producto.CuentaIngresoId.
+            var cuentaPorCobrarCliente = esCredito && cabecera.ClienteId.HasValue
+                ? await _context.Cliente.AsNoTracking().Where(c => c.Id == cabecera.ClienteId).Select(c => c.CuentaPorCobrarId).FirstOrDefaultAsync()
+                : null;
+
             var cuentaIds = productos.Values
                 .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaCostoId, p.CuentaInventarioId })
+                .Append(cuentaPorCobrarCliente)
                 .Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
             var codigosPorCuentaId = cuentaIds.Count > 0
                 ? await _context.CuentaContable.AsNoTracking().Where(c => cuentaIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Codigo)
@@ -764,7 +771,7 @@ namespace Infrastructure.Repositories
 
             var lineas = new List<LineaAsientoContable>
             {
-                new(esCredito ? "12" : "10", cabecera.ValorTotal, 0)
+                new(esCredito ? CodigoDe(cuentaPorCobrarCliente, "12") : "10", cabecera.ValorTotal, 0)
             };
             if (cabecera.ValorIgv > 0)
                 lineas.Add(new LineaAsientoContable("40111", 0, cabecera.ValorIgv));

@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SpaContext))]
-    partial class SpaContextModelSnapshot : ModelSnapshot
+    [Migration("20261002205014_RediseñoPlanDeCuentasNiifNivel")]
+    partial class RediseñoPlanDeCuentasNiifNivel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -448,9 +450,6 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CuentaPorCobrarId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Direccion")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -503,8 +502,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CuentaPorCobrarId");
 
                     b.HasIndex("TipoDocumentoId");
 
@@ -3786,9 +3783,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<int?>("CuentaPorPagarId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("DetalleAdicional")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -3835,8 +3829,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CuentaPorPagarId");
 
                     b.HasIndex("TipoDocumentoId");
 
@@ -4891,10 +4883,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Cliente", b =>
                 {
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaPorCobrar")
-                        .WithMany()
-                        .HasForeignKey("CuentaPorCobrarId");
-
                     b.HasOne("Domain.Entities.TipoDocumento", "TipoDocumento")
                         .WithMany("Clientes")
                         .HasForeignKey("TipoDocumentoId");
@@ -4903,8 +4891,6 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("UbigeoId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CuentaPorCobrar");
 
                     b.Navigation("TipoDocumento");
 
@@ -5807,10 +5793,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Proveedor", b =>
                 {
-                    b.HasOne("Domain.Entities.CuentaContable", "CuentaPorPagar")
-                        .WithMany()
-                        .HasForeignKey("CuentaPorPagarId");
-
                     b.HasOne("Domain.Entities.TipoDocumento", "TipoDocumento")
                         .WithMany()
                         .HasForeignKey("TipoDocumentoId")
@@ -5819,8 +5801,6 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Ubigeo", "Ubigeo")
                         .WithMany()
                         .HasForeignKey("UbigeoId");
-
-                    b.Navigation("CuentaPorPagar");
 
                     b.Navigation("TipoDocumento");
 

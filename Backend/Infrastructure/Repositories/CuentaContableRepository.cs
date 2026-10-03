@@ -19,6 +19,16 @@ public class CuentaContableRepository : ICuentaContableRepository
         TipoCuentaContable.Ingreso, TipoCuentaContable.Gasto
     };
 
+    private static readonly string[] ModosCentroCostoValidos =
+    {
+        ModoCentroCostoCuenta.Ninguno, ModoCentroCostoCuenta.Opcional, ModoCentroCostoCuenta.Obligatorio
+    };
+
+    // Jerarquia PCGE de 5 niveles (ver "configuracion plan de cuentas ERPdocx.docx"): la cantidad
+    // de digitos del codigo determina el nivel, no se elige a mano. Nivel 5 (8 digitos) es la
+    // unica hoja habilitada para asientos -- eso no se valida aqui, ver nota en la entidad.
+    private static readonly Dictionary<int, int> NivelPorLongitudCodigo = new() { { 2, 1 }, { 3, 2 }, { 4, 3 }, { 5, 4 }, { 8, 5 } };
+
     private readonly SpaContext _context;
 
     public CuentaContableRepository(SpaContext context)
@@ -27,7 +37,7 @@ public class CuentaContableRepository : ICuentaContableRepository
     }
 
     private IQueryable<CuentaContable> Query() => _context.CuentaContable.AsNoTracking()
-        .Include(c => c.CentroCosto)
+        .Include(c => c.CodigoEeffNiif)
         .Include(c => c.CuentaCargo1).Include(c => c.CuentaAbono1)
         .Include(c => c.CuentaCargo2).Include(c => c.CuentaAbono2)
         .Include(c => c.CuentaCargo3).Include(c => c.CuentaAbono3)
@@ -46,15 +56,16 @@ public class CuentaContableRepository : ICuentaContableRepository
         Nivel = c.Nivel,
         ClaseCuenta = c.ClaseCuenta,
         TipoAnexo = c.TipoAnexo,
+        TipoAnexoClase = c.TipoAnexoClase,
         CuentaMonetaria = c.CuentaMonetaria,
         AjusteDifCambio = c.AjusteDifCambio,
         CodigoEeff = c.CodigoEeff,
         CodigoEeffTributario = c.CodigoEeffTributario,
-        CodigoEeffNiif = c.CodigoEeffNiif,
+        CodigoEeffNiifId = c.CodigoEeffNiifId,
+        CodigoEeffNiif = c.CodigoEeffNiif != null ? $"{c.CodigoEeffNiif.Codigo} - {c.CodigoEeffNiif.Nombre}" : null,
         ClasificacionBienServicio = c.ClasificacionBienServicio,
         Destino = c.Destino,
-        CentroCostoId = c.CentroCostoId,
-        CentroCosto = c.CentroCosto?.Nombre,
+        ModoCentroCosto = c.ModoCentroCosto,
         CuentaCargo1Id = c.CuentaCargo1Id,
         CuentaCargo1 = Etiqueta(c.CuentaCargo1),
         CuentaAbono1Id = c.CuentaAbono1Id,
@@ -74,19 +85,24 @@ public class CuentaContableRepository : ICuentaContableRepository
         CuentaCierre = Etiqueta(c.CuentaCierre)
     };
 
+    // Nivel y ClaseCuenta se calculan del Codigo (ya asignado en cuenta.Codigo antes de llamar
+    // esto) -- nunca vienen del payload, asi no puede quedar un codigo "10111001" con Nivel "02"
+    // puesto a mano.
     private static void AplicarCampos(CuentaContable cuenta, CrearCuentaContablePayload payload)
     {
-        cuenta.Nivel = payload.Nivel;
-        cuenta.ClaseCuenta = payload.ClaseCuenta?.Trim();
+        cuenta.Nivel = NivelPorLongitudCodigo[cuenta.Codigo.Length];
+        cuenta.ClaseCuenta = cuenta.Codigo[..2];
+
         cuenta.TipoAnexo = payload.TipoAnexo;
+        cuenta.TipoAnexoClase = payload.TipoAnexo ? payload.TipoAnexoClase?.Trim() : null;
         cuenta.CuentaMonetaria = payload.CuentaMonetaria;
         cuenta.AjusteDifCambio = payload.AjusteDifCambio;
         cuenta.CodigoEeff = payload.CodigoEeff?.Trim();
         cuenta.CodigoEeffTributario = payload.CodigoEeffTributario?.Trim();
-        cuenta.CodigoEeffNiif = payload.CodigoEeffNiif?.Trim();
+        cuenta.CodigoEeffNiifId = payload.CodigoEeffNiifId;
         cuenta.ClasificacionBienServicio = payload.ClasificacionBienServicio?.Trim();
         cuenta.Destino = payload.Destino;
-        cuenta.CentroCostoId = payload.CentroCostoId;
+        cuenta.ModoCentroCosto = string.IsNullOrWhiteSpace(payload.ModoCentroCosto) ? ModoCentroCostoCuenta.Ninguno : payload.ModoCentroCosto;
         cuenta.CuentaCargo1Id = payload.CuentaCargo1Id;
         cuenta.CuentaAbono1Id = payload.CuentaAbono1Id;
         cuenta.PorcentajeDestino1 = payload.PorcentajeDestino1;
@@ -108,23 +124,30 @@ public class CuentaContableRepository : ICuentaContableRepository
             payload.CuentaCargo1Id, payload.CuentaAbono1Id, payload.CuentaCargo2Id, payload.CuentaAbono2Id,
             payload.CuentaCargo3Id, payload.CuentaAbono3Id, payload.CuentaCierreId
         }.Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
-        if (ids.Count == 0) return null;
+        if (ids.Count > 0)
+        {
+            var existentes = await _context.CuentaContable.AsNoTracking().Where(c => ids.Contains(c.Id)).Select(c => c.Id).ToListAsync();
+            if (existentes.Count != ids.Count) return "Una de las cuentas de Cargo/Abono/Cierre elegidas no existe";
+        }
 
-        var existentes = await _context.CuentaContable.AsNoTracking().Where(c => ids.Contains(c.Id)).Select(c => c.Id).ToListAsync();
-        if (existentes.Count != ids.Count) return "Una de las cuentas de Cargo/Abono/Cierre elegidas no existe";
-
-        if (payload.CentroCostoId != null && !await _context.CentroCosto.AsNoTracking().AnyAsync(c => c.Id == payload.CentroCostoId))
-            return "El centro de costo elegido no existe";
+        if (payload.CodigoEeffNiifId != null && !await _context.CodigoEeffNiif.AsNoTracking().AnyAsync(c => c.Id == payload.CodigoEeffNiifId))
+            return "El código EEFF NIIF elegido no existe";
         return null;
     }
 
     private async Task<string?> Validar(CrearCuentaContablePayload payload, int? idActual)
     {
         if (string.IsNullOrWhiteSpace(payload.Codigo)) return "El código es obligatorio";
+        var codigo = payload.Codigo.Trim();
+        if (!codigo.All(char.IsDigit)) return "El código solo puede contener dígitos";
+        if (!NivelPorLongitudCodigo.ContainsKey(codigo.Length))
+            return "El código debe tener 2, 3, 4, 5 u 8 dígitos (Niveles 01 a 05 del plan de cuentas)";
         if (string.IsNullOrWhiteSpace(payload.Nombre)) return "El nombre es obligatorio";
         if (!TiposValidos.Contains(payload.Tipo)) return "Tipo de cuenta inválido";
+        if (!string.IsNullOrWhiteSpace(payload.ModoCentroCosto) && !ModosCentroCostoValidos.Contains(payload.ModoCentroCosto))
+            return "Modo de centro de costo inválido";
         if (await _context.CuentaContable.AsNoTracking()
-                .AnyAsync(c => c.Codigo == payload.Codigo.Trim() && c.Id != idActual))
+                .AnyAsync(c => c.Codigo == codigo && c.Id != idActual))
             return "Ya existe una cuenta con ese código";
         if (payload.CuentaPadreId != null &&
             !await _context.CuentaContable.AsNoTracking().AnyAsync(c => c.Id == payload.CuentaPadreId))
@@ -209,5 +232,14 @@ public class CuentaContableRepository : ICuentaContableRepository
     {
         var cuenta = await Query().FirstOrDefaultAsync(c => c.Codigo == codigo);
         return cuenta == null ? null : ToDto(cuenta);
+    }
+
+    public async Task<(ServiceStatus, object?, string)> ListarCodigosEeffNiif()
+    {
+        var data = await _context.CodigoEeffNiif.AsNoTracking().Where(c => c.Estado)
+            .OrderBy(c => c.Codigo)
+            .Select(c => new { id = c.Id, codigo = c.Codigo, nombre = c.Nombre, categoria = c.Categoria })
+            .ToListAsync();
+        return (ServiceStatus.Ok, data, "Success");
     }
 }

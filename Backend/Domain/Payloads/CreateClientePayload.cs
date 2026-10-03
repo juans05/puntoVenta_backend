@@ -11,6 +11,7 @@
         public string? Sexo { get; set; }
         public string FechaNacimiento { get; set; }
         public string UbigeoId { get; set; } = "1000001";
+        public int? CuentaPorCobrarId { get; set; }
 
     }
 }
