@@ -490,6 +490,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                     return (ServiceStatus.FailedValidation, null, $"No se encontró el producto {od.ProductoId}");
                 }
 
+                if (producto.EsServicio) continue; // servicio: sin inventario
+
                 var stockTotalAnterior = producto.Stock ?? 0;
                 producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, l.Cantidad, od.CostoUnitario);
 
@@ -568,7 +570,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 od.CantidadRecibida -= d.Cantidad;
 
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == d.ProductoId);
-                if (producto == null) continue;
+                if (producto == null || producto.EsServicio) continue;
 
                 var ajusteAnularRecepcion = await StockSucursalHelper.Ajustar(_context, producto, recepcion.SucursalId, -d.Cantidad);
                 if (!ajusteAnularRecepcion.Ok)

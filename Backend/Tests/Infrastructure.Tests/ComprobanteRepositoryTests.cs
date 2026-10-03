@@ -190,16 +190,50 @@ public class ComprobanteRepositoryTests
     }
 
     [Fact]
+    public async Task CrearComprobante_ProductoConCuentaIngresoDebe_PosteaElDebeAhiEnVezDeCaja()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        var cuentaDebe = new CuentaContable { Codigo = "10411001", Nombre = "Banco", Tipo = "Activo", Nivel = 5, ClaseCuenta = "10" };
+        context.CuentaContable.Add(cuentaDebe);
+        await context.SaveChangesAsync();
+        var producto = new Producto { Nombre = "Bien test", Precio = 10m, Stock = 10, CostoUnitario = 6m, CuentaIngresoDebeId = cuentaDebe.Id, RestriccionEdad = 0 };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var metodoPagoId = await SeedMetodoPagoAsync(context);
+
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+
+        var (estado, _, mensaje) = await repo.CrearComprobante(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            Total = 20m,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 2, ValorUnitario = 10m } },
+            DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 20m } }
+        });
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var cabecera = await context.ComprobanteCabecera.SingleAsync();
+        var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
+
+        Assert.Equal(asiento.Detalle.Sum(d => d.Debe), asiento.Detalle.Sum(d => d.Haber));
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "10411001" && d.Debe == cabecera.ValorTotal);
+        Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "10" && d.Debe > 0);
+    }
+
+    [Fact]
     public async Task CrearComprobante_ProductoServicio_AsientoSinCostoNiInventario()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
         using var _ = connection;
 
         await SeedTipoDocumentoVentaAsync(context);
-        // Un servicio no maneja stock: Stock queda null/0 y CrearComprobante no lo valida ni descuenta
-        // (el descuento de stock solo corre para bienes en la practica -- aca solo importa EsServicio
-        // para que el asiento no genere lineas de costo/inventario).
-        var producto = new Producto { Nombre = "Servicio test", Precio = 50m, Stock = 999, CostoUnitario = 30m, EsServicio = true, RestriccionEdad = 0 };
+        // Un servicio no maneja stock: con Stock en 0 la venta debe pasar igual, sin descontar ni
+        // registrar movimiento de inventario, y el asiento no genera lineas de costo/inventario.
+        var producto = new Producto { Nombre = "Servicio test", Precio = 50m, Stock = 0, CostoUnitario = 30m, EsServicio = true, RestriccionEdad = 0 };
         context.Producto.Add(producto);
         await context.SaveChangesAsync();
         var metodoPagoId = await SeedMetodoPagoAsync(context);
@@ -219,6 +253,8 @@ public class ComprobanteRepositoryTests
         var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
 
+        Assert.Empty(context.InventoryMovement);
+        Assert.Equal(0, (await context.Producto.SingleAsync()).Stock);
         Assert.Equal(3, asiento.Detalle.Count); // contraparte + IGV + ingreso, sin costo/inventario
         Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "69" || d.CuentaContable!.Codigo == "20");
     }

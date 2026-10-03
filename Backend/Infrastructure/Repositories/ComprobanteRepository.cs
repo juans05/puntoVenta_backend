@@ -179,6 +179,15 @@ namespace Infrastructure.Repositories
 
                 cabecera.ValorTotal = payload.Total;
 
+                // MontoDetraccion no viene del payload: se calcula con el porcentaje del tipo elegido.
+                cabecera.MontoDetraccion = null;
+                if (payload.TipoDetraccionId.HasValue)
+                {
+                    var porcentaje = await _context.TipoDetraccion.AsNoTracking().Where(t => t.Id == payload.TipoDetraccionId).Select(t => (decimal?)t.Porcentaje).FirstOrDefaultAsync();
+                    if (porcentaje == null) return (ServiceStatus.FailedValidation, null, "El tipo de detracción elegido no existe");
+                    cabecera.MontoDetraccion = Math.Round(payload.Total * porcentaje.Value / 100m, 2);
+                }
+
                 cabecera.ValorSubtotal = Math.Round(subtotalCalculado, 2);
 
                 cabecera.ValorIgv = Math.Round(payload.Total - subtotalCalculado, 2);
@@ -259,7 +268,8 @@ namespace Infrastructure.Repositories
 
                     productosVendidos[item.ProductoId] = producto;
 
-                    if (esCotizacion || cabecera.StockYaDescontado) continue;
+                    // Servicios no manejan inventario: ni validan ni descuentan stock.
+                    if (esCotizacion || cabecera.StockYaDescontado || producto.EsServicio) continue;
 
                     if ((producto.Stock ?? 0) < item.Cantidad)
                         return (ServiceStatus.FailedValidation, null, $"No hay stock disponible para el producto {producto.Nombre}");
@@ -750,6 +760,14 @@ namespace Infrastructure.Repositories
         // Cuentas por defecto (PCGE): 10 Efectivo, 12 Cuentas por Cobrar, 70 Ventas, 69 Costo de
         // Ventas, 20 Mercaderias, 40111 IGV Cuenta propia -- cada producto puede sobreescribir
         // Ingresos/Costo/Inventario desde su tab Contabilidad.
+        // Cuenta de inventario configurada para un tipo de movimiento (Producto.CuentasInventarioMovimiento).
+        private static int? CuentaInventarioDeMovimiento(Producto p, TipoMovimientoInventario movimiento)
+        {
+            if (string.IsNullOrWhiteSpace(p.CuentasInventarioMovimiento)) return null;
+            try { return System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(p.CuentasInventarioMovimiento)?.GetValueOrDefault(((int)movimiento).ToString()) is var id && id > 0 ? id : null; }
+            catch (System.Text.Json.JsonException) { return null; }
+        }
+
         private async Task<(ServiceStatus, Domain.DTO.AsientoContableDto?, string)> GenerarAsientoVenta(
             ComprobanteCabecera cabecera, List<ComprobanteDetalle> detalle, bool esCredito, Dictionary<int, Producto> productos)
         {
@@ -760,7 +778,7 @@ namespace Infrastructure.Repositories
                 : null;
 
             var cuentaIds = productos.Values
-                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaCostoId, p.CuentaInventarioId })
+                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaIngresoDebeId, p.CuentaCostoId, p.CuentaInventarioId, CuentaInventarioDeMovimiento(p, TipoMovimientoInventario.Venta) })
                 .Append(cuentaPorCobrarCliente)
                 .Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
             var codigosPorCuentaId = cuentaIds.Count > 0
@@ -769,10 +787,24 @@ namespace Infrastructure.Repositories
             string CodigoDe(int? cuentaId, string porDefecto) =>
                 cuentaId.HasValue && codigosPorCuentaId.TryGetValue(cuentaId.Value, out var codigo) ? codigo : porDefecto;
 
-            var lineas = new List<LineaAsientoContable>
+            // Debe de la venta: por defecto todo va a la contraparte (10 Caja / 12 Cuentas por Cobrar);
+            // un producto con "cuenta de ingreso - Debe" propia lleva ahi su parte del total, y lo que
+            // sobra (incluye el redondeo) queda en la contraparte para que el asiento cuadre siempre.
+            var contraparte = esCredito ? CodigoDe(cuentaPorCobrarCliente, "12") : "10";
+            var debePorCuenta = new Dictionary<string, decimal>();
+            foreach (var item in detalle)
             {
-                new(esCredito ? CodigoDe(cuentaPorCobrarCliente, "12") : "10", cabecera.ValorTotal, 0)
-            };
+                var debe = productos[item.ProductoId].CuentaIngresoDebeId;
+                if (!debe.HasValue) continue;
+                var codigoDebe = CodigoDe(debe, contraparte);
+                debePorCuenta[codigoDebe] = debePorCuenta.GetValueOrDefault(codigoDebe) + Math.Round(item.ValorUnitarioTotal, 2);
+            }
+            debePorCuenta.Remove(contraparte);
+            var lineas = new List<LineaAsientoContable>();
+            foreach (var (cuentaDebe, montoDebe) in debePorCuenta)
+                lineas.Add(new(cuentaDebe, montoDebe, 0));
+            var restoContraparte = cabecera.ValorTotal - debePorCuenta.Values.Sum();
+            if (restoContraparte != 0) lineas.Add(new(contraparte, restoContraparte, 0));
             if (cabecera.ValorIgv > 0)
                 lineas.Add(new LineaAsientoContable("40111", 0, cabecera.ValorIgv));
 
@@ -791,7 +823,7 @@ namespace Infrastructure.Repositories
                 var costo = (item.CostoReal ?? producto.CostoUnitario ?? 0) * item.Cantidad;
                 if (costo <= 0) continue;
 
-                var key = (CodigoDe(producto.CuentaCostoId, "69"), CodigoDe(producto.CuentaInventarioId, "20"));
+                var key = (CodigoDe(producto.CuentaCostoId, "69"), CodigoDe(CuentaInventarioDeMovimiento(producto, TipoMovimientoInventario.Venta) ?? producto.CuentaInventarioId, "20"));
                 costoPorCuentas[key] = costoPorCuentas.GetValueOrDefault(key) + costo;
             }
 
@@ -818,7 +850,7 @@ namespace Infrastructure.Repositories
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
 
-                if (producto == null) continue;
+                if (producto == null || producto.EsServicio) continue;
 
                 var ajuste = await StockSucursalHelper.Ajustar(_context, producto, sucursalId, item.Cantidad);
                 if (!ajuste.Ok) return ajuste.Error;

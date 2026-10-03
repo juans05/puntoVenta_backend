@@ -278,6 +278,8 @@ public class CompraRepository : ICompraRepository
                 if (producto == null)
                     return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
 
+                if (producto.EsServicio) continue; // servicio: sin inventario ni costo promedio
+
                 // El costo (promedio ponderado) es del producto en general, no por sucursal -- se
                 // calcula con el stock TOTAL antes de que el ajuste de sucursal lo modifique.
                 var stockTotalAnterior = producto.Stock ?? 0;
@@ -376,7 +378,7 @@ public class CompraRepository : ICompraRepository
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
 
-                if (producto == null) continue;
+                if (producto == null || producto.EsServicio) continue; // servicio: sin inventario
 
                 // Le quita a Producto.CostoUnitario (promedio ponderado) la contribucion de esta
                 // compra ANTES de bajar el stock -- QuitarDePromedio necesita el stock/costo total
@@ -474,7 +476,7 @@ public class CompraRepository : ICompraRepository
                 foreach (var item in compra.CompraDetalles.Where(d => d.ProductoId.HasValue))
                 {
                     var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
-                    if (producto == null) continue;
+                    if (producto == null || producto.EsServicio) continue; // servicio: sin inventario
 
                     var ajusteNota = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
                     if (!ajusteNota.Ok)
@@ -537,7 +539,7 @@ public class CompraRepository : ICompraRepository
             foreach (var mov in movimientos)
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == mov.ProductoId);
-                if (producto == null) continue;
+                if (producto == null || producto.EsServicio) continue; // servicio: sin inventario
 
                 // Se devuelve a la MISMA sucursal donde el movimiento original la habia descontado
                 // (mov.SucursalId), no a la sucursal actual de la compra (que pudo cambiar desde
@@ -716,7 +718,7 @@ public class CompraRepository : ICompraRepository
             {
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
 
-                if (producto == null) continue;
+                if (producto == null || producto.EsServicio) continue; // servicio: sin inventario
 
                 var ajusteRevertir = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
                 if (!ajusteRevertir.Ok)
@@ -789,6 +791,8 @@ public class CompraRepository : ICompraRepository
 
                 if (producto == null)
                     return (ServiceStatus.FailedValidation, null, $"No se encontro el producto {item.ProductoId}");
+
+                if (producto.EsServicio) continue; // servicio: sin inventario ni costo promedio
 
                 var stockTotalAnterior = producto.Stock ?? 0;
                 producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);

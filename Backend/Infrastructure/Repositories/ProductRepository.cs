@@ -31,10 +31,30 @@ public class ProductRepository : IProductRepository
 
 }
 
+    // Las cuentas contables del producto solo pueden ser de ultimo nivel (Nivel 5 = 8 digitos): es la
+    // unica hoja que admite asientos. Devuelve el mensaje de error o null.
+    private async Task<string?> ValidarCuentasUltimoNivel(params int?[] ids)
+    {
+        var pedidos = ids.Where(i => i.HasValue).Select(i => i!.Value).Distinct().ToList();
+        if (pedidos.Count == 0) return null;
+        var cuentas = await dbContext.CuentaContable.AsNoTracking().Where(c => pedidos.Contains(c.Id)).Select(c => new { c.Id, c.Codigo }).ToListAsync();
+        if (cuentas.Count != pedidos.Count) return "Una de las cuentas contables elegidas no existe";
+        return cuentas.Any(c => c.Codigo.Length != 8) ? "Las cuentas contables del producto deben ser de último nivel (8 dígitos)" : null;
+    }
+
+    private static IEnumerable<int?> CuentasInventarioDe(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return Enumerable.Empty<int?>();
+        try { return (System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(json) ?? new()).Values.Select(v => (int?)v); }
+        catch (System.Text.Json.JsonException) { return new int?[] { -1 }; } // JSON invalido -> "no existe"
+    }
+
     public async Task<(ServiceStatus, Producto?, string)> CreateProduct(CreateProductPayload payload)
     {
         try
         {
+            if (await ValidarCuentasUltimoNivel(new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
+                return (ServiceStatus.FailedValidation, null, errorCuentas);
         //    var goods = new Producto { Nombre = goodsDto.Nombre, Precio = goodsDto.Precio };
 
             var entity = mapper.Map<Producto>(payload);
@@ -69,6 +89,8 @@ public class ProductRepository : IProductRepository
     {
         try
         {
+            if (await ValidarCuentasUltimoNivel(new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
+                return (ServiceStatus.FailedValidation, null, errorCuentas);
 
             var producto = await dbContext.Producto.AsNoTracking()
                             .FirstAsync(p => p.Id == payload.ProductoId);

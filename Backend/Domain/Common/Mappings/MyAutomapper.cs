@@ -121,7 +121,10 @@ namespace Domain.Common.Mappings
                 .ForMember(x => x.SucursalId, y => y.Condition(src => src.SucursalId != null))
                 .ForMember(x => x.CuentaIngresoId, y => y.Condition(src => src.CuentaIngresoId != null))
                 .ForMember(x => x.CuentaInventarioId, y => y.Condition(src => src.CuentaInventarioId != null))
-                .ForMember(x => x.CuentaCostoId, y => y.Condition(src => src.CuentaCostoId != null));
+                .ForMember(x => x.CuentaCostoId, y => y.Condition(src => src.CuentaCostoId != null))
+                .ForMember(x => x.CuentaIngresoDebeId, y => y.Condition(src => src.CuentaIngresoDebeId != null))
+                .ForMember(x => x.CuentaGastoHaberId, y => y.Condition(src => src.CuentaGastoHaberId != null))
+                .ForMember(x => x.CuentasInventarioMovimiento, y => y.Condition(src => src.CuentasInventarioMovimiento != null));
             //.ForMember(x => x.Comentarios, y => y.MapFrom(z => z.Comentarios));
 
             CreateMap<Producto, ProductoDto>()

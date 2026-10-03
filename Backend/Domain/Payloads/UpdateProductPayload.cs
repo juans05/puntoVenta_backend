@@ -46,6 +46,11 @@ namespace Domain.Payloads
         public int? CuentaIngresoId { get; set; }
         public int? CuentaInventarioId { get; set; }
         public int? CuentaCostoId { get; set; }
+        // CuentaIngresoId es el Haber del ingreso (70) y CuentaCostoId el Debe del gasto/costo; estos
+        // dos completan el par. CuentasInventarioMovimiento: JSON {"<TipoMovimientoInventario>": cuentaId}.
+        public int? CuentaIngresoDebeId { get; set; }
+        public int? CuentaGastoHaberId { get; set; }
+        public string? CuentasInventarioMovimiento { get; set; }
         public List<PrecioAlternativoPayload>? PreciosAlternativos { get; set; }
         public List<PresentacionPayload>? Presentaciones { get; set; }
     }

@@ -73,6 +73,15 @@ public class Producto : EntityBase
         public CuentaContable? CuentaInventario { get; set; }
         public int? CuentaCostoId { get; set; }
         public CuentaContable? CuentaCosto { get; set; }
+        // Pares Debe/Haber obligatorios en la UI: ingreso = Debe (CuentaIngresoDebeId) / Haber (CuentaIngresoId);
+        // gasto = Debe (CuentaCostoId) / Haber (CuentaGastoHaberId). Solo cuentas de ultimo nivel (8 digitos).
+        public int? CuentaIngresoDebeId { get; set; }
+        public CuentaContable? CuentaIngresoDebe { get; set; }
+        public int? CuentaGastoHaberId { get; set; }
+        public CuentaContable? CuentaGastoHaber { get; set; }
+        // JSON {"<TipoMovimientoInventario>": cuentaId}: cuenta de inventario por tipo de movimiento
+        // (ponytail: sin FK por entrada; pasar a tabla hija si hace falta integridad/reportes).
+        public string? CuentasInventarioMovimiento { get; set; }
 
         public List<PrecioAlternativo> PreciosAlternativos { get; set; } = new List<PrecioAlternativo>();
         public List<Presentacion> Presentaciones { get; set; } = new List<Presentacion>();

@@ -40,6 +40,7 @@ namespace Domain.Payloads
         public decimal? TipoCambio { get; set; }
         public decimal? MontoRetencion { get; set; }
         public decimal? MontoAnticipo { get; set; }
+        public int? TipoDetraccionId { get; set; }
 
         // Solo Cotizacion (TipoDocumentoVentaId = 6) usa FechaVigencia. CotizacionOrigenId lo
         // manda la Factura/Boleta resultante cuando se emite convirtiendo una cotizacion.

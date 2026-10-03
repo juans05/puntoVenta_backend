@@ -67,6 +67,7 @@ public class PedidoVentaRepository : IPedidoVentaRepository
         {
             var producto = await _context.Producto.AsNoTracking().FirstOrDefaultAsync(p => p.Id == d.ProductoId);
             if (producto == null) return $"No se encontró el producto {d.ProductoId}";
+            if (producto.EsServicio) continue;
 
             var reservado = await _context.PedidoVentaDetalle
                 .Where(x => x.ProductoId == d.ProductoId && x.PedidoVentaId != pedido.Id
@@ -370,8 +371,8 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                     return (ServiceStatus.FailedValidation, null, $"No se encontró el producto {pd.ProductoId}");
                 }
 
-                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, entrega.SucursalId, -l.Cantidad);
-                if (!ajuste.Ok)
+                var ajuste = producto.EsServicio ? null : await StockSucursalHelper.Ajustar(_context, producto, entrega.SucursalId, -l.Cantidad);
+                if (ajuste is { Ok: false })
                 {
                     await _context.Database.RollbackTransactionAsync();
                     return (ServiceStatus.FailedValidation, null, ajuste.Error);
@@ -386,7 +387,7 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                     ProductoId = pd.ProductoId,
                     Cantidad = l.Cantidad
                 });
-                _context.InventoryMovement.Add(new InventoryMovement
+                if (ajuste != null) _context.InventoryMovement.Add(new InventoryMovement
                 {
                     ProductoId = producto.Id,
                     SucursalId = ajuste.SucursalIdUsada,
@@ -442,7 +443,7 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                 pd.CantidadEntregada -= d.Cantidad;
 
                 var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == d.ProductoId);
-                if (producto == null) continue;
+                if (producto == null || producto.EsServicio) continue;
 
                 var ajuste = await StockSucursalHelper.Ajustar(_context, producto, entrega.SucursalId, d.Cantidad);
                 if (!ajuste.Ok)

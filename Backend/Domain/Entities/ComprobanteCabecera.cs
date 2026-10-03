@@ -66,6 +66,10 @@ public class ComprobanteCabecera : EntityBase
     public decimal? TipoCambio { get; set; }
     public decimal? MontoRetencion { get; set; }
     public decimal? MontoAnticipo { get; set; }
+    // Detraccion (SPOT): tipo elegido y monto = ValorTotal x porcentaje (calculado al crear).
+    public int? TipoDetraccionId { get; set; }
+    public TipoDetraccion? TipoDetraccion { get; set; }
+    public decimal? MontoDetraccion { get; set; }
 
     public Cliente? Cliente { get; set; }
     public TipoDocumentoVenta TipoDocumentoVenta { get; set; } = null!;
