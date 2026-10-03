@@ -122,6 +122,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<ClienteCuenta> ClienteCuenta => Set<ClienteCuenta>();
     public DbSet<Salon> Salon => Set<Salon>();
     public DbSet<CuentaContable> CuentaContable => Set<CuentaContable>();
+    public DbSet<TiendaConfig> TiendaConfig => Set<TiendaConfig>();
     public DbSet<CentroCosto> CentroCosto => Set<CentroCosto>();
     // Catalogo NIIF global, sin HasQueryFilter: no es por tenant (ver comentario en la entidad).
     public DbSet<CodigoEeffNiif> CodigoEeffNiif => Set<CodigoEeffNiif>();
@@ -146,6 +147,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<CentroCosto>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<DepartamentoAprobador>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<CuentaContable>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<TiendaConfig>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         // CuentaContable tiene 7 auto-referencias mas (Cargo/Abono x3 + Cierre) ademas de CuentaPadre
         // -- con tantas la convencion de EF no las distingue solita, hay que declararlas a mano.
         // Restrict (no cascade): borrar una cuenta no debe arrastrar a otra que la referencia como

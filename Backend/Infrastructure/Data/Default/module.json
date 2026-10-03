@@ -76,5 +76,11 @@
     "nombre": "Contabilidad",
     "usuarioCreacion": "ADMIN",
     "estado": "true"
+  },
+  {
+    "identificador": "1700",
+    "nombre": "E-commerce",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
   }
 ]

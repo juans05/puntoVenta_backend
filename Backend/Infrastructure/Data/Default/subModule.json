@@ -264,5 +264,12 @@
     "moduloId": "1600",
     "usuarioCreacion": "ADMIN",
     "estado": "true"
+  },
+  {
+    "identificador": "1701",
+    "nombre": "Mi tienda web",
+    "moduloId": "1700",
+    "usuarioCreacion": "ADMIN",
+    "estado": "true"
   }
 ]
