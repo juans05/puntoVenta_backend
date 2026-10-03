@@ -10,7 +10,12 @@ namespace Infrastructure.Repositories;
 public class TiendaRepository
 {
     private static readonly Regex Color = new("^#[0-9a-fA-F]{6}$");
+    private static readonly Regex Telefono = new(@"^\+?\d{7,15}$");
     private readonly SpaContext _context;
+
+    private static bool UrlValida(string? url)
+        => string.IsNullOrWhiteSpace(url)
+           || (url.Trim().Length <= 500 && Uri.TryCreate(url.Trim(), UriKind.Absolute, out var u) && (u.Scheme == Uri.UriSchemeHttp || u.Scheme == Uri.UriSchemeHttps));
 
     public TiendaRepository(SpaContext context) => _context = context;
 
@@ -21,7 +26,10 @@ public class TiendaRepository
     {
         if (!Color.IsMatch(c.ColorPrimario) || !Color.IsMatch(c.ColorFondo) || !Color.IsMatch(c.ColorTexto))
             return "Los colores deben tener formato #RRGGBB";
-        if (string.IsNullOrWhiteSpace(c.Titulo)) return "El título es obligatorio";
+        if (string.IsNullOrWhiteSpace(c.Titulo) || c.Titulo.Length > 100) return "El título es obligatorio (máx. 100 caracteres)";
+        if (c.Descripcion?.Length > 300) return "La descripción admite máx. 300 caracteres";
+        if (!UrlValida(c.LogoUrl) || !UrlValida(c.BannerUrl)) return "Logo y banner deben ser URLs http(s) de hasta 500 caracteres";
+        if (!string.IsNullOrWhiteSpace(c.Whatsapp) && !Telefono.IsMatch(c.Whatsapp.Trim())) return "WhatsApp debe tener solo dígitos (con código de país)";
 
         var actual = await _context.TiendaConfig.AsTracking().FirstOrDefaultAsync();
         if (actual == null) _context.TiendaConfig.Add(actual = new TiendaConfig());

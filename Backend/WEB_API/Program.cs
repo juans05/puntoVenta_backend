@@ -184,6 +184,10 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("RolesPermisosAdmin", policy =>
         policy.Requirements.Add(new SubmoduloRequirement("1402")));
+
+    // Editar la tienda web: solo quien tiene el submodulo "Mi tienda web" (1701).
+    options.AddPolicy("TiendaAdmin", policy =>
+        policy.Requirements.Add(new SubmoduloRequirement("1701")));
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, SubmoduloAuthorizationHandler>();

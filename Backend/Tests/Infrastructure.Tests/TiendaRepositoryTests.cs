@@ -29,6 +29,11 @@ public class TiendaRepositoryTests
         var json = Newtonsoft.Json.Linq.JObject.FromObject((await repo.ObtenerPublica("test"))!);
         Assert.Equal(new[] { "Propio" }, json["productos"]!.Select(p => (string)p["Nombre"]!).ToArray());
 
+        var ok = new TiendaConfig { Titulo = "T", ColorPrimario = "#112233", ColorFondo = "#ffffff", ColorTexto = "#000000" };
+        ok.LogoUrl = "javascript:alert(1)";
+        Assert.NotNull(await repo.GuardarConfig(ok));
+        ok.LogoUrl = "https://x.com/logo.png"; ok.Whatsapp = "51999999999";
+        Assert.Null(await repo.GuardarConfig(ok));
         Assert.NotNull(await repo.GuardarConfig(new TiendaConfig { Titulo = "T", ColorPrimario = "rojo", ColorFondo = "#ffffff", ColorTexto = "#000000" }));
     }
 }
