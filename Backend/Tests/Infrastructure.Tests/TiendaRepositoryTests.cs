@@ -14,6 +14,8 @@ public class TiendaRepositoryTests
         using var _ = connection; using var __ = context;
         var repo = new TiendaRepository(context);
 
+        // El enlace publico lleva el TenantKey; los datos se guardan con TenantId = Tenant.Name.
+        context.Tenant.Add(new Tenant { Name = "TEST", TenantKey = "tendy-key", RubroId = 1 });
         context.Producto.Add(new Producto { Nombre = "Propio", Precio = 10, Stock = 5, TenantId = "TEST" });
         context.Producto.Add(new Producto { Nombre = "NoSeVende", Precio = 10, SeVende = false, TenantId = "TEST" });
         context.Producto.Add(new Producto { Nombre = "Ajeno", Precio = 10, TenantId = "OTRO" });
@@ -28,6 +30,8 @@ public class TiendaRepositoryTests
         // Tipo anonimo (internal): se inspecciona via JSON, no con dynamic.
         var json = Newtonsoft.Json.Linq.JObject.FromObject((await repo.ObtenerPublica("test"))!);
         Assert.Equal(new[] { "Propio" }, json["productos"]!.Select(p => (string)p["Nombre"]!).ToArray());
+        Assert.NotNull(await repo.ObtenerPublica("Tendy-Key")); // por TenantKey, sin distinguir mayusculas
+        Assert.Null(await repo.ObtenerPublica("inexistente"));
 
         var ok = new TiendaConfig { Titulo = "T", ColorPrimario = "#112233", ColorFondo = "#ffffff", ColorTexto = "#000000" };
         ok.LogoUrl = "javascript:alert(1)";

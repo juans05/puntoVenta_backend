@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities
+namespace Domain.Entities
 {
 public class Producto : EntityBase
     {
@@ -35,6 +35,10 @@ public class Producto : EntityBase
         public string? Descripcion { get; set; }
         public string? RutaImagen { get; set; }
         public string? CloudinaryPublicId { get; set; }
+        // Media extra para la tienda web: video (URL) y galeria (JSON array de URLs, max. 5), mismo
+        // criterio que CuentasInventarioMovimiento.
+        public string? VideoUrl { get; set; }
+        public string? Galeria { get; set; }
         public string? Comentario { get; set; }
 
         public string? Codigo { get; set; }

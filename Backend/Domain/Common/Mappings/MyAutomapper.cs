@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Domain.Payloads;
 using Domain.DTO;
 using Domain.Entities;
@@ -109,6 +109,10 @@ namespace Domain.Common.Mappings
                 .ForMember(x => x.Stock, y => y.Ignore())
                 .ForMember(x => x.PreciosAlternativos, y => y.Ignore())
                 .ForMember(x => x.Presentaciones, y => y.Ignore())
+                // Pantallas que no mandan video/galeria no deben borrarlos ("" si limpia a proposito).
+                .ForMember(x => x.Descripcion, y => y.Condition(src => src.Descripcion != null))
+                .ForMember(x => x.VideoUrl, y => y.Condition(src => src.VideoUrl != null))
+                .ForMember(x => x.Galeria, y => y.Condition(src => src.Galeria != null))
                 // Si el payload no trae estos IDs (undefined/omitido en el JSON), se conserva el valor
                 // existente en vez de borrarlo -- ninguna pantalla del frontend envia estos campos como
                 // null a proposito para "quitar" la relacion, asi que null solo puede ser un campo omitido.

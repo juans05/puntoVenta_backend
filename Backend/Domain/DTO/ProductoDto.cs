@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using System.Text.Json.Serialization;
 
 namespace Domain.DTO;
@@ -28,6 +28,9 @@ public record class ProductoDto
     public int? StockMinimo { get; set; }
     public string? RutaImagen { get; set; }
     public string? CloudinaryPublicId { get; set; }
+    public string? VideoUrl { get; set; }
+    public string? Descripcion { get; set; }
+    public string? Galeria { get; set; }
     public string? Comentario { get; set; }
     //public List<ComprobanteDetalle>? ComprobanteDetalles { get; set; }
     public string? UsuarioCreacion { get; set; }

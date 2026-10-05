@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +24,9 @@ namespace Domain.Payloads
         public int Stock { get; set; }
         public int? StockMinimo { get; set; }
         public string? RutaImagen { get; set; }
+        public string? VideoUrl { get; set; }
+        public string? Descripcion { get; set; }
+        public string? Galeria { get; set; }
         public string? Comentario { get; set; }
         public string? UsuarioModificacion { get; set; }
 

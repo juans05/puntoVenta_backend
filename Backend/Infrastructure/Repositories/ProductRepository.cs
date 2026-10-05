@@ -1,4 +1,4 @@
-﻿using Application.Abstractions;
+using Application.Abstractions;
 using Domain.DTO;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
@@ -42,6 +42,26 @@ public class ProductRepository : IProductRepository
         return cuentas.Any(c => c.Codigo.Length != 8) ? "Las cuentas contables del producto deben ser de último nivel (8 dígitos)" : null;
     }
 
+    private const int MaxGaleria = 5;
+
+    private static bool UrlHttp(string? u) => Uri.TryCreate(u?.Trim(), UriKind.Absolute, out var x) && (x.Scheme == Uri.UriSchemeHttp || x.Scheme == Uri.UriSchemeHttps);
+
+    private static string? ValidarMedia(string? videoUrl, string? galeria, string? descripcion = null)
+    {
+        if (descripcion?.Length > 2000) return "La descripción admite máx. 2000 caracteres";
+        if (!string.IsNullOrWhiteSpace(videoUrl) && (videoUrl.Trim().Length > 500 || !UrlHttp(videoUrl)))
+            return "El video debe ser una URL http(s) de hasta 500 caracteres";
+        if (string.IsNullOrWhiteSpace(galeria)) return null;
+        try
+        {
+            var urls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(galeria) ?? new();
+            if (urls.Count > MaxGaleria) return $"La galería admite hasta {MaxGaleria} imágenes";
+            if (urls.Any(u => u.Length > 500 || !UrlHttp(u))) return "Las imágenes de la galería deben ser URLs http(s) de hasta 500 caracteres";
+            return null;
+        }
+        catch (System.Text.Json.JsonException) { return "La galería no tiene un formato válido"; }
+    }
+
     private static IEnumerable<int?> CuentasInventarioDe(string? json)
     {
         if (string.IsNullOrWhiteSpace(json)) return Enumerable.Empty<int?>();
@@ -53,6 +73,8 @@ public class ProductRepository : IProductRepository
     {
         try
         {
+            if (ValidarMedia(payload.VideoUrl, payload.Galeria, payload.Descripcion) is { } errorMedia)
+                return (ServiceStatus.FailedValidation, null, errorMedia);
             if (await ValidarCuentasUltimoNivel(new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
                 return (ServiceStatus.FailedValidation, null, errorCuentas);
         //    var goods = new Producto { Nombre = goodsDto.Nombre, Precio = goodsDto.Precio };
@@ -89,6 +111,8 @@ public class ProductRepository : IProductRepository
     {
         try
         {
+            if (ValidarMedia(payload.VideoUrl, payload.Galeria, payload.Descripcion) is { } errorMedia)
+                return (ServiceStatus.FailedValidation, null, errorMedia);
             if (await ValidarCuentasUltimoNivel(new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
                 return (ServiceStatus.FailedValidation, null, errorCuentas);
 

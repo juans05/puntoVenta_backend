@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +23,10 @@ namespace Domain.Payloads
         public int Stock { get; set; }
         public int? StockMinimo { get; set; }
         public string? RutaImagen { get; set; }
+        public string? VideoUrl { get; set; }
+        // Texto que ve el comprador en la tienda web (distinto de Comentario, que es interno).
+        public string? Descripcion { get; set; }
+        public string? Galeria { get; set; }
         public string? Comentario { get; set; }
         public string? UsuarioCreacion { get; set; }
 

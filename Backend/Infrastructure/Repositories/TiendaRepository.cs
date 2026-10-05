@@ -62,14 +62,28 @@ public class TiendaRepository
         if (config == null || !config.Publicada) return null;
 
         var productos = await _context.Producto.IgnoreQueryFilters().AsNoTracking()
-            .Where(p => p.TenantId.ToLower() == t && p.Estado && p.SeVende)
+            .Where(p => p.TenantId.ToLower() == t && p.Estado && p.SeVende && (p.EsServicio || (p.Stock ?? 0) > 0))
             .OrderBy(p => p.Nombre).Take(500)
             .Select(p => new
             {
                 p.Id, p.Nombre, p.Descripcion, p.Marca,
                 imagen = p.RutaImagen,
+                p.VideoUrl,
+                p.Galeria,
                 precio = p.PrecioVentaConInpuesto ?? p.Precio,
                 categoria = p.Categoria != null ? p.Categoria.Nombre : null,
+                grupo = p.Grupo != null ? p.Grupo.Nombre : null,
+                codigo = p.Codigo,
+                p.CodigoBarra,
+                unidadMedida = p.UnidadMedida != null ? p.UnidadMedida.Descripcion : null,
+                pesoKg = p.PesoKg,
+                tipoIgv = p.TipoIgv != null ? p.TipoIgv.Descripcion : null,
+                p.Icbper,
+                p.RestriccionEdad,
+                p.EsServicio,
+                stock = p.EsServicio ? (int?)null : p.Stock,
+                presentaciones = p.Presentaciones.Where(x => x.Estado)
+                    .Select(x => new { x.Nombre, unidad = x.UnidadMedida != null ? x.UnidadMedida.Descripcion : null, x.Factor, x.PrecioVenta }).ToList(),
                 agotado = !p.EsServicio && (p.Stock ?? 0) <= 0
             }).ToListAsync();
 
