@@ -40,4 +40,29 @@ public class TiendaRepositoryTests
         Assert.Null(await repo.GuardarConfig(ok));
         Assert.NotNull(await repo.GuardarConfig(new TiendaConfig { Titulo = "T", ColorPrimario = "rojo", ColorFondo = "#ffffff", ColorTexto = "#000000" }));
     }
+
+    [Fact]
+    public async Task ObtenerProductoPublico_SoloDisponibles_ConRelacionados()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection; using var __ = context;
+        var repo = new TiendaRepository(context);
+
+        context.Tenant.Add(new Tenant { Name = "TEST", TenantKey = "tendy-key", RubroId = 1 });
+        context.Producto.AddRange(
+            new Producto { Nombre = "A", Precio = 10, Stock = 5 },
+            new Producto { Nombre = "B", Precio = 20, Stock = 3 },
+            new Producto { Nombre = "Agotado", Precio = 5, Stock = 0 });
+        await context.SaveChangesAsync();
+        var ids = context.Producto.ToDictionary(p => p.Nombre, p => p.Id);
+
+        Assert.Null(await repo.ObtenerProductoPublico("test", ids["A"])); // tienda sin publicar
+        Assert.Null(await repo.GuardarConfig(new TiendaConfig { Publicada = true, Titulo = "T", ColorPrimario = "#112233", ColorFondo = "#ffffff", ColorTexto = "#000000" }));
+
+        var json = Newtonsoft.Json.Linq.JObject.FromObject((await repo.ObtenerProductoPublico("tendy-key", ids["A"]))!);
+        Assert.Equal("A", (string)json["producto"]!["Nombre"]!);
+        Assert.Equal(new[] { "B" }, json["relacionados"]!.Select(p => (string)p["Nombre"]!).ToArray());
+        Assert.Null(await repo.ObtenerProductoPublico("test", ids["Agotado"])); // agotado -> 404
+        Assert.Null(await repo.ObtenerProductoPublico("test", 99999));
+    }
 }

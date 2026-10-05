@@ -48,7 +48,7 @@ public class TiendaRepository
 
     // Publico: el tenant viene de la ruta, no del JWT, asi que se filtra a mano (IgnoreQueryFilters)
     // en vez de depender del filtro por tenant/sucursal del contexto.
-    public async Task<object?> ObtenerPublica(string tenant)
+    private async Task<(string Tenant, TiendaConfig Config)?> ResolverTienda(string tenant)
     {
         var buscado = tenant.Trim().ToLower();
         // El enlace del admin lleva el TenantKey (claim "empresa"), pero los datos se guardan con
@@ -59,38 +59,60 @@ public class TiendaRepository
         if (t == null) return null;
         var config = await _context.TiendaConfig.IgnoreQueryFilters().AsNoTracking()
             .FirstOrDefaultAsync(c => c.TenantId.ToLower() == t && c.Estado);
-        if (config == null || !config.Publicada) return null;
+        return config == null || !config.Publicada ? null : (t, config);
+    }
 
-        var productos = await _context.Producto.IgnoreQueryFilters().AsNoTracking()
-            .Where(p => p.TenantId.ToLower() == t && p.Estado && p.SeVende && (p.EsServicio || (p.Stock ?? 0) > 0))
-            .OrderBy(p => p.Nombre).Take(500)
-            .Select(p => new
-            {
-                p.Id, p.Nombre, p.Descripcion, p.Marca,
-                imagen = p.RutaImagen,
-                p.VideoUrl,
-                p.Galeria,
-                precio = p.PrecioVentaConInpuesto ?? p.Precio,
-                categoria = p.Categoria != null ? p.Categoria.Nombre : null,
-                grupo = p.Grupo != null ? p.Grupo.Nombre : null,
-                codigo = p.Codigo,
-                p.CodigoBarra,
-                unidadMedida = p.UnidadMedida != null ? p.UnidadMedida.Descripcion : null,
-                pesoKg = p.PesoKg,
-                tipoIgv = p.TipoIgv != null ? p.TipoIgv.Descripcion : null,
-                p.Icbper,
-                p.RestriccionEdad,
-                p.EsServicio,
-                stock = p.EsServicio ? (int?)null : p.Stock,
-                presentaciones = p.Presentaciones.Where(x => x.Estado)
-                    .Select(x => new { x.Nombre, unidad = x.UnidadMedida != null ? x.UnidadMedida.Descripcion : null, x.Factor, x.PrecioVenta }).ToList(),
-                agotado = !p.EsServicio && (p.Stock ?? 0) <= 0
-            }).ToListAsync();
+    private static object ConfigPublica(TiendaConfig c)
+        => new { c.Titulo, c.Descripcion, c.LogoUrl, c.BannerUrl, c.ColorPrimario, c.ColorFondo, c.ColorTexto, c.Whatsapp };
 
-        return new
-        {
-            config = new { config.Titulo, config.Descripcion, config.LogoUrl, config.BannerUrl, config.ColorPrimario, config.ColorFondo, config.ColorTexto, config.Whatsapp },
-            productos
-        };
+    // Solo lo que se vende y esta disponible (servicio o con stock).
+    private IQueryable<Producto> Vendibles(string tenant)
+        => _context.Producto.IgnoreQueryFilters().AsNoTracking()
+            .Where(p => p.TenantId.ToLower() == tenant && p.Estado && p.SeVende && (p.EsServicio || (p.Stock ?? 0) > 0));
+
+    // Nunca se exponen costo, margen, precio minimo, cuentas contables ni proveedor.
+    private static IQueryable<object> Publico(IQueryable<Producto> q) => q.Select(p => (object)new
+    {
+        p.Id, p.Nombre, p.Descripcion, p.Marca,
+        imagen = p.RutaImagen,
+        p.VideoUrl,
+        p.Galeria,
+        precio = p.PrecioVentaConInpuesto ?? p.Precio,
+        categoria = p.Categoria != null ? p.Categoria.Nombre : null,
+        grupo = p.Grupo != null ? p.Grupo.Nombre : null,
+        codigo = p.Codigo,
+        p.CodigoBarra,
+        unidadMedida = p.UnidadMedida != null ? p.UnidadMedida.Descripcion : null,
+        pesoKg = p.PesoKg,
+        tipoIgv = p.TipoIgv != null ? p.TipoIgv.Descripcion : null,
+        p.Icbper,
+        p.RestriccionEdad,
+        p.EsServicio,
+        stock = p.EsServicio ? (int?)null : p.Stock,
+        presentaciones = p.Presentaciones.Where(x => x.Estado)
+            .Select(x => new { x.Nombre, unidad = x.UnidadMedida != null ? x.UnidadMedida.Descripcion : null, x.Factor, x.PrecioVenta }).ToList(),
+        agotado = !p.EsServicio && (p.Stock ?? 0) <= 0
+    });
+
+    public async Task<object?> ObtenerPublica(string tenant)
+    {
+        if (await ResolverTienda(tenant) is not var (t, config)) return null;
+        var productos = await Publico(Vendibles(t).OrderBy(p => p.Nombre).Take(500)).ToListAsync();
+        return new { config = ConfigPublica(config), productos };
+    }
+
+    // Landing de un producto: el producto y hasta 4 de la misma categoria. Mismo criterio de
+    // disponibilidad que el catalogo, asi que un producto agotado/oculto da 404.
+    public async Task<object?> ObtenerProductoPublico(string tenant, int id)
+    {
+        if (await ResolverTienda(tenant) is not var (t, config)) return null;
+        var actual = await Vendibles(t).Where(p => p.Id == id).Select(p => new { p.CategoriaId }).FirstOrDefaultAsync();
+        if (actual == null) return null;
+
+        var producto = await Publico(Vendibles(t).Where(p => p.Id == id)).FirstAsync();
+        var relacionados = await Publico(Vendibles(t)
+            .Where(p => p.Id != id && (actual.CategoriaId == null || p.CategoriaId == actual.CategoriaId))
+            .OrderBy(p => p.Nombre).Take(4)).ToListAsync();
+        return new { config = ConfigPublica(config), producto, relacionados };
     }
 }

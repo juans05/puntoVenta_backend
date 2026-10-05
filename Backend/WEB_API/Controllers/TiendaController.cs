@@ -18,6 +18,11 @@ public class TiendaController : ControllerBase
     public async Task<IActionResult> Publica(string tenant)
         => await _repo.ObtenerPublica(tenant) is { } data ? Ok(data) : NotFound("Tienda no disponible");
 
+    [AllowAnonymous]
+    [HttpGet("publica/{tenant}/producto/{id:int}")]
+    public async Task<IActionResult> Producto(string tenant, int id)
+        => await _repo.ObtenerProductoPublico(tenant, id) is { } data ? Ok(data) : NotFound("Producto no disponible");
+
     [Authorize(Policy = "TiendaAdmin")]
     [HttpGet("config")]
     public async Task<IActionResult> Config() => Ok(await _repo.ObtenerConfig());
