@@ -50,7 +50,13 @@ public class TiendaRepository
     // en vez de depender del filtro por tenant/sucursal del contexto.
     public async Task<object?> ObtenerPublica(string tenant)
     {
-        var t = tenant.Trim().ToLower();
+        var buscado = tenant.Trim().ToLower();
+        // El enlace del admin lleva el TenantKey (claim "empresa"), pero los datos se guardan con
+        // TenantId = Tenant.Name: se resuelve por cualquiera de los dos.
+        var t = await _context.Tenant.AsNoTracking()
+            .Where(x => x.Activo && (x.TenantKey.ToLower() == buscado || x.Name.ToLower() == buscado))
+            .Select(x => x.Name.ToLower()).FirstOrDefaultAsync();
+        if (t == null) return null;
         var config = await _context.TiendaConfig.IgnoreQueryFilters().AsNoTracking()
             .FirstOrDefaultAsync(c => c.TenantId.ToLower() == t && c.Estado);
         if (config == null || !config.Publicada) return null;
