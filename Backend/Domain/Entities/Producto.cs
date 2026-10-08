@@ -87,6 +87,21 @@ public class Producto : EntityBase
         // (ponytail: sin FK por entrada; pasar a tabla hija si hace falta integridad/reportes).
         public string? CuentasInventarioMovimiento { get; set; }
 
+        // Cuenta de inventario configurada para un tipo de movimiento; null si no hay o el JSON es invalido.
+        public int? CuentaInventarioDeMovimiento(Domain.Enumerations.TipoMovimientoInventario movimiento)
+        {
+            if (string.IsNullOrWhiteSpace(CuentasInventarioMovimiento)) return null;
+            try { return System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(CuentasInventarioMovimiento)?.GetValueOrDefault(((int)movimiento).ToString()) is var id && id > 0 ? id : null; }
+            catch (System.Text.Json.JsonException) { return null; }
+        }
+
+        // Cuenta de inventario para una entrada por compra: la del movimiento Compra, si no la general.
+        public int? CuentaInventarioCompra => CuentaInventarioDeMovimiento(Domain.Enumerations.TipoMovimientoInventario.Compra) ?? CuentaInventarioId;
+
+        // Haber del costo de venta (69 / esta): inventario del movimiento Venta, si no el Haber del par
+        // de gasto, si no el inventario general.
+        public int? CuentaHaberCostoVenta => CuentaInventarioDeMovimiento(Domain.Enumerations.TipoMovimientoInventario.Venta) ?? CuentaGastoHaberId ?? CuentaInventarioId;
+
         public List<PrecioAlternativo> PreciosAlternativos { get; set; } = new List<PrecioAlternativo>();
         public List<Presentacion> Presentaciones { get; set; } = new List<Presentacion>();
         public List<ComprobanteDetalle> ComprobanteDetalles { get; set; } = new List<ComprobanteDetalle>();

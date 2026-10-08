@@ -28,4 +28,6 @@ public class AsientoContableService
     public async Task<MessageResult<object>> Listar(DateTime? desde, DateTime? hasta, string? origenTipo) => Resolver(await _repo.Listar(desde, hasta, origenTipo));
     public async Task<MessageResult<object>> ObtenerEstadoResultados(DateTime? desde, DateTime? hasta) => Resolver(await _repo.ObtenerEstadoResultados(desde, hasta));
     public async Task<MessageResult<object>> ObtenerBalanceGeneral(DateTime hasta) => Resolver(await _repo.ObtenerBalanceGeneral(hasta));
+    public async Task<MessageResult<object>> CrearManual(Domain.Payloads.CrearAsientoManualPayload payload) => Resolver(await _repo.CrearManual(payload));
+    public async Task<MessageResult<object>> AnularManual(int id) => Resolver(await _repo.AnularManual(id));
 }

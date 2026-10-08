@@ -22,9 +22,11 @@ public class InventoryRepository : IInventoryRepository
     private readonly SpaContext _context;
     private readonly IMapper _mapper;
     private readonly IHttpContextAccessor? _httpContextAccessor;
+    private readonly IAsientoContableRepository _asientoContableRepository;
 
-    public InventoryRepository(SpaContext context, IMapper mapper, IHttpContextAccessor? httpContextAccessor)
+    public InventoryRepository(SpaContext context, IMapper mapper, IHttpContextAccessor? httpContextAccessor, IAsientoContableRepository asientoContableRepository)
     {
+        _asientoContableRepository = asientoContableRepository;
         _context = context;
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
@@ -43,21 +45,31 @@ public class InventoryRepository : IInventoryRepository
 
     public async Task<(ServiceStatus, InventoryMovementDto?, string)> RegistrarMovimiento(int productoId, TipoMovimientoInventario tipo, int cantidad, string? referenciaTipo = null, int? referenciaId = null, int? sucursalId = null)
     {
+        await _context.Database.BeginTransactionAsync();
         try
         {
             if (cantidad <= 0)
+            {
+                await _context.Database.RollbackTransactionAsync();
                 return (ServiceStatus.FailedValidation, null, "La cantidad debe ser mayor a cero");
+            }
 
             var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == productoId);
 
             if (producto == null)
+            {
+                await _context.Database.RollbackTransactionAsync();
                 return (ServiceStatus.NotFound, null, $"No se encontro el producto {productoId}");
+            }
 
             var delta = EsEntrada(tipo) ? cantidad : -cantidad;
             var ajuste = await StockSucursalHelper.Ajustar(_context, producto, sucursalId, delta);
 
             if (!ajuste.Ok)
+            {
+                await _context.Database.RollbackTransactionAsync();
                 return (ServiceStatus.FailedValidation, null, ajuste.Error);
+            }
 
             var movimiento = new InventoryMovement
             {
@@ -74,6 +86,30 @@ public class InventoryRepository : IInventoryRepository
             await _context.InventoryMovement.AddAsync(movimiento);
             await _context.SaveChangesAsync();
 
+            // Ajuste al costo contra 61 Variacion de existencias: entrada 20 / 61, salida 61 / 20.
+            // ponytail: un solo par 20<->61 para sobrantes y faltantes; usar 659x/759x si contabilidad
+            // quiere separar mermas como gasto.
+            var costo = Math.Round((producto.CostoUnitario ?? 0) * cantidad, 2);
+            if ((tipo is TipoMovimientoInventario.AjusteEntrada or TipoMovimientoInventario.AjusteSalida) && costo > 0)
+            {
+                var inventario = await _asientoContableRepository.CodigoCuenta(producto.CuentaInventarioDeMovimiento(tipo) ?? producto.CuentaInventarioId, "20");
+                var entrada = tipo == TipoMovimientoInventario.AjusteEntrada;
+                var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
+                    OrigenAsientoContable.AjusteInventario, movimiento.Id, $"Ajuste de {(entrada ? "entrada" : "salida")} - {producto.Nombre}",
+                    new List<LineaAsientoContable>
+                    {
+                        new(inventario, entrada ? costo : 0, entrada ? 0 : costo),
+                        new("61", entrada ? 0 : costo, entrada ? costo : 0),
+                    });
+                if (estadoAsiento != ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                }
+            }
+
+            await _context.Database.CommitTransactionAsync();
+
             var dto = await _context.InventoryMovement.AsNoTracking()
                                         .Include(m => m.Producto)
                                         .ProjectTo<InventoryMovementDto>(_mapper.ConfigurationProvider)
@@ -83,6 +119,7 @@ public class InventoryRepository : IInventoryRepository
         }
         catch (Exception ex)
         {
+            await _context.Database.RollbackTransactionAsync();
             return (ServiceStatus.InternalError, null, $"Error al registrar movimiento -> {ex.InnerException?.Message ?? ex.Message}");
         }
     }

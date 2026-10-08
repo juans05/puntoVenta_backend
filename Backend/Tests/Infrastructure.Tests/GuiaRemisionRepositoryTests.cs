@@ -14,7 +14,7 @@ public class GuiaRemisionRepositoryTests
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
         var guiaRepo = new GuiaRemisionRepository(context, httpContextAccessor: null);
-        var pedidoRepo = new PedidoVentaRepository(context, httpContextAccessor: null, guiaRepo);
+        var pedidoRepo = new PedidoVentaRepository(context, httpContextAccessor: null, guiaRepo, new AsientoContableRepository(context));
         var compra = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
         var config = new OrdenCompraRepository(context, compra, new DepartamentoRepository(context), new AsientoContableRepository(context), httpContextAccessor: null);
         return (guiaRepo, pedidoRepo, config, context, connection);

@@ -14,7 +14,7 @@ public class PedidoVentaRepositoryTests
     private static (PedidoVentaRepository Repo, ComprobanteRepository Comprobante, OrdenCompraRepository Config, SpaContext Context, System.Data.Common.DbConnection Connection) Preparar()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
-        var repo = new PedidoVentaRepository(context, httpContextAccessor: null, new GuiaRemisionRepository(context, httpContextAccessor: null));
+        var repo = new PedidoVentaRepository(context, httpContextAccessor: null, new GuiaRemisionRepository(context, httpContextAccessor: null), new AsientoContableRepository(context));
         var comprobante = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new TaxCalculatorFactory());
         var compra = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
         var config = new OrdenCompraRepository(context, compra, new DepartamentoRepository(context), new AsientoContableRepository(context), httpContextAccessor: null);
@@ -160,6 +160,54 @@ public class PedidoVentaRepositoryTests
         Assert.Equal(5, await StockAsync(context, productoId)); // solo bajo en la entrega
         var (_, final, _) = await repo.Obtener(pedido.Id);
         Assert.Equal(EstadosPedidoVenta.Cerrado, final!.EstadoPedidoVenta);
+    }
+
+    // PCGE: la salida (69/20) se contabiliza en la entrega; la factura del pedido no la repite,
+    // y anular la entrega la reversa.
+    [Fact]
+    public async Task Entrega_GeneraAsientoDeCosto_LaFacturaNoLoRepiteYAnularLoReversa()
+    {
+        var (repo, comprobante, config, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarVentas(config, FlujoComprasModo.Completo);
+        context.TipoDocumentoVenta.Add(new TipoDocumentoVenta { Id = 2, Nombre = "BOLETA" });
+        var producto = new Producto { Nombre = "Producto PV", Precio = 10, Stock = 10, CostoUnitario = 4m, RestriccionEdad = 0 };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var (_, pedido, _) = await repo.Crear(Pedido(producto.Id, 5));
+
+        var (_, entregado, _) = await repo.RegistrarEntrega(pedido!.Id, new CreateEntregaPayload { Detalle = new() { new() { PedidoVentaDetalleId = pedido.Detalle[0].Id, Cantidad = 3 } } });
+        var entregaId = entregado!.Entregas[0].Id;
+        var salida = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.SalidaEntrega && a.OrigenId == entregaId);
+        Assert.Contains(salida.Detalle, d => d.CuentaContable!.Codigo == "69" && d.Debe == 12m); // 3 x 4
+        Assert.Contains(salida.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == 12m);
+
+        var (estadoFactura, _, mensaje) = await comprobante.CrearComprobante(Factura(producto.Id, 3, pedido.Id));
+        Assert.True(estadoFactura == ServiceStatus.Ok, mensaje);
+        Assert.False(await context.AsientoContable.AnyAsync(a => a.OrigenTipo == OrigenAsientoContable.SalidaVenta));
+    }
+
+    [Fact]
+    public async Task AnularEntrega_ReversaElAsientoDeCosto()
+    {
+        var (repo, _, config, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarVentas(config, FlujoComprasModo.Completo);
+        var producto = new Producto { Nombre = "Producto PV", Precio = 10, Stock = 10, CostoUnitario = 4m, RestriccionEdad = 0 };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var (_, pedido, _) = await repo.Crear(Pedido(producto.Id, 5));
+        var (_, entregado, _) = await repo.RegistrarEntrega(pedido!.Id, new CreateEntregaPayload { Detalle = new() { new() { PedidoVentaDetalleId = pedido.Detalle[0].Id, Cantidad = 3 } } });
+        var entregaId = entregado!.Entregas[0].Id;
+
+        var (estado, _, mensaje) = await repo.AnularEntrega(entregaId);
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asientos = await context.AsientoContable.AsNoTracking()
+            .Where(a => a.OrigenTipo == OrigenAsientoContable.SalidaEntrega && a.OrigenId == entregaId).ToListAsync();
+        Assert.Equal(2, asientos.Count); // original ANULADO + reverso
+        Assert.Contains(asientos, a => a.EstadoAsiento == EstadoAsientoContable.Anulado);
     }
 
     [Fact]

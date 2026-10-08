@@ -234,8 +234,55 @@ public class CompraRepositoryTests
 
         var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto.Id);
-        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == 100m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "60" && d.Debe == 100m);
         Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "63" && d.Debe == 50m);
+
+        // Ambas lineas son bienes: las dos entran al almacen (20/61) por el total, aunque una se facturo a 63.
+        var entrada = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.EntradaCompra && a.OrigenId == dto.Id);
+        Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == 150m);
+        Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "61" && d.Haber == 150m);
+    }
+
+    // Linea sin cuenta elegida: usa la cuenta del producto (servicio -> gasto Debe; bien -> inventario de Compra).
+    [Fact]
+    public async Task CrearCompra_SinCuentaEnLinea_UsaLaCuentaDelProducto()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var cuentaGasto = new CuentaContable { Codigo = "63110000", Nombre = "Transporte", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "63" };
+        var cuentaInv = new CuentaContable { Codigo = "20111000", Nombre = "Mercaderias propias", Tipo = TipoCuentaContable.Activo, Nivel = 5, ClaseCuenta = "20" };
+        context.CuentaContable.AddRange(cuentaGasto, cuentaInv);
+        await context.SaveChangesAsync();
+        var servicio = new Producto { Nombre = "Flete", Precio = 1, RestriccionEdad = 0, EsServicio = true, CuentaCostoId = cuentaGasto.Id };
+        var bien = new Producto { Nombre = "Caja", Precio = 1, Stock = 0, RestriccionEdad = 0,
+            CuentasInventarioMovimiento = $"{{\"{(int)Domain.Enumerations.TipoMovimientoInventario.Compra}\":{cuentaInv.Id}}}" };
+        context.Producto.AddRange(servicio, bien);
+        await context.SaveChangesAsync();
+        var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            TipoIgvId = tipoIgvExoneradoId,
+            Detalle = new List<CompraDetallePayload>
+            {
+                new() { ProductoId = servicio.Id, Cantidad = 1, CostoUnitario = 30m },
+                new() { ProductoId = bien.Id, Cantidad = 2, CostoUnitario = 10m },
+            }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto!.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "63110000" && d.Debe == 30m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "60" && d.Debe == 20m);
+
+        var entrada = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.EntradaCompra && a.OrigenId == dto!.Id);
+        Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "20111000" && d.Debe == 20m); // solo el bien, no el servicio
+        Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "61" && d.Haber == 20m);
     }
 
     // ModoCentroCosto=OBLIGATORIO en la cuenta (ver "configuracion plan de cuentas ERPdocx.docx"):
@@ -319,8 +366,13 @@ public class CompraRepositoryTests
         var asientoNota = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota.Id);
         Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Debe == compra.Total); // invertido vs la factura
-        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == compra.ValorGravada);
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "60" && d.Haber == compra.ValorGravada);
         Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "40111" && d.Haber == compra.ValorIgv);
+
+        var asientoDevolucion = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.NotaCompraEntrada && a.OrigenId == nota.Id);
+        Assert.Contains(asientoDevolucion.Detalle, d => d.CuentaContable!.Codigo == "61" && d.Debe == compra.ValorGravada);
+        Assert.Contains(asientoDevolucion.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Haber == compra.ValorGravada);
     }
 
     [Fact]
@@ -348,7 +400,7 @@ public class CompraRepositoryTests
 
         var asientoNota = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "NotaCompra" && a.OrigenId == nota!.Id);
-        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "20" && d.Debe == compra.ValorGravada); // mismo sentido que la factura
+        Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "60" && d.Debe == compra.ValorGravada); // mismo sentido que la factura
         Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "40111" && d.Debe == compra.ValorIgv);
         Assert.Contains(asientoNota.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Haber == compra.Total);
     }
