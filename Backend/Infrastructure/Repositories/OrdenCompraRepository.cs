@@ -469,6 +469,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
             await _context.SaveChangesAsync();
 
             var totalRecepcion = 0m;
+            var debePorCuentaId = new Dictionary<int, decimal>(); // inventario propio del producto (movimiento Compra)
             foreach (var l in lineas)
             {
                 var od = orden.Detalles.First(d => d.Id == l.OrdenCompraDetalleId);
@@ -489,6 +490,9 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                     await _context.Database.RollbackTransactionAsync();
                     return (ServiceStatus.FailedValidation, null, $"No se encontró el producto {od.ProductoId}");
                 }
+
+                if (producto.CuentaInventarioCompra is int cuentaInventarioId)
+                    debePorCuentaId[cuentaInventarioId] = debePorCuentaId.GetValueOrDefault(cuentaInventarioId) + l.Cantidad * od.CostoUnitario;
 
                 if (producto.EsServicio) continue; // servicio: sin inventario
 
@@ -520,10 +524,20 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
             if (totalRecepcion > 0)
             {
+                // Debe: cuenta de inventario de cada producto (o "20" por defecto), agrupada.
+                var codigos = debePorCuentaId.Count == 0 ? new Dictionary<int, string>()
+                    : await _context.CuentaContable.AsNoTracking().Where(c => debePorCuentaId.Keys.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Codigo);
+                var debePorCodigo = new Dictionary<string, decimal>();
+                foreach (var (cuentaId, monto) in debePorCuentaId)
+                    if (codigos.TryGetValue(cuentaId, out var codigo)) debePorCodigo[codigo] = debePorCodigo.GetValueOrDefault(codigo) + monto;
+                var restoDefecto = totalRecepcion - debePorCodigo.Values.Sum();
+                if (restoDefecto != 0) debePorCodigo["20"] = debePorCodigo.GetValueOrDefault("20") + restoDefecto;
+
+                var lineasRecepcion = debePorCodigo.Select(kv => new LineaAsientoContable(kv.Key, Math.Round(kv.Value, 2), 0)).ToList();
+                lineasRecepcion.Add(new("61", 0, lineasRecepcion.Sum(x => x.Debe))); // PCGE 60/61: la factura de la orden va a 60
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
                     OrigenAsientoContable.MovimientoInventario, recepcion.Id,
-                    $"Recepción {recepcion.Numero} de orden {orden.Numero}",
-                    new List<LineaAsientoContable> { new("20", totalRecepcion, 0), new("4211", 0, totalRecepcion) });
+                    $"Recepción {recepcion.Numero} de orden {orden.Numero}", lineasRecepcion);
                 if (estadoAsiento != ServiceStatus.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();

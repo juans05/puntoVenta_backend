@@ -23,9 +23,11 @@ public class PedidoVentaRepository : IPedidoVentaRepository
     private readonly SpaContext _context;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly IGuiaRemisionRepository _guiaRemisionRepository;
+    private readonly IAsientoContableRepository _asientoContableRepository;
 
-    public PedidoVentaRepository(SpaContext context, IHttpContextAccessor? httpContextAccessor, IGuiaRemisionRepository guiaRemisionRepository)
+    public PedidoVentaRepository(SpaContext context, IHttpContextAccessor? httpContextAccessor, IGuiaRemisionRepository guiaRemisionRepository, IAsientoContableRepository asientoContableRepository)
     {
+        _asientoContableRepository = asientoContableRepository;
         _context = context;
         _httpContextAccessor = httpContextAccessor;
         _guiaRemisionRepository = guiaRemisionRepository;
@@ -361,6 +363,7 @@ public class PedidoVentaRepository : IPedidoVentaRepository
             _context.Entrega.Add(entrega);
             await _context.SaveChangesAsync();
 
+            var lineasSalida = new List<LineaAsientoContable>();
             foreach (var l in lineas)
             {
                 var pd = pedido.Detalles.First(d => d.Id == l.PedidoVentaDetalleId);
@@ -387,6 +390,14 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                     ProductoId = pd.ProductoId,
                     Cantidad = l.Cantidad
                 });
+                // Salida de mercaderia al costo: 69 Costo de ventas / 20 (cuentas del producto si las tiene).
+                var costo = Math.Round((producto.CostoUnitario ?? 0) * l.Cantidad, 2);
+                if (ajuste != null && costo > 0)
+                {
+                    lineasSalida.Add(new(await _asientoContableRepository.CodigoCuenta(producto.CuentaCostoId, "69"), costo, 0));
+                    lineasSalida.Add(new(await _asientoContableRepository.CodigoCuenta(producto.CuentaHaberCostoVenta, "20"), 0, costo));
+                }
+
                 if (ajuste != null) _context.InventoryMovement.Add(new InventoryMovement
                 {
                     ProductoId = producto.Id,
@@ -402,6 +413,18 @@ public class PedidoVentaRepository : IPedidoVentaRepository
 
             EstadosPedidoVenta.Recalcular(pedido);
             await _context.SaveChangesAsync();
+
+            if (lineasSalida.Count > 0)
+            {
+                var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
+                    OrigenAsientoContable.SalidaEntrega, entrega.Id, $"Salida de mercadería - Entrega {entrega.Numero}", lineasSalida);
+                if (estadoAsiento != ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                }
+            }
+
             await _context.Database.CommitTransactionAsync();
             return await Obtener(pedidoId);
         }
@@ -469,6 +492,7 @@ public class PedidoVentaRepository : IPedidoVentaRepository
             if (pedido.EstadoPedidoVenta == EstadosPedidoVenta.Cerrado) pedido.EstadoPedidoVenta = EstadosPedidoVenta.Entregado;
             EstadosPedidoVenta.Recalcular(pedido);
             await _context.SaveChangesAsync();
+            await _asientoContableRepository.Reversar(OrigenAsientoContable.SalidaEntrega, entrega.Id); // NotFound si no tuvo costo
             await _context.Database.CommitTransactionAsync();
             return await Obtener(pedido.Id);
         }

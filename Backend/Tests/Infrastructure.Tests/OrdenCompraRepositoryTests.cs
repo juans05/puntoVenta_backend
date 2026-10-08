@@ -104,6 +104,30 @@ public class OrdenCompraRepositoryTests
     }
 
     [Fact]
+    public async Task Recepcion_ProductoConCuentaInventarioPropia_CargaEsaCuentaEnVezDe20()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo);
+        var cuentaInv = new CuentaContable { Codigo = "20111000", Nombre = "Mercaderias propias", Tipo = TipoCuentaContable.Activo, Nivel = 5, ClaseCuenta = "20" };
+        context.CuentaContable.Add(cuentaInv);
+        await context.SaveChangesAsync();
+        var producto = new Producto { Nombre = "Producto OC", Precio = 10, Stock = 0, RestriccionEdad = 0, CuentaInventarioId = cuentaInv.Id };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var (_, orden, _) = await repo.CrearOrden(Orden(producto.Id, cantidad: 10, costo: 5m));
+
+        var (estado, _, mensaje) = await repo.RegistrarRecepcion(orden!.Id, new CreateRecepcionPayload { Detalle = new() { new() { OrdenCompraDetalleId = orden.Detalle[0].Id, Cantidad = 10 } } });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.MovimientoInventario);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "20111000" && d.Debe == 50m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "61" && d.Haber == 50m);
+        Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "20");
+    }
+
+    [Fact]
     public async Task Recepcion_NoPermiteRecibirMasDeLoPendiente()
     {
         var (repo, _, context, connection) = Preparar();

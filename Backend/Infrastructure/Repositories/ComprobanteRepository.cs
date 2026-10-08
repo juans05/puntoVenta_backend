@@ -739,6 +739,7 @@ namespace Infrastructure.Repositories
                 await _context.SaveChangesAsync();
 
                 await _asientoContableRepository.Reversar(OrigenAsientoContable.Venta, entity.Id);
+                await _asientoContableRepository.Reversar(OrigenAsientoContable.SalidaVenta, entity.Id); // NotFound si no hubo costo
 
                 await _context.Database.CommitTransactionAsync();
 
@@ -760,14 +761,6 @@ namespace Infrastructure.Repositories
         // Cuentas por defecto (PCGE): 10 Efectivo, 12 Cuentas por Cobrar, 70 Ventas, 69 Costo de
         // Ventas, 20 Mercaderias, 40111 IGV Cuenta propia -- cada producto puede sobreescribir
         // Ingresos/Costo/Inventario desde su tab Contabilidad.
-        // Cuenta de inventario configurada para un tipo de movimiento (Producto.CuentasInventarioMovimiento).
-        private static int? CuentaInventarioDeMovimiento(Producto p, TipoMovimientoInventario movimiento)
-        {
-            if (string.IsNullOrWhiteSpace(p.CuentasInventarioMovimiento)) return null;
-            try { return System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(p.CuentasInventarioMovimiento)?.GetValueOrDefault(((int)movimiento).ToString()) is var id && id > 0 ? id : null; }
-            catch (System.Text.Json.JsonException) { return null; }
-        }
-
         private async Task<(ServiceStatus, Domain.DTO.AsientoContableDto?, string)> GenerarAsientoVenta(
             ComprobanteCabecera cabecera, List<ComprobanteDetalle> detalle, bool esCredito, Dictionary<int, Producto> productos)
         {
@@ -778,7 +771,7 @@ namespace Infrastructure.Repositories
                 : null;
 
             var cuentaIds = productos.Values
-                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaIngresoDebeId, p.CuentaCostoId, p.CuentaInventarioId, CuentaInventarioDeMovimiento(p, TipoMovimientoInventario.Venta) })
+                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaIngresoDebeId, p.CuentaCostoId, p.CuentaHaberCostoVenta })
                 .Append(cuentaPorCobrarCliente)
                 .Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
             var codigosPorCuentaId = cuentaIds.Count > 0
@@ -804,7 +797,7 @@ namespace Infrastructure.Repositories
             foreach (var (cuentaDebe, montoDebe) in debePorCuenta)
                 lineas.Add(new(cuentaDebe, montoDebe, 0));
             var restoContraparte = cabecera.ValorTotal - debePorCuenta.Values.Sum();
-            if (restoContraparte != 0) lineas.Add(new(contraparte, restoContraparte, 0));
+            if (restoContraparte != 0) lineas.Add(new(contraparte, restoContraparte, 0) { CuentaAsociada = cabecera.NumeroDocumento });
             if (cabecera.ValorIgv > 0)
                 lineas.Add(new LineaAsientoContable("40111", 0, cabecera.ValorIgv));
 
@@ -818,12 +811,13 @@ namespace Infrastructure.Repositories
                 var importeSinIgv = item.ValorUnitarioTotal - item.ValorIgv;
                 ingresosPorCuenta[cuentaIngreso] = ingresosPorCuenta.GetValueOrDefault(cuentaIngreso) + importeSinIgv;
 
-                if (producto.EsServicio) continue;
+                // StockYaDescontado: la mercaderia salio en una entrega del pedido, que ya genero su 69/20.
+                if (producto.EsServicio || cabecera.StockYaDescontado) continue;
 
                 var costo = (item.CostoReal ?? producto.CostoUnitario ?? 0) * item.Cantidad;
                 if (costo <= 0) continue;
 
-                var key = (CodigoDe(producto.CuentaCostoId, "69"), CodigoDe(CuentaInventarioDeMovimiento(producto, TipoMovimientoInventario.Venta) ?? producto.CuentaInventarioId, "20"));
+                var key = (CodigoDe(producto.CuentaCostoId, "69"), CodigoDe(producto.CuentaHaberCostoVenta, "20"));
                 costoPorCuentas[key] = costoPorCuentas.GetValueOrDefault(key) + costo;
             }
 
@@ -832,14 +826,23 @@ namespace Infrastructure.Repositories
             // cuenta puede traer residuo de punto flotante que el helper de asientos rechazaria.
             foreach (var (cuenta, monto) in ingresosPorCuenta)
                 lineas.Add(new LineaAsientoContable(cuenta, 0, Math.Round(monto, 2)));
+
+            var resultadoVenta = await _asientoContableRepository.Generar(OrigenAsientoContable.Venta, cabecera.Id, $"Venta {cabecera.Serie}-{cabecera.Correlativo}", lineas,
+                fechaDocumento: cabecera.FechaVenta, fechaVencimiento: cabecera.FechaVencimiento);
+            if (resultadoVenta.Item1 != ServiceStatus.Ok) return resultadoVenta;
+
+            // Salida de mercaderia en asiento propio (PCGE): 69 Costo de ventas / 20 Mercaderias.
+            var lineasSalida = new List<LineaAsientoContable>();
             foreach (var ((cuentaCosto, cuentaInventario), monto) in costoPorCuentas)
             {
                 var montoRedondeado = Math.Round(monto, 2);
-                lineas.Add(new LineaAsientoContable(cuentaCosto, montoRedondeado, 0));
-                lineas.Add(new LineaAsientoContable(cuentaInventario, 0, montoRedondeado));
+                lineasSalida.Add(new LineaAsientoContable(cuentaCosto, montoRedondeado, 0));
+                lineasSalida.Add(new LineaAsientoContable(cuentaInventario, 0, montoRedondeado));
             }
+            if (lineasSalida.Count == 0) return resultadoVenta;
 
-            return await _asientoContableRepository.Generar(OrigenAsientoContable.Venta, cabecera.Id, $"Venta {cabecera.Serie}-{cabecera.Correlativo}", lineas);
+            var resultadoSalida = await _asientoContableRepository.Generar(OrigenAsientoContable.SalidaVenta, cabecera.Id, $"Salida de mercadería - Venta {cabecera.Serie}-{cabecera.Correlativo}", lineasSalida);
+            return resultadoSalida.Item1 != ServiceStatus.Ok ? resultadoSalida : resultadoVenta;
         }
 
         // Devuelve null si todo ok, o el mensaje de error de la primera línea que no se pudo revertir

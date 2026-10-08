@@ -105,33 +105,33 @@ public class CompraRepository : ICompraRepository
     // (CompraDetalle.CuentaContableId), agrupando por cuenta y escalando los montos crudos
     // (Cantidad*CostoUnitario, pre-descuento) a la proporcion de "gravada" (post-descuento/otros
     // cargos, pre-IGV) para que la suma cuadre exacto -- el ultimo grupo absorbe el redondeo.
-    // Lineas sin cuenta elegida caen en cuentaDebePorDefecto (mismo criterio que antes de esto).
+    // cuentaDe(d) da la cuenta elegida para la linea; si no hay, cae en porDefecto(d).
     private async Task<List<LineaAsientoContable>> LineasDebePorCuenta(
-        List<CompraDetalle> detalle, decimal subtotalProductos, decimal gravada, string cuentaDebePorDefecto)
+        List<CompraDetalle> detalle, decimal subtotalProductos, decimal gravada, Func<CompraDetalle, int?> CuentaDe, Func<CompraDetalle, string> porDefecto)
     {
-        var cuentaIds = detalle.Where(d => d.CuentaContableId.HasValue).Select(d => d.CuentaContableId!.Value).Distinct().ToList();
+        var cuentaIds = detalle.Select(CuentaDe).Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
         var codigos = cuentaIds.Count == 0
             ? new Dictionary<int, string>()
             : await _context.CuentaContable.AsNoTracking().Where(c => cuentaIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Codigo);
 
         var factor = subtotalProductos > 0 ? gravada / subtotalProductos : 1m;
         var grupos = detalle
-            .GroupBy(d => d.CuentaContableId.HasValue && codigos.TryGetValue(d.CuentaContableId.Value, out var cod) ? cod : cuentaDebePorDefecto)
-            .Select(g => (Cuenta: g.Key, Monto: Math.Round(g.Sum(d => d.Cantidad * d.CostoUnitario) * factor, 2)))
+            .GroupBy(d => (Cuenta: CuentaDe(d) is int id && codigos.TryGetValue(id, out var cod) ? cod : porDefecto(d), d.CentroCostoId))
+            .Select(g => (g.Key.Cuenta, g.Key.CentroCostoId, Monto: Math.Round(g.Sum(d => d.Cantidad * d.CostoUnitario) * factor, 2)))
             .Where(g => g.Monto != 0)
             .ToList();
 
-        if (grupos.Count == 0) return new List<LineaAsientoContable> { new(cuentaDebePorDefecto, gravada, 0) };
+        if (grupos.Count == 0) return detalle.Count == 0 ? new() : new List<LineaAsientoContable> { new(porDefecto(detalle[0]), gravada, 0) };
 
         // Ajusta el ultimo grupo para que la suma cuadre exacto con "gravada" pese al redondeo por grupo.
         var diferencia = gravada - grupos.Sum(g => g.Monto);
         if (diferencia != 0)
         {
             var ultimo = grupos[^1];
-            grupos[^1] = (ultimo.Cuenta, ultimo.Monto + diferencia);
+            grupos[^1] = (ultimo.Cuenta, ultimo.CentroCostoId, ultimo.Monto + diferencia);
         }
 
-        return grupos.Select(g => new LineaAsientoContable(g.Cuenta, g.Monto, 0)).ToList();
+        return grupos.Select(g => new LineaAsientoContable(g.Cuenta, g.Monto, 0) { CentroCosto1Id = g.CentroCostoId }).ToList();
     }
 
     // Si una linea postea a una cuenta con ModoCentroCosto=OBLIGATORIO, esa linea debe traer su
@@ -314,34 +314,61 @@ public class CompraRepository : ICompraRepository
             // debe al proveedor -- y el IGV se reconoce aparte en 40111 (credito fiscal) en vez de
             // mezclarse con el costo/gasto/puente. Usa gravada (post-descuento, pre-IGV) en vez de
             // subtotalProductos (pre-descuento) para que cuadre con compra.Total/ValorIgv.
+            // Metodo PCGE 60/61: la factura va a 60 Compras (bien) / 63 (servicio); la mercaderia
+            // entra a 20 contra 61 en un asiento aparte (EntradaCompra aqui, o la Recepcion de la orden).
             if (gravada > 0)
             {
-                var cuentaDebePorDefecto = "20"; // compra directa (!deOrden): mercaderia recibida en el mismo paso, sube stock ahora mismo.
-                if (deOrden)
-                {
-                    var tipoOrden = await _context.OrdenCompra.AsNoTracking()
-                        .Where(o => o.Id == compra.OrdenCompraId).Select(o => o.TipoOrden).FirstOrDefaultAsync();
-                    cuentaDebePorDefecto = tipoOrden == TipoOrdenCompra.Servicio ? "63" : "4211";
-                }
+                var ordenServicio = deOrden && await _context.OrdenCompra.AsNoTracking()
+                    .Where(o => o.Id == compra.OrdenCompraId).Select(o => o.TipoOrden).FirstOrDefaultAsync() == TipoOrdenCompra.Servicio;
 
                 // Si el proveedor tiene su propia Cuenta por Pagar (configurada al crearlo), la
                 // factura postea ahi en vez de "42" -- mismo patron que Producto.CuentaIngresoId.
+                var rucProveedor = compra.ProveedorId.HasValue
+                    ? await _context.Proveedor.AsNoTracking().Where(p => p.Id == compra.ProveedorId).Select(p => p.Ruc).FirstOrDefaultAsync()
+                    : null;
                 var cuentaPorPagarCodigo = compra.ProveedorId.HasValue
                     ? await _context.Proveedor.AsNoTracking().Where(p => p.Id == compra.ProveedorId)
                         .Select(p => p.CuentaPorPagarId.HasValue ? p.CuentaPorPagar!.Codigo : null).FirstOrDefaultAsync()
                     : null;
 
+                var productoIds = detalle.Where(d => d.ProductoId.HasValue).Select(d => d.ProductoId!.Value).Distinct().ToList();
+                var productosCuenta = await _context.Producto.AsNoTracking().Where(p => productoIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
+                Producto? ProductoDe(CompraDetalle d) => d.ProductoId is int pid && productosCuenta.TryGetValue(pid, out var p) ? p : null;
+                bool EsServicio(CompraDetalle d) => ProductoDe(d)?.EsServicio ?? ordenServicio;
+
+                // Debe de la factura: cuenta de la linea; si no, la de gasto del servicio; si no, 63/60.
                 var lineasFactura = new List<LineaAsientoContable>();
-                lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada, cuentaDebePorDefecto));
+                lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada,
+                    d => d.CuentaContableId ?? (EsServicio(d) ? ProductoDe(d)?.CuentaCostoId : null),
+                    d => EsServicio(d) ? "63" : "60"));
                 if (igv > 0) lineasFactura.Add(new LineaAsientoContable("40111", igv, 0));
-                lineasFactura.Add(new LineaAsientoContable(cuentaPorPagarCodigo ?? "42", 0, total));
+                lineasFactura.Add(new LineaAsientoContable(cuentaPorPagarCodigo ?? "42", 0, total) { CuentaAsociada = rucProveedor });
 
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
-                    OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}", lineasFactura);
+                    OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}", lineasFactura,
+                    fechaDocumento: compra.FechaEmision ?? compra.FechaCompra, fechaVencimiento: compra.FechaVencimiento);
                 if (estadoAsiento != ServiceStatus.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();
                     return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
+                }
+
+                // Compra directa: la mercaderia entra en este mismo paso -> 20 (inventario del producto) / 61,
+                // al mismo valor (post-descuento, pre-IGV) que se cargo a 60 en la factura.
+                var bienes = deOrden ? new List<CompraDetalle>() : detalle.Where(d => !EsServicio(d)).ToList();
+                var subtotalBienes = bienes.Sum(d => d.Cantidad * d.CostoUnitario);
+                var valorBienes = subtotalProductos > 0 ? Math.Round(subtotalBienes * gravada / subtotalProductos, 2) : 0m;
+                if (valorBienes > 0)
+                {
+                    var lineasEntrada = await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaInventarioCompra, _ => "20");
+                    lineasEntrada.Add(new LineaAsientoContable("61", 0, valorBienes));
+                    var (estadoEntrada, _, mensajeEntrada) = await _asientoContableRepository.Generar(
+                        OrigenAsientoContable.EntradaCompra, compra.Id, $"Entrada de mercadería - Factura {compra.NumeroCompra}", lineasEntrada);
+                    if (estadoEntrada != ServiceStatus.Ok)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                        return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento de entrada -> {mensajeEntrada}");
+                    }
                 }
             }
 
@@ -414,6 +441,7 @@ public class CompraRepository : ICompraRepository
             await _context.SaveChangesAsync();
 
             await _asientoContableRepository.Reversar(OrigenAsientoContable.Factura, compra.Id);
+            await _asientoContableRepository.Reversar(OrigenAsientoContable.EntradaCompra, compra.Id); // NotFound si fue de orden
 
             await _context.Database.CommitTransactionAsync();
 
@@ -510,6 +538,19 @@ public class CompraRepository : ICompraRepository
                 return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
             }
 
+            // Si la nota devolvio mercaderia, tambien se invierte la entrada (20/61 -> 61/20). NotFound
+            // = compra anterior al metodo 60/61, sin asiento de entrada propio: no hay nada que invertir.
+            if (payload.Tipo == TipoNotaCompra.Credito && motivo.RevierteStock && !compra.StockYaIngresado)
+            {
+                var (estadoEntrada, _, mensajeEntrada) = await _asientoContableRepository.GenerarBasadoEn(
+                    OrigenAsientoContable.EntradaCompra, compra.Id, invertido: true, OrigenAsientoContable.NotaCompraEntrada, nota.Id, $"{glosa} (devolución de mercadería)");
+                if (estadoEntrada is not (ServiceStatus.Ok or ServiceStatus.NotFound))
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento de devolución -> {mensajeEntrada}");
+                }
+            }
+
             await _context.Database.CommitTransactionAsync();
             return await ObtenerNotaCompra(nota.Id);
         }
@@ -568,6 +609,7 @@ public class CompraRepository : ICompraRepository
             await _context.SaveChangesAsync();
 
             await _asientoContableRepository.Reversar(OrigenAsientoContable.NotaCompra, nota.Id);
+            await _asientoContableRepository.Reversar(OrigenAsientoContable.NotaCompraEntrada, nota.Id); // NotFound si no devolvio mercaderia
 
             await _context.Database.CommitTransactionAsync();
             return await ObtenerNotaCompra(nota.Id);
