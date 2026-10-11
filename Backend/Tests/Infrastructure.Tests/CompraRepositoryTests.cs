@@ -285,6 +285,65 @@ public class CompraRepositoryTests
         Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "61" && d.Haber == 20m);
     }
 
+    // Doble clic / doble registro: el mismo documento (serie-numero) del mismo proveedor no entra dos veces.
+    [Fact]
+    public async Task CrearCompra_DocumentoYaRegistrado_FailedValidation()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var proveedor = new Proveedor { Nombre = "Proveedor dup", Ruc = "20555444333" };
+        context.Proveedor.Add(proveedor);
+        await context.SaveChangesAsync();
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+        CreateCompraPayload Payload(string serie) => new()
+        {
+            ProveedorId = proveedor.Id, Serie = serie, Numero = "456",
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 10m } }
+        };
+
+        var (primero, _, mensaje) = await repo.CrearCompra(Payload("F001"));
+        var (segundo, _, mensajeDup) = await repo.CrearCompra(Payload("f001"));
+
+        Assert.True(primero == ServiceStatus.Ok, mensaje);
+        Assert.Equal(ServiceStatus.FailedValidation, segundo);
+        Assert.Contains("F001-456", mensajeDup);
+        Assert.Equal(1, await context.Compra.CountAsync());
+    }
+
+    // Contrapartida propia del movimiento Compra ("1_C"): reemplaza al 61 por defecto en la entrada.
+    [Fact]
+    public async Task CrearCompra_ConContrapartidaDeMovimiento_LaUsaEnElHaberDeLaEntrada()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var cuentaInv = new CuentaContable { Codigo = "20111000", Nombre = "Mercaderias propias", Tipo = TipoCuentaContable.Activo, Nivel = 5, ClaseCuenta = "20" };
+        var cuentaVar = new CuentaContable { Codigo = "61111000", Nombre = "Variacion mercaderias", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "61" };
+        context.CuentaContable.AddRange(cuentaInv, cuentaVar);
+        await context.SaveChangesAsync();
+        var compra = (int)Domain.Enumerations.TipoMovimientoInventario.Compra;
+        var bien = new Producto { Nombre = "Caja", Precio = 1, Stock = 0, RestriccionEdad = 0,
+            CuentasInventarioMovimiento = $"{{\"{compra}\":{cuentaInv.Id},\"{compra}_C\":{cuentaVar.Id}}}" };
+        context.Producto.Add(bien);
+        await context.SaveChangesAsync();
+        var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            TipoIgvId = tipoIgvExoneradoId,
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = bien.Id, Cantidad = 2, CostoUnitario = 10m } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var entrada = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.EntradaCompra && a.OrigenId == dto!.Id);
+        Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "20111000" && d.Debe == 20m);
+        Assert.Contains(entrada.Detalle, d => d.CuentaContable!.Codigo == "61111000" && d.Haber == 20m);
+    }
+
     // ModoCentroCosto=OBLIGATORIO en la cuenta (ver "configuracion plan de cuentas ERPdocx.docx"):
     // cada linea que postee a esa cuenta debe traer su propio CentroCostoId. Dos tests separados
     // (no uno con dos llamadas en el mismo context): el primer CrearCompra hace rollback de

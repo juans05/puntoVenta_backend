@@ -771,7 +771,7 @@ namespace Infrastructure.Repositories
                 : null;
 
             var cuentaIds = productos.Values
-                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaIngresoDebeId, p.CuentaCostoId, p.CuentaHaberCostoVenta })
+                .SelectMany(p => new[] { p.CuentaIngresoId, p.CuentaIngresoDebeId, p.CuentaDebeCostoVenta, p.CuentaHaberCostoVenta })
                 .Append(cuentaPorCobrarCliente)
                 .Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
             var codigosPorCuentaId = cuentaIds.Count > 0
@@ -817,7 +817,7 @@ namespace Infrastructure.Repositories
                 var costo = (item.CostoReal ?? producto.CostoUnitario ?? 0) * item.Cantidad;
                 if (costo <= 0) continue;
 
-                var key = (CodigoDe(producto.CuentaCostoId, "69"), CodigoDe(producto.CuentaHaberCostoVenta, "20"));
+                var key = (CodigoDe(producto.CuentaDebeCostoVenta, "69"), CodigoDe(producto.CuentaHaberCostoVenta, "20"));
                 costoPorCuentas[key] = costoPorCuentas.GetValueOrDefault(key) + costo;
             }
 

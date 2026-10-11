@@ -166,6 +166,12 @@ namespace Domain.Common.Mappings
             CreateMap<Compra, CompraDto>()
                 .ForMember(x => x.Sucursal, y => y.MapFrom(z => z.Sucursal != null ? z.Sucursal.Nombre : null))
                 .ForMember(x => x.Proveedor, y => y.MapFrom(z => z.Proveedor != null ? z.Proveedor.Nombre : null))
+                .ForMember(x => x.ProveedorRuc, y => y.MapFrom(z => z.Proveedor != null ? z.Proveedor.Ruc : null))
+                .ForMember(x => x.ProveedorDireccion, y => y.MapFrom(z => z.Proveedor != null ? z.Proveedor.Dirección : null))
+                .ForMember(x => x.ProveedorEmail, y => y.MapFrom(z => z.Proveedor != null ? z.Proveedor.Email : null))
+                .ForMember(x => x.ProveedorUbigeoId, y => y.MapFrom(z => z.Proveedor != null ? z.Proveedor.UbigeoId : null))
+                .ForMember(x => x.ProveedorUbigeo, y => y.MapFrom(z => z.Proveedor != null && z.Proveedor.Ubigeo != null
+                    ? z.Proveedor.Ubigeo.Departamento + "/" + z.Proveedor.Ubigeo.Provincia + "/" + z.Proveedor.Ubigeo.Distrito : null))
                 .ForMember(x => x.MetodoPago, y => y.MapFrom(z => z.Metodopago != null ? z.Metodopago.Descripcion ?? z.Metodopago.Nombre : null))
                 .ForMember(x => x.FechaCompra, y => y.MapFrom(z => z.FechaCompra.ToString("dd/MM/yyyy HH:mm:ss")))
                 .ForMember(x => x.FechaRegistro, y => y.MapFrom(z => z.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")))

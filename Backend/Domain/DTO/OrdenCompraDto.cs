@@ -16,6 +16,8 @@ public class OrdenCompraDto
     public string? Sucursal { get; set; }
     public int? ProveedorId { get; set; }
     public string? Proveedor { get; set; }
+    public string? ProveedorRuc { get; set; }
+    public string? ProveedorDireccion { get; set; }
     public int? MonedaId { get; set; }
     public string FechaEmision { get; set; } = null!;
     public decimal Total { get; set; }

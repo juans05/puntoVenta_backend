@@ -282,6 +282,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         Sucursal = o.Sucursal?.Nombre,
         ProveedorId = o.ProveedorId,
         Proveedor = o.Proveedor?.Nombre,
+        ProveedorRuc = o.Proveedor?.Ruc,
+        ProveedorDireccion = o.Proveedor?.Dirección,
         MonedaId = o.MonedaId,
         FechaEmision = o.FechaEmision.ToString("dd/MM/yyyy HH:mm"),
         Total = o.Total,
@@ -470,6 +472,7 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
             var totalRecepcion = 0m;
             var debePorCuentaId = new Dictionary<int, decimal>(); // inventario propio del producto (movimiento Compra)
+            var haberPorCuentaId = new Dictionary<int, decimal>(); // contrapartida propia del producto (movimiento Compra)
             foreach (var l in lineas)
             {
                 var od = orden.Detalles.First(d => d.Id == l.OrdenCompraDetalleId);
@@ -493,6 +496,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
 
                 if (producto.CuentaInventarioCompra is int cuentaInventarioId)
                     debePorCuentaId[cuentaInventarioId] = debePorCuentaId.GetValueOrDefault(cuentaInventarioId) + l.Cantidad * od.CostoUnitario;
+                if (producto.CuentaContrapartidaCompra is int cuentaContraId)
+                    haberPorCuentaId[cuentaContraId] = haberPorCuentaId.GetValueOrDefault(cuentaContraId) + l.Cantidad * od.CostoUnitario;
 
                 if (producto.EsServicio) continue; // servicio: sin inventario
 
@@ -534,7 +539,16 @@ public class OrdenCompraRepository : IOrdenCompraRepository
                 if (restoDefecto != 0) debePorCodigo["20"] = debePorCodigo.GetValueOrDefault("20") + restoDefecto;
 
                 var lineasRecepcion = debePorCodigo.Select(kv => new LineaAsientoContable(kv.Key, Math.Round(kv.Value, 2), 0)).ToList();
-                lineasRecepcion.Add(new("61", 0, lineasRecepcion.Sum(x => x.Debe))); // PCGE 60/61: la factura de la orden va a 60
+                // Haber: contrapartida del movimiento Compra de cada producto, o "61" (PCGE 60/61: la factura de la orden va a 60).
+                var codigosHaber = haberPorCuentaId.Count == 0 ? new Dictionary<int, string>()
+                    : await _context.CuentaContable.AsNoTracking().Where(c => haberPorCuentaId.Keys.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Codigo);
+                var haberPorCodigo = new Dictionary<string, decimal>();
+                foreach (var (cuentaId, monto) in haberPorCuentaId)
+                    if (codigosHaber.TryGetValue(cuentaId, out var codigo)) haberPorCodigo[codigo] = haberPorCodigo.GetValueOrDefault(codigo) + Math.Round(monto, 2);
+                var totalDebe = lineasRecepcion.Sum(x => x.Debe);
+                var restoHaber = totalDebe - haberPorCodigo.Values.Sum();
+                if (restoHaber != 0) haberPorCodigo["61"] = haberPorCodigo.GetValueOrDefault("61") + restoHaber;
+                lineasRecepcion.AddRange(haberPorCodigo.Select(kv => new LineaAsientoContable(kv.Key, 0, kv.Value)));
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
                     OrigenAsientoContable.MovimientoInventario, recepcion.Id,
                     $"Recepción {recepcion.Numero} de orden {orden.Numero}", lineasRecepcion);

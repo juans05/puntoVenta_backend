@@ -93,13 +93,14 @@ public class InventoryRepository : IInventoryRepository
             if ((tipo is TipoMovimientoInventario.AjusteEntrada or TipoMovimientoInventario.AjusteSalida) && costo > 0)
             {
                 var inventario = await _asientoContableRepository.CodigoCuenta(producto.CuentaInventarioDeMovimiento(tipo) ?? producto.CuentaInventarioId, "20");
+                var contrapartida = await _asientoContableRepository.CodigoCuenta(producto.CuentaContrapartidaDeMovimiento(tipo), "61");
                 var entrada = tipo == TipoMovimientoInventario.AjusteEntrada;
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
                     OrigenAsientoContable.AjusteInventario, movimiento.Id, $"Ajuste de {(entrada ? "entrada" : "salida")} - {producto.Nombre}",
                     new List<LineaAsientoContable>
                     {
                         new(inventario, entrada ? costo : 0, entrada ? 0 : costo),
-                        new("61", entrada ? 0 : costo, entrada ? costo : 0),
+                        new(contrapartida, entrada ? 0 : costo, entrada ? costo : 0),
                     });
                 if (estadoAsiento != ServiceStatus.Ok)
                 {

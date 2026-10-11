@@ -8,6 +8,13 @@ public class CompraDto
     public string? Sucursal { get; set; }
     public int? ProveedorId { get; set; }
     public string? Proveedor { get; set; }
+    // Datos del proveedor para precargar el formulario al editar.
+    public string? ProveedorRuc { get; set; }
+    public string? ProveedorDireccion { get; set; }
+    public string? ProveedorEmail { get; set; }
+    public string? ProveedorUbigeoId { get; set; }
+    public string? ProveedorUbigeo { get; set; }
+    public int? OrdenCompraId { get; set; }
     public decimal Total { get; set; }
     public int? MetodoPagoId { get; set; }
     public string? MetodoPago { get; set; }

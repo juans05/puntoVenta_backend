@@ -394,7 +394,7 @@ public class PedidoVentaRepository : IPedidoVentaRepository
                 var costo = Math.Round((producto.CostoUnitario ?? 0) * l.Cantidad, 2);
                 if (ajuste != null && costo > 0)
                 {
-                    lineasSalida.Add(new(await _asientoContableRepository.CodigoCuenta(producto.CuentaCostoId, "69"), costo, 0));
+                    lineasSalida.Add(new(await _asientoContableRepository.CodigoCuenta(producto.CuentaDebeCostoVenta, "69"), costo, 0));
                     lineasSalida.Add(new(await _asientoContableRepository.CodigoCuenta(producto.CuentaHaberCostoVenta, "20"), 0, costo));
                 }
 

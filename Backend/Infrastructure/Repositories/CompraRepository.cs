@@ -166,6 +166,20 @@ public class CompraRepository : ICompraRepository
         OrdenCompraEstado.Recalcular(orden);
     }
 
+    // Un mismo documento del proveedor (serie-numero) solo se registra una vez: evita la doble
+    // factura por doble clic o por registrarla de nuevo desde otra pantalla.
+    private async Task<string?> ValidarDocumentoDuplicado(int? proveedorId, string? serie, string? numero, int? excluirCompraId = null)
+    {
+        if (string.IsNullOrWhiteSpace(serie) || string.IsNullOrWhiteSpace(numero)) return null;
+        var s = serie.Trim().ToUpper();
+        var n = numero.Trim();
+        var existente = await _context.Compra.AsNoTracking()
+            .Where(c => c.Estado != "ANULADO" && c.ProveedorId == proveedorId && c.Id != excluirCompraId
+                && c.Serie != null && c.Numero != null && c.Serie.ToUpper() == s && c.Numero == n)
+            .Select(c => c.NumeroCompra).FirstOrDefaultAsync();
+        return existente == null ? null : $"El documento {s}-{n} de este proveedor ya está registrado en la compra {existente}";
+    }
+
     public Task<(ServiceStatus, CompraDto?, string)> CrearCompra(CreateCompraPayload payload)
     {
         payload.OrdenCompraId = null; // solo CrearCompraDeOrden (con su cruce) puede enlazar una orden
@@ -199,7 +213,15 @@ public class CompraRepository : ICompraRepository
                 payload.ProveedorDireccion, payload.ProveedorUbigeoId, payload.ProveedorEmail);
 
             if (payload.EsCredito && proveedorId == null)
+            {
+                await _context.Database.RollbackTransactionAsync();
                 return (ServiceStatus.FailedValidation, null, "Una compra a crédito necesita un proveedor");
+            }
+            if (await ValidarDocumentoDuplicado(proveedorId, payload.Serie, payload.Numero) is { } duplicado)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                return (ServiceStatus.FailedValidation, null, duplicado);
+            }
 
             var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
                 subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
@@ -361,7 +383,9 @@ public class CompraRepository : ICompraRepository
                 if (valorBienes > 0)
                 {
                     var lineasEntrada = await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaInventarioCompra, _ => "20");
-                    lineasEntrada.Add(new LineaAsientoContable("61", 0, valorBienes));
+                    // Haber: contrapartida del movimiento Compra de cada producto (61 por defecto).
+                    lineasEntrada.AddRange((await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaContrapartidaCompra, _ => "61"))
+                        .Select(l => new LineaAsientoContable(l.CuentaCodigo, 0, l.Debe)));
                     var (estadoEntrada, _, mensajeEntrada) = await _asientoContableRepository.Generar(
                         OrigenAsientoContable.EntradaCompra, compra.Id, $"Entrada de mercadería - Factura {compra.NumeroCompra}", lineasEntrada);
                     if (estadoEntrada != ServiceStatus.Ok)
@@ -675,7 +699,8 @@ public class CompraRepository : ICompraRepository
 
             if (!string.IsNullOrEmpty(payload.Value))
                 query = query.Where(c => c.NumeroCompra.Contains(payload.Value) ||
-                                        (c.Proveedor != null && c.Proveedor.Nombre.Contains(payload.Value)));
+                                        (c.Serie + "-" + c.Numero).Contains(payload.Value) ||
+                                        (c.Proveedor != null && (c.Proveedor.Nombre.Contains(payload.Value) || (c.Proveedor.Ruc != null && c.Proveedor.Ruc.Contains(payload.Value)))));
 
             var lista = await query.OrderByDescending(c => c.Id)
                                    .ProjectTo<CompraDto>(_mapper.ConfigurationProvider)
@@ -796,6 +821,12 @@ public class CompraRepository : ICompraRepository
             var proveedorId = await ObtenerOCrearProveedorPorRuc(
                 payload.ProveedorId, payload.ProveedorRuc, payload.ProveedorNombre,
                 payload.ProveedorDireccion, payload.ProveedorUbigeoId, payload.ProveedorEmail);
+
+            if (await ValidarDocumentoDuplicado(proveedorId, payload.Serie, payload.Numero, compra.Id) is { } duplicado)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                return (ServiceStatus.FailedValidation, null, duplicado);
+            }
 
             var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
                 subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);

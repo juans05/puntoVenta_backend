@@ -89,9 +89,18 @@ public class Producto : EntityBase
 
         // Cuenta de inventario configurada para un tipo de movimiento; null si no hay o el JSON es invalido.
         public int? CuentaInventarioDeMovimiento(Domain.Enumerations.TipoMovimientoInventario movimiento)
+            => CuentaMovimiento(((int)movimiento).ToString());
+
+        // Contrapartida del movimiento (clave "<tipo>_C" del mismo JSON): 61 en compras/ajustes, 69 en
+        // ventas, etc. Entradas (Compra, Ajuste de entrada, Devolucion de venta): Debe=inventario,
+        // Haber=contrapartida. Salidas (Venta, Ajuste de salida, Devolucion de compra): al reves.
+        public int? CuentaContrapartidaDeMovimiento(Domain.Enumerations.TipoMovimientoInventario movimiento)
+            => CuentaMovimiento($"{(int)movimiento}_C");
+
+        private int? CuentaMovimiento(string clave)
         {
             if (string.IsNullOrWhiteSpace(CuentasInventarioMovimiento)) return null;
-            try { return System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(CuentasInventarioMovimiento)?.GetValueOrDefault(((int)movimiento).ToString()) is var id && id > 0 ? id : null; }
+            try { return System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(CuentasInventarioMovimiento)?.GetValueOrDefault(clave) is var id && id > 0 ? id : null; }
             catch (System.Text.Json.JsonException) { return null; }
         }
 
@@ -101,6 +110,12 @@ public class Producto : EntityBase
         // Haber del costo de venta (69 / esta): inventario del movimiento Venta, si no el Haber del par
         // de gasto, si no el inventario general.
         public int? CuentaHaberCostoVenta => CuentaInventarioDeMovimiento(Domain.Enumerations.TipoMovimientoInventario.Venta) ?? CuentaGastoHaberId ?? CuentaInventarioId;
+
+        // Debe del costo de venta (69): contrapartida del movimiento Venta, si no la cuenta de costo.
+        public int? CuentaDebeCostoVenta => CuentaContrapartidaDeMovimiento(Domain.Enumerations.TipoMovimientoInventario.Venta) ?? CuentaCostoId;
+
+        // Haber de la entrada por compra (61): contrapartida del movimiento Compra.
+        public int? CuentaContrapartidaCompra => CuentaContrapartidaDeMovimiento(Domain.Enumerations.TipoMovimientoInventario.Compra);
 
         public List<PrecioAlternativo> PreciosAlternativos { get; set; } = new List<PrecioAlternativo>();
         public List<Presentacion> Presentaciones { get; set; } = new List<Presentacion>();
