@@ -35,6 +35,7 @@ public class CompraController : ControllerBase
     public async Task<IActionResult> ActualizarCompra(int id, [FromBody] CreateCompraPayload payload) => Ok(await _compraService.ActualizarCompra(id, payload));
 
     [HttpPost("importar-xml")]
+    [RequestSizeLimit(2 * 1024 * 1024)] // un XML UBL pesa unos KB; 2 MB sobra
     public async Task<IActionResult> ImportarXmlCompra(IFormFile archivo)
     {
         if (archivo == null || archivo.Length == 0)

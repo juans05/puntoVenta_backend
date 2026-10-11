@@ -15,7 +15,9 @@ namespace WEB_API.Controllers
         {
             _usersService = userService;
         }
-        [AllowAnonymous]
+        // Crear usuarios (y poder darles EsAdministrador/RoleId) es administracion de cuentas:
+        // misma policy de Roles y Permisos (1402). Antes cualquier usuario logueado podia crear un admin.
+        [Authorize(Policy = "RolesPermisosAdmin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserPayload payload) => Ok(await _usersService.CreateUserAsync(payload));
 

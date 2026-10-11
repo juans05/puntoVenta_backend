@@ -26,6 +26,7 @@ public class FacturacionController : ControllerBase
     // Lee un XML UBL (factura/boleta de SUNAT) y devuelve cliente + lineas para precargar la venta.
     // No guarda nada: el usuario revisa y emite desde el formulario.
     [HttpPost("importar-xml")]
+    [RequestSizeLimit(2 * 1024 * 1024)] // un XML UBL pesa unos KB; 2 MB sobra
     public IActionResult ImportarXmlVenta(IFormFile archivo)
     {
         if (archivo == null || archivo.Length == 0)

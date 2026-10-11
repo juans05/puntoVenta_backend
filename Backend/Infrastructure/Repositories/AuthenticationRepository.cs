@@ -167,6 +167,8 @@ namespace Infrastructure.Repositories
                     {
                         Subject = new ClaimsIdentity(claims),
                         Expires = expiresAt,
+                        Issuer = _tokenSettings.Issuer,
+                        Audience = _tokenSettings.Audience,
                         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                         //EncryptingCredentials = new EncryptingCredentials(encriptionSecret, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512)
                     };
@@ -226,11 +228,12 @@ namespace Infrastructure.Repositories
         {
             try
             {
-                _tokenValidationParameters.ValidateLifetime = false;
+                // Copia: el singleton lo comparte toda la API; cambiarle ValidateLifetime dejaba
+                // pasar tokens vencidos en peticiones concurrentes.
+                var parametros = _tokenValidationParameters.Clone();
+                parametros.ValidateLifetime = false;
 
-                var principal = new JwtSecurityTokenHandler().ValidateToken(token, _tokenValidationParameters, out var validatedToken);
-
-                _tokenValidationParameters.ValidateLifetime = true;
+                var principal = new JwtSecurityTokenHandler().ValidateToken(token, parametros, out var validatedToken);
                 if (!IsJwtWithSecurityAlgorithm(validatedToken))
                 {
                     return null;

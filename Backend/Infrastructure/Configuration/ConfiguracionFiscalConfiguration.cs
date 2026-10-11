@@ -57,6 +57,10 @@ public class ConfiguracionFiscalConfiguration
         entityBuilder.Property(e => e.Moneda)
                       .HasMaxLength(3);
 
+        // Token del proveedor de facturacion: cifrado en la BD (ver CifradoDatos).
+        entityBuilder.Property(e => e.Token)
+                      .HasConversion(Infrastructure.Data.CifradoDatos.Conversor);
+
         entityBuilder.Property(e => e.TenantId)
                       .HasMaxLength(15);
 

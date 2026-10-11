@@ -108,19 +108,28 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 var secretKey = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("TokenManagement:SecretKey").Value);
 var decriptKey = Encoding.UTF8.GetBytes(builder.Configuration.GetSection("TokenManagement:EncryptionSecret").Value);
 
+// Staff y clientes de la tienda firman con la misma clave: la audiencia es lo que separa un token
+// del otro (sin ella, un cliente logueado en la tienda pasaba como staff en toda la API).
 var tokenValidationParameters = new TokenValidationParameters
 {
     ValidateIssuerSigningKey = true,
     IssuerSigningKey = new SymmetricSecurityKey(secretKey),
     //TokenDecryptionKey = new SymmetricSecurityKey(decriptKey),
-    ValidateIssuer = false,
-    ValidateAudience = false,
-    RequireExpirationTime = false,
+    ValidateIssuer = true,
+    ValidIssuer = builder.Configuration["TokenManagement:Issuer"],
+    ValidateAudience = true,
+    ValidAudience = builder.Configuration["TokenManagement:Audience"],
+    RequireExpirationTime = true,
     ValidateLifetime = true,
     ClockSkew = TimeSpan.Zero,
 };
+var clienteTokenValidationParameters = tokenValidationParameters.Clone();
+clienteTokenValidationParameters.ValidAudience = TokenManagement.AudienciaCliente(builder.Configuration["TokenManagement:Audience"]);
 
 builder.Services.AddSingleton(tokenValidationParameters);
+
+// Clave para cifrar en la BD los tokens de terceros (ConfiguracionFiscal.Token).
+CifradoDatos.Configurar(builder.Configuration["TokenManagement:EncryptionSecret"]);
 
 builder.Services.AddHealthChecks().AddDbContextCheck<SpaContext>();
 
@@ -153,7 +162,7 @@ builder.Services.AddAuthentication(options =>
 {
     x.RequireHttpsMetadata = false;
     x.SaveToken = true;
-    x.TokenValidationParameters = tokenValidationParameters;
+    x.TokenValidationParameters = clienteTokenValidationParameters;
 });
 
 
@@ -207,18 +216,17 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", builder =>
     {
         builder
+            // Se compara el HOST ya parseado: antes `EndsWith("3000")` aceptaba cualquier sitio
+            // en ese puerto (ej. http://evil.com:3000). Los puertos de desarrollo solo valen en localhost.
             .SetIsOriginAllowed(origin =>
             {
-                return origin.EndsWith(".4devscorp.com") ||
-                       origin.EndsWith(".amplifyapp.com") ||
-                       origin.EndsWith(".up.railway.app") ||
-                       origin.EndsWith("5173") ||
-                       origin.EndsWith("5174") ||
-                       origin.EndsWith(".lobytech.com") ||
-                       origin.EndsWith(".lobytech.com:2013") ||
-                       origin.EndsWith("3000") ||
-                       origin.EndsWith("3001") ||
-                       origin.EndsWith("3002");
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+                var host = uri.Host;
+                if (host is "localhost" or "127.0.0.1") return true;
+                return host.EndsWith(".4devscorp.com") || host == "4devscorp.com" ||
+                       host.EndsWith(".amplifyapp.com") ||
+                       host.EndsWith(".up.railway.app") ||
+                       host.EndsWith(".lobytech.com") || host == "lobytech.com";
             })
             .AllowAnyMethod()
             .AllowAnyHeader();
@@ -277,14 +285,20 @@ var scheduler = app.Services.GetRequiredService<IScheduler>();
 scheduler.OnWorker("InvoiceJob");
 //scheduler.Schedule<InvoiceJob>().EveryFiveMinutes().PreventOverlapping("InvoiceJob").RunOnceAtStart();
 
-app.UseSwagger();
+app.UseMiddleware<SeguridadMiddleware>();
 
-app.UseSwaggerUI(c =>
+// Swagger documenta toda la API: solo en desarrollo (o con ENABLE_SWAGGER=true para depurar).
+if (app.Environment.IsDevelopment() || builder.Configuration["ENABLE_SWAGGER"] == "true")
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", $"API SPA {app.Environment.EnvironmentName}");
-    c.InjectStylesheet("/swagger-ui/SwaggerDark.css");
-    c.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", $"API SPA {app.Environment.EnvironmentName}");
+        c.InjectStylesheet("/swagger-ui/SwaggerDark.css");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
 app.UseStaticFiles();
 

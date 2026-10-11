@@ -77,8 +77,10 @@ public class ClienteAuthService : IClienteAuthService
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["TokenManagement:Issuer"],
+                ValidateAudience = true,
+                ValidAudience = TokenManagement.AudienciaCliente(_configuration["TokenManagement:Audience"]),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             }, out SecurityToken validatedToken);
@@ -107,6 +109,8 @@ public class ClienteAuthService : IClienteAuthService
                 new Claim(ClaimConstants.TenantId, clienteCuenta.TenantId)
             }),
             Expires = DateTime.UtcNow.AddHours(24),
+            Issuer = _configuration["TokenManagement:Issuer"],
+            Audience = TokenManagement.AudienciaCliente(_configuration["TokenManagement:Audience"]),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 

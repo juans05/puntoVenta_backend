@@ -50,7 +50,7 @@ public class TenantController : ControllerBase
     public async Task<IActionResult> ModificarTenant([FromBody] UpdateTenantPayload payload) => Ok(await tenantService.ModificarTenant(payload));
 
 
-    [AllowAnonymous]
+    // Sin AllowAnonymous: listaba todas las empresas a cualquiera; solo lo usa "Mi negocio" (logueado).
     [HttpGet("all-tenants")]
     public async Task<IActionResult> GetAllTenants() => Ok(await tenantService.GetAllTenants());
 
