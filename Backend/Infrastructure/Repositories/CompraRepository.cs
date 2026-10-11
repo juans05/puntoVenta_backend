@@ -363,7 +363,7 @@ public class CompraRepository : ICompraRepository
                 lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada,
                     d => d.CuentaContableId ?? (EsServicio(d) ? ProductoDe(d)?.CuentaCostoId : null),
                     d => EsServicio(d) ? "63" : "60"));
-                if (igv > 0) lineasFactura.Add(new LineaAsientoContable("40111", igv, 0));
+                if (igv > 0) lineasFactura.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(new[] { compra.TipoIgvId }), igv, 0));
                 lineasFactura.Add(new LineaAsientoContable(cuentaPorPagarCodigo ?? "42", 0, total) { CuentaAsociada = rucProveedor });
 
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(

@@ -66,6 +66,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<TipoDocumentoVenta> TipoDocumentoVenta => Set<TipoDocumentoVenta>();
     public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
     public DbSet<TipoIgv> TipoIgv => Set<TipoIgv>();
+    public DbSet<TipoIgvCuenta> TipoIgvCuenta => Set<TipoIgvCuenta>();
     public DbSet<TipoDetraccion> TipoDetraccion => Set<TipoDetraccion>();
     public DbSet<UnidadMedida> UnidadMedida => Set<UnidadMedida>();
     public DbSet<PrecioAlternativo> PrecioAlternativo => Set<PrecioAlternativo>();
@@ -130,6 +131,21 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<AsientoContableDetalle> AsientoContableDetalle => Set<AsientoContableDetalle>();
     public DbSet<ProductoSucursalStock> ProductoSucursalStock => Set<ProductoSucursalStock>();
 
+    // Cuenta donde va el IGV segun el tipo de afectacion (Mi negocio > Impuestos). Si los tipos
+    // usados tienen cuentas distintas toma la primera; sin configurar, "40111" IGV cuenta propia.
+    // ponytail: una sola cuenta de IGV por comprobante; repartir por linea si se mezclan tipos con cuentas distintas.
+    public async Task<string> CodigoCuentaIgvAsync(IEnumerable<int?> tipoIgvIds)
+    {
+        var ids = tipoIgvIds.Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
+        if (ids.Count == 0) return "40111";
+        var codigo = await TipoIgvCuenta.AsNoTracking()
+            .Where(t => ids.Contains(t.TipoIgvId) && t.TipoIgv!.AplicaPorcentajeImpuesto)
+            .OrderBy(t => t.TipoIgvId)
+            .Select(t => t.CuentaContable!.Codigo)
+            .FirstOrDefaultAsync();
+        return codigo ?? "40111";
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -183,6 +199,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         // que ese negocio agrego/edito. Mismo criterio que Role arriba.
         modelBuilder.Entity<MotivoNota>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<TipoIgv>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
+        modelBuilder.Entity<TipoIgvCuenta>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<TipoIgvCuenta>().HasIndex(e => new { e.TenantId, e.TipoIgvId }).IsUnique();
+        modelBuilder.Entity<TipoIgvCuenta>().HasOne(e => e.CuentaContable).WithMany().HasForeignKey(e => e.CuentaContableId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<TipoIgvCuenta>().HasOne(e => e.TipoIgv).WithMany().HasForeignKey(e => e.TipoIgvId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<TipoDetraccion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<UnidadMedida>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<TipoOperacion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);

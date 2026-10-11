@@ -10,6 +10,8 @@ public class CreateTipoIgvPayload
     public string Codigo { get; set; } = null!;
     public string Descripcion { get; set; } = null!;
     public bool AplicaPorcentajeImpuesto { get; set; }
+    // Cuenta donde va el IGV de este tipo (null = 40111 por defecto).
+    public int? CuentaContableId { get; set; }
 }
 
 public class CreateTipoDetraccionPayload
@@ -28,6 +30,8 @@ public class UpdateTipoIgvPayload
     public string Codigo { get; set; } = null!;
     public string Descripcion { get; set; } = null!;
     public bool AplicaPorcentajeImpuesto { get; set; }
+    // Cuenta donde va el IGV de este tipo (null = 40111 por defecto).
+    public int? CuentaContableId { get; set; }
 }
 
 public class CreateUnidadMedidaPayload

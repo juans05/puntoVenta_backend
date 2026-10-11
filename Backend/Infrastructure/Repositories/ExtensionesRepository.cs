@@ -202,7 +202,8 @@ namespace Infrastructure.Repositories
                                                       descripcion = p.Descripcion,
                                                       aplicaPorcentajeImpuesto = p.AplicaPorcentajeImpuesto,
                                                       estado = p.Estado,
-                                                      esPersonalizado = p.TenantId != null
+                                                      esPersonalizado = p.TenantId != null,
+                                                      cuentaContableId = _context.TipoIgvCuenta.Where(c => c.TipoIgvId == p.Id).Select(c => (int?)c.CuentaContableId).FirstOrDefault()
                                                   }).ToListAsync();
 
                 return (ServiceStatus.Ok, data, "Success");
@@ -229,6 +230,8 @@ namespace Infrastructure.Repositories
 
                 await _context.TipoIgv.AddAsync(entity);
                 await _context.SaveChangesAsync();
+                if (await GuardarCuentaIgv(entity.Id, payload.CuentaContableId) is { } errorCuenta)
+                    return (ServiceStatus.FailedValidation, null, errorCuenta);
 
                 return (ServiceStatus.Ok, entity, "Tipo de IGV registrado correctamente");
             }
@@ -246,15 +249,40 @@ namespace Infrastructure.Repositories
             var entity = await _context.TipoIgv.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
                 return (ServiceStatus.NotFound, null, $"No se encontró el tipo de IGV {id}");
-            if (entity.TenantId == null)
-                return (ServiceStatus.FailedValidation, null, "No se puede modificar un catálogo base de SUNAT, solo tus propios registros");
 
-            entity.Codigo = payload.Codigo.Trim();
-            entity.Descripcion = payload.Descripcion.Trim();
-            entity.AplicaPorcentajeImpuesto = payload.AplicaPorcentajeImpuesto;
+            // En una fila base de SUNAT solo se puede elegir la cuenta del IGV (es por negocio);
+            // codigo/descripcion/afectacion son del catalogo nacional y no se tocan.
+            if (entity.TenantId != null)
+            {
+                entity.Codigo = payload.Codigo.Trim();
+                entity.Descripcion = payload.Descripcion.Trim();
+                entity.AplicaPorcentajeImpuesto = payload.AplicaPorcentajeImpuesto;
+            }
+            if (await GuardarCuentaIgv(entity.Id, payload.CuentaContableId) is { } errorCuenta)
+                return (ServiceStatus.FailedValidation, null, errorCuenta);
             await _context.SaveChangesAsync();
 
             return (ServiceStatus.Ok, entity, "Actualizado correctamente");
+        }
+
+        // Crea, cambia o quita (null) la cuenta del IGV de este tipo para el negocio actual.
+        private async Task<string?> GuardarCuentaIgv(int tipoIgvId, int? cuentaContableId)
+        {
+            if (cuentaContableId.HasValue && !await _context.CuentaContable.AnyAsync(c => c.Id == cuentaContableId))
+                return "La cuenta contable elegida no existe";
+
+            var actual = await _context.TipoIgvCuenta.AsTracking().FirstOrDefaultAsync(c => c.TipoIgvId == tipoIgvId);
+            if (!cuentaContableId.HasValue)
+            {
+                if (actual != null) _context.TipoIgvCuenta.Remove(actual);
+            }
+            else if (actual == null)
+                await _context.TipoIgvCuenta.AddAsync(new TipoIgvCuenta { TipoIgvId = tipoIgvId, CuentaContableId = cuentaContableId.Value });
+            else
+                actual.CuentaContableId = cuentaContableId.Value;
+
+            await _context.SaveChangesAsync();
+            return null;
         }
 
         public async Task<(ServiceStatus, string)> CambiarEstadoTipoIgv(int id, bool estado)

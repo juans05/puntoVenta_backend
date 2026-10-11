@@ -799,7 +799,7 @@ namespace Infrastructure.Repositories
             var restoContraparte = cabecera.ValorTotal - debePorCuenta.Values.Sum();
             if (restoContraparte != 0) lineas.Add(new(contraparte, restoContraparte, 0) { CuentaAsociada = cabecera.NumeroDocumento });
             if (cabecera.ValorIgv > 0)
-                lineas.Add(new LineaAsientoContable("40111", 0, cabecera.ValorIgv));
+                lineas.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(detalle.Select(d => d.TipoIgvId)), 0, cabecera.ValorIgv));
 
             var ingresosPorCuenta = new Dictionary<string, decimal>();
             var costoPorCuentas = new Dictionary<(string Costo, string Inventario), decimal>();
