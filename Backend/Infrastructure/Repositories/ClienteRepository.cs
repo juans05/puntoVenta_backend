@@ -101,6 +101,10 @@ public class ClienteRepository :  IClienteRepository
         }
     }
 
+    // Escapa los comodines de LIKE/ILIKE (%, _ y el propio escape \) para buscarlos como texto literal.
+    private static string EscaparLike(string valor) =>
+        valor.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+
     public async Task<(ServiceStatus, DataCollection<ClienteDto>?, string)> GetClientes(ClientePayload payload)
     {
 
@@ -109,7 +113,24 @@ public class ClienteRepository :  IClienteRepository
         try
         {
 
-            if (payload.Value is null)
+            if (!string.IsNullOrWhiteSpace(payload.Nombre) || !string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+            {
+                var query = dbContext.Cliente.AsNoTracking().Include(i => i.Ubigeo).Where(p => p.Estado == true);
+                if (!string.IsNullOrWhiteSpace(payload.Nombre))
+                {
+                    var nombre = EscaparLike(payload.Nombre.Trim());
+                    query = query.Where(p => EF.Functions.ILike(p.Nombre, $"%{nombre}%"));
+                }
+                if (!string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+                {
+                    var doc = EscaparLike(payload.NumeroDocumento.Trim());
+                    query = query.Where(p => p.NumeroDocumento != null && EF.Functions.ILike(p.NumeroDocumento, $"%{doc}%"));
+                }
+                lista = await query.OrderBy(p => p.Nombre)
+                    .ProjectTo<ClienteDto>(mapper.ConfigurationProvider)
+                    .GetPagedAsync(payload.Page, payload.Amount);
+            }
+            else if (payload.Value is null)
             {
                 lista = await dbContext.Cliente.AsNoTracking()
                     .Include(i => i.Ubigeo)

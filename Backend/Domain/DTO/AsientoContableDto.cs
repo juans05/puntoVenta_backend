@@ -1,4 +1,4 @@
-namespace Domain.DTO;
+﻿namespace Domain.DTO;
 
 public class AsientoContableDto
 {
@@ -24,5 +24,9 @@ public class AsientoContableDetalleDto
     public string? CentroCosto1 { get; set; }
     public string? CentroCosto2 { get; set; }
     public string? CuentaDestino { get; set; }
+    // Ids para precargar el formulario del asiento en modo consulta.
+    public int? CentroCosto1Id { get; set; }
+    public int? CentroCosto2Id { get; set; }
+    public int? CuentaDestinoId { get; set; }
     public string? Descripcion { get; set; }
 }

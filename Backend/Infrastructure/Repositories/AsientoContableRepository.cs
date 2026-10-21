@@ -1,4 +1,4 @@
-using Application.Interfaces.IRepository;
+﻿using Application.Interfaces.IRepository;
 using Domain.DTO;
 using Domain.Entities;
 using Domain.Models;
@@ -46,6 +46,9 @@ public class AsientoContableRepository : IAsientoContableRepository
             CentroCosto1 = d.CentroCosto1?.Nombre,
             CentroCosto2 = d.CentroCosto2?.Nombre,
             CuentaDestino = d.CuentaDestino?.Codigo,
+            CentroCosto1Id = d.CentroCosto1Id,
+            CentroCosto2Id = d.CentroCosto2Id,
+            CuentaDestinoId = d.CuentaDestinoId,
             Descripcion = d.Descripcion
         }).ToList()
     };
