@@ -361,6 +361,10 @@ namespace Infrastructure.Repositories
                 if (usuario == null)
                     return (ServiceStatus.NotFound, "No se encontro el usuario");
 
+                // Al dueño de la empresa no lo desactiva otro usuario (Estado es global: lo dejaria sin ninguna empresa).
+                if (!activo && await _context.UsuarioEmpresa.AnyAsync(ue => ue.UserId == id && ue.TenantId == tenantActual!.Identificador && ue.EsPropietario))
+                    return (ServiceStatus.FailedValidation, "No se puede desactivar al dueño de la empresa");
+
                 usuario.Estado = activo;
                 await _context.SaveChangesAsync();
 
@@ -393,6 +397,8 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
             if (propias.Count == 0)
                 return (ServiceStatus.FailedValidation, null, "Solo el dueño de la cuenta puede asignar empresas");
+            if (!await _context.UsuarioEmpresa.AnyAsync(ue => ue.UserId == id && propias.Contains(ue.TenantId)))
+                return (ServiceStatus.NotFound, null, "No se encontro el usuario");
 
             var tenants = await _context.Tenant.AsNoTracking()
                 .Where(t => propias.Contains(t.Identificador))
@@ -443,7 +449,9 @@ namespace Infrastructure.Repositories
                 return (ServiceStatus.FailedValidation, "Solo el dueño de la cuenta puede asignar empresas");
             if (empresas.Any(e => !propias.Contains(e.TenantId)))
                 return (ServiceStatus.FailedValidation, "Solo puedes asignar empresas de tu cuenta");
-            if (!await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Id == id))
+            // Solo usuarios de la propia cuenta (con acceso a alguna empresa del dueño): no se puede
+            // sumar a sus empresas a un usuario de otra cuenta.
+            if (!await _context.UsuarioEmpresa.AnyAsync(ue => ue.UserId == id && propias.Contains(ue.TenantId)))
                 return (ServiceStatus.NotFound, "No se encontro el usuario");
 
             var tenants = await _context.Tenant.AsNoTracking().Where(t => propias.Contains(t.Identificador)).ToListAsync();

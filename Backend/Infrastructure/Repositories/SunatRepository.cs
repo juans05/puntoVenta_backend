@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Security.Claims;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
@@ -135,6 +135,9 @@ public class SunatRepository
     {
         if (!System.Text.RegularExpressions.Regex.IsMatch(periodo ?? "", @"^\d{6}$"))
             return (null, "El periodo debe tener el formato AAAAMM");
+        // El ticket viaja en la URL hacia SUNAT: solo se aceptan digitos (formato AAAA99999999).
+        if (!string.IsNullOrEmpty(numTicket) && !System.Text.RegularExpressions.Regex.IsMatch(numTicket, @"^\d{1,20}$"))
+            return (null, "Ticket inválido");
 
         var (token, errorToken) = await ObtenerTokenSire();
         if (token is null) return (null, errorToken);
@@ -225,8 +228,6 @@ public class SunatRepository
             {
                 ("scope", json["scope"]?.ToString()),
                 ("aud", json["aud"]?.ToString()),
-                ("usuario", datos?["usuarioSOL"]?.ToString()),
-                ("ruc", datos?["numRUC"]?.ToString()),
                 ("tipoUsuario", datos?["tipUsuario"]?.ToString()),
             };
             var texto = string.Join(", ", campos.Where(c => !string.IsNullOrEmpty(c.Item2)).Select(c => $"{c.Item1}={c.Item2}"));
