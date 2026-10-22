@@ -22,6 +22,9 @@ public interface ITenantService
     Task<MessageResult<object?>> GetRecursos(string tenant);
 
     Task<MessageResult<object>> GetAllTenants();
+    Task<MessageResult<object>> ListarMisEmpresas(string userId);
+    Task<MessageResult<object>> CrearEmpresaPropietario(string userId, CrearEmpresaPropietarioPayload payload);
+    Task<MessageResult<object>> Registrar(RegistroPayload payload);
 
     Task<MessageResult<object>> GetTenantsResumen();
 

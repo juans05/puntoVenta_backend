@@ -1,4 +1,4 @@
-namespace Domain.Entities;
+﻿namespace Domain.Entities;
 
 public class ConfiguracionFiscal : EntityBase
 {
@@ -21,6 +21,12 @@ public class ConfiguracionFiscal : EntityBase
     public string? SerieCompra { get; set; }
     public string? CodigoAdaptador { get; set; }
     public string? Token { get; set; }
+    // Acceso a la API de SUNAT (SIRE: propuestas de compras RCE y ventas RVIE) con la Clave SOL.
+    // ClaveSol y SunatClientSecret se guardan cifrados (ver ConfiguracionFiscalConfiguration).
+    public string? UsuarioSol { get; set; }
+    public string? ClaveSol { get; set; }
+    public string? SunatClientId { get; set; }
+    public string? SunatClientSecret { get; set; }
     public string? Moneda { get; set; }
     public decimal PorcentajeImpuesto { get; set; }
     public bool Activo { get; set; } = true;

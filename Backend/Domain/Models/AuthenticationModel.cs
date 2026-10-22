@@ -47,6 +47,13 @@ namespace Domain.Models
         [JsonIgnore]//-----------------------
         public string ErrorMessage { get; set; }
 
+        // Empresas a las que el usuario tiene acceso; si son varias, el front muestra el selector.
+        [DataMember(Name = "empresas")]
+        public List<Domain.DTO.EmpresaAccesoDto> Empresas { get; set; } = new();
+
+        [DataMember(Name = "empresaActivaId")]
+        public int EmpresaActivaId { get; set; }
+
     }
 
 }

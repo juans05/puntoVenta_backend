@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
 using Domain.DTO;
+using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Models;
 using Domain.Payloads;
@@ -85,6 +86,11 @@ namespace Infrastructure.Repositories
             //    return (ServiceStatus.FailedValidation, "Tenant No existe", 5);
 
 
+            // Empresa activa (la del token), no la principal de quien crea: el dueño puede estar trabajando en otra.
+            var tenantActual = await TenantActual();
+            if (tenantActual is null)
+                return (ServiceStatus.FailedValidation, "Tenant Invalido", 4);
+
             try
             {
                 var entry = new User
@@ -100,7 +106,7 @@ namespace Infrastructure.Repositories
                     AvatarUrl = payload.Avatar,
                     FechaCreacion = DateTime.UtcNow.AddHours(-5).ToString("dd/MM/yyyy HH:mm:ss"),
                     Estado = true,
-                    TenantId = appUser.TenantId
+                    TenantId = tenantActual.Identificador
                 };
 
                 var user = await _userManager.FindByEmailAsync(payload.Email);
@@ -120,8 +126,14 @@ namespace Infrastructure.Repositories
                     else if (!string.IsNullOrWhiteSpace(payload.RoleId))
                         await _context.UserRoles.AddAsync(new UserRol { UserId = entry.Id, RoleId = payload.RoleId });
 
-                    if (payload.EsAdministrador || !string.IsNullOrWhiteSpace(payload.RoleId))
-                        await _context.SaveChangesRegularAsync();
+                    await _context.UsuarioEmpresa.AddAsync(new UsuarioEmpresa
+                    {
+                        UserId = entry.Id,
+                        TenantId = tenantActual.Identificador,
+                        Estado = true,
+                        FechaCreacion = DateTime.UtcNow.AddHours(-5)
+                    });
+                    await _context.SaveChangesRegularAsync();
 
                     return (ServiceStatus.Ok, "Cuenta creada exitosamente", 1);
                 }
@@ -290,11 +302,14 @@ namespace Infrastructure.Repositories
                 if (claim is null)
                     return (ServiceStatus.FailedValidation, null, "Tenant Invalido");
 
-                var appUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.NormalizedUserName == claim.Value);
+                var tenantActual = await TenantActual();
+                if (tenantActual is null)
+                    return (ServiceStatus.FailedValidation, null, "Tenant Invalido");
 
+                // Usuarios con acceso a la empresa activa (un usuario puede estar en varias empresas).
                 var usuarios = await _context.Users.AsNoTracking()
                                                    .Include(u => u.Sucursal)
-                                                   .Where(u => appUser != null && u.TenantId == appUser.TenantId)
+                                                   .Where(u => _context.UsuarioEmpresa.Any(ue => ue.UserId == u.Id && ue.TenantId == tenantActual.Identificador))
                                                    .OrderBy(u => u.UserName)
                                                    .Select(q => new
                                                    {
@@ -339,8 +354,9 @@ namespace Infrastructure.Repositories
                 if (appUser != null && appUser.Id == id && !activo)
                     return (ServiceStatus.FailedValidation, "No puedes desactivar tu propia cuenta");
 
-                var usuario = await _context.Users.AsTracking()
-                    .FirstOrDefaultAsync(u => u.Id == id && appUser != null && u.TenantId == appUser.TenantId);
+                var tenantActual = await TenantActual();
+                var usuario = tenantActual is null ? null : await _context.Users.AsTracking()
+                    .FirstOrDefaultAsync(u => u.Id == id && _context.UsuarioEmpresa.Any(ue => ue.UserId == u.Id && ue.TenantId == tenantActual.Identificador));
 
                 if (usuario == null)
                     return (ServiceStatus.NotFound, "No se encontro el usuario");
@@ -354,6 +370,141 @@ namespace Infrastructure.Repositories
             {
                 return (ServiceStatus.InternalError, $"Error Interno de la aplicación... {ex.Message}");
             }
+        }
+
+        private Task<Tenant?> TenantActual()
+            => _context.Tenant.AsNoTracking().FirstOrDefaultAsync(t => t.Name == _context.CurrentTenantName);
+
+        // nameid del JWT llega mapeado a NameIdentifier.
+        private string UsuarioActualId()
+        {
+            var principal = _httpContextAccessor.HttpContext!.User;
+            return principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? principal.FindFirst("nameid")?.Value ?? "";
+        }
+
+        // Empresas del dueño con el acceso que tiene el usuario en cada una y los perfiles (roles) de cada
+        // empresa para elegir. Perfil null = administrador (acceso completo).
+        public async Task<(ServiceStatus, object?, string)> ObtenerEmpresasUsuario(string id)
+        {
+            var dueñoId = UsuarioActualId();
+            var propias = await _context.UsuarioEmpresa.AsNoTracking()
+                .Where(x => x.UserId == dueñoId && x.EsPropietario && x.Estado)
+                .Select(x => x.TenantId)
+                .ToListAsync();
+            if (propias.Count == 0)
+                return (ServiceStatus.FailedValidation, null, "Solo el dueño de la cuenta puede asignar empresas");
+
+            var tenants = await _context.Tenant.AsNoTracking()
+                .Where(t => propias.Contains(t.Identificador))
+                .OrderBy(t => t.Identificador)
+                .Select(t => new { t.Identificador, t.Name, t.TenantKey, Empresa = t.EmpresaTenants.Select(et => et.Empresa).FirstOrDefault() })
+                .ToListAsync();
+            var nombres = tenants.Select(t => t.Name).ToList();
+
+            var accesos = await _context.UsuarioEmpresa.AsNoTracking()
+                .Where(x => x.UserId == id && propias.Contains(x.TenantId))
+                .ToListAsync();
+            var roles = await _context.Roles.IgnoreQueryFilters().AsNoTracking()
+                .Where(r => r.TenantId != null && nombres.Contains(r.TenantId))
+                .Select(r => new { r.Id, r.Name, r.TenantId })
+                .ToListAsync();
+            var rolesUsuario = await _context.UserRoles.AsNoTracking()
+                .Where(ur => ur.UserId == id)
+                .Select(ur => ur.RoleId)
+                .ToListAsync();
+
+            return (ServiceStatus.Ok, tenants.Select(t =>
+            {
+                var acceso = accesos.FirstOrDefault(a => a.TenantId == t.Identificador);
+                var rolesEmpresa = roles.Where(r => r.TenantId == t.Name).ToList();
+                return new
+                {
+                    tenantId = t.Identificador,
+                    nombre = t.Empresa?.NombreComercial ?? t.Empresa?.RazonSocial ?? t.TenantKey,
+                    asignado = acceso is { Estado: true },
+                    esPropietario = acceso?.EsPropietario ?? false,
+                    roleId = rolesEmpresa.FirstOrDefault(r => rolesUsuario.Contains(r.Id))?.Id,
+                    perfiles = rolesEmpresa.Select(r => new { id = r.Id, nombre = r.Name })
+                };
+            }), "Success");
+        }
+
+        // Guarda a que empresas del dueño entra el usuario y con que perfil. Las empresas que no vienen en la
+        // lista pierden el acceso (salvo la del propio dueño). Perfil null = administrador: acceso completo
+        // directo; con perfil, el acceso sale solo del rol.
+        public async Task<(ServiceStatus, string)> AsignarEmpresasUsuario(string id, List<EmpresaUsuarioPayload> empresas)
+        {
+            var dueñoId = UsuarioActualId();
+            var propias = await _context.UsuarioEmpresa.AsNoTracking()
+                .Where(x => x.UserId == dueñoId && x.EsPropietario && x.Estado)
+                .Select(x => x.TenantId)
+                .ToListAsync();
+            if (propias.Count == 0)
+                return (ServiceStatus.FailedValidation, "Solo el dueño de la cuenta puede asignar empresas");
+            if (empresas.Any(e => !propias.Contains(e.TenantId)))
+                return (ServiceStatus.FailedValidation, "Solo puedes asignar empresas de tu cuenta");
+            if (!await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Id == id))
+                return (ServiceStatus.NotFound, "No se encontro el usuario");
+
+            var tenants = await _context.Tenant.AsNoTracking().Where(t => propias.Contains(t.Identificador)).ToListAsync();
+            var accesos = await _context.UsuarioEmpresa.AsTracking().Where(x => x.UserId == id && propias.Contains(x.TenantId)).ToListAsync();
+            var submodulos = await _context.AspNetSubModule.AsNoTracking().Select(s => s.Identificador).ToListAsync();
+            var ahora = DateTime.UtcNow.AddHours(-5);
+
+            await using var transaccion = await _context.Database.BeginTransactionAsync();
+            foreach (var tenant in tenants)
+            {
+                var pedido = empresas.FirstOrDefault(e => e.TenantId == tenant.Identificador);
+                var acceso = accesos.FirstOrDefault(a => a.TenantId == tenant.Identificador);
+
+                // El dueño no se quita el acceso a si mismo desde aqui.
+                if (acceso is { EsPropietario: true }) continue;
+
+                var rolesEmpresa = await _context.Roles.IgnoreQueryFilters().AsNoTracking()
+                    .Where(r => r.TenantId == tenant.Name).Select(r => r.Id).ToListAsync();
+                var rolesActuales = await _context.UserRoles.AsTracking()
+                    .Where(ur => ur.UserId == id && rolesEmpresa.Contains(ur.RoleId)).ToListAsync();
+                var directos = await _context.AspNetUserSubModule.IgnoreQueryFilters().AsTracking()
+                    .Where(x => x.UserId == id && x.TenantId == tenant.Name).ToListAsync();
+
+                if (pedido is null)
+                {
+                    if (acceso is not null) _context.UsuarioEmpresa.Remove(acceso);
+                    _context.UserRoles.RemoveRange(rolesActuales);
+                    _context.AspNetUserSubModule.RemoveRange(directos);
+                    continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(pedido.RoleId) && !rolesEmpresa.Contains(pedido.RoleId))
+                {
+                    await transaccion.RollbackAsync();
+                    return (ServiceStatus.FailedValidation, "El perfil elegido no pertenece a esa empresa");
+                }
+
+                if (acceso is null)
+                    await _context.UsuarioEmpresa.AddAsync(new UsuarioEmpresa { UserId = id, TenantId = tenant.Identificador, Estado = true, FechaCreacion = ahora });
+                else
+                    acceso.Estado = true;
+
+                _context.UserRoles.RemoveRange(rolesActuales);
+                if (string.IsNullOrWhiteSpace(pedido.RoleId))
+                {
+                    var tiene = directos.Select(d => d.SubmoduleId).ToHashSet();
+                    await _context.AspNetUserSubModule.AddRangeAsync(submodulos.Where(s => !tiene.Contains(s)).Select(s => new AspNetUserSubModule
+                    {
+                        UserId = id, SubmoduleId = s, UsuarioCreacion = "ADMIN", FechaCreacion = ahora, Estado = true, TenantId = tenant.Name
+                    }));
+                }
+                else
+                {
+                    _context.AspNetUserSubModule.RemoveRange(directos);
+                    await _context.UserRoles.AddAsync(new UserRol { UserId = id, RoleId = pedido.RoleId });
+                }
+            }
+
+            await _context.SaveChangesRegularAsync();
+            await transaccion.CommitAsync();
+            return (ServiceStatus.Ok, "Empresas del usuario actualizadas");
         }
 
         private async Task<User> FindByUsername(string username)

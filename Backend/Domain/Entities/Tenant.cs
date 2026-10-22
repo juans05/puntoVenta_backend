@@ -8,6 +8,8 @@ public class Tenant
     public string Name { get; set; } = null!;
     public string TenantKey { get; set; } = null!;
     public bool Activo { get; set; } = true;
+    // Empresa creada con el plan de cuentas en blanco: el sembrado de arranque no le pone el PCGE.
+    public bool PlanCuentasEnBlanco { get; set; }
     public List<User> Users { get; set; } = new List<User>();
     public List<EmpresaTenant> EmpresaTenants { get; set; } = new List<EmpresaTenant>();
     public List<Sucursal> Sucursales { get; set; } = new List<Sucursal>();

@@ -1,3 +1,4 @@
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.IServices;
@@ -16,6 +17,21 @@ public class TenantController : ControllerBase
         this.tenantService = tenantService;
     }
 
+
+    // nameid del JWT (JwtRegisteredClaimNames.NameId) llega mapeado a NameIdentifier.
+    private string UserId => User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirstValue("nameid") ?? "";
+
+    // Registro publico (pantalla "Crear cuenta" del login). Limitado por IP en SeguridadMiddleware.
+    [AllowAnonymous]
+    [HttpPost("registro")]
+    public async Task<IActionResult> Registrar([FromBody] RegistroPayload payload) => Ok(await tenantService.Registrar(payload));
+
+    [HttpGet("mis-empresas")]
+    public async Task<IActionResult> ListarMisEmpresas() => Ok(await tenantService.ListarMisEmpresas(UserId));
+
+    [HttpPost("mis-empresas")]
+    public async Task<IActionResult> CrearEmpresaPropietario([FromBody] CrearEmpresaPropietarioPayload payload)
+        => Ok(await tenantService.CrearEmpresaPropietario(UserId, payload));
 
     [Authorize(Roles = "SuperAdmin")]
     [HttpPost("crear-tenant")]

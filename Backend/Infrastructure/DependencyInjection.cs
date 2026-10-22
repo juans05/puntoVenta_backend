@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Application.Interfaces.IRepository;
 using Application.Services;
@@ -42,6 +42,7 @@ namespace Identity.Infrastructure
                     .AddScoped<IAsientoContableRepository, AsientoContableRepository>()
                     .AddScoped<ICierreAnualRepository, CierreAnualRepository>()
                     .AddScoped<TiendaRepository>()
+                    .AddScoped<SunatRepository>()
                     .AddScoped<IPedidoVentaRepository, PedidoVentaRepository>()
                     .AddScoped<ICuentasRepository, CuentasRepository>()
                     .AddScoped<IGuiaRemisionRepository, GuiaRemisionRepository>()

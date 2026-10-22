@@ -11,4 +11,6 @@ public interface IUsersRepository
     Task<(ServiceStatus, object?, string)> GetAllUsers();
     Task<(ServiceStatus, object?, string)> ListarUsuarios();
     Task<(ServiceStatus, string)> CambiarEstadoUsuario(string id, bool activo);
+    Task<(ServiceStatus, object?, string)> ObtenerEmpresasUsuario(string id);
+    Task<(ServiceStatus, string)> AsignarEmpresasUsuario(string id, List<EmpresaUsuarioPayload> empresas);
 }

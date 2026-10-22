@@ -33,5 +33,8 @@ namespace Application.Interfaces.IRepository
         Task<(ServiceStatus, object?, string)> GetRecursos(string tenant);
 
         Task<(ServiceStatus, object?, string)> GetAllTenants();
+        Task<(ServiceStatus, object?, string)> ListarMisEmpresas(string userId);
+        Task<(ServiceStatus, object?, string)> CrearEmpresaPropietario(string userId, CrearEmpresaPropietarioPayload payload);
+        Task<(ServiceStatus, object?, string)> Registrar(RegistroPayload payload);
     }
 }

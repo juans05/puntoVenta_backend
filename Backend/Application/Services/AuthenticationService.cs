@@ -38,6 +38,26 @@ namespace Application.Services
 
         }
 
+        public async Task<MessageResult<AuthenticationModel>> CambiarEmpresaAsync(string userId, int tenantId)
+        {
+            var (estado, intercalResponse, entity) = await _handleSecurity.CambiarEmpresa(userId, tenantId);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , entity.MessageData, entity, intercalResponse);
+
+            return MessageResult<AuthenticationModel>.Of(entity.MessageData, entity);
+        }
+
+        public async Task<MessageResult<List<Domain.DTO.EmpresaAccesoDto>>> ListarEmpresasAsync(string userId)
+        {
+            var (_, empresas) = await _handleSecurity.ListarEmpresas(userId);
+            return MessageResult<List<Domain.DTO.EmpresaAccesoDto>>.Of("Success", empresas);
+        }
+
 
     }
 }

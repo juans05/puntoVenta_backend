@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.IServices;
 using Domain.Payloads;
@@ -161,6 +161,8 @@ public class ExtensionesController : ControllerBase
     [HttpGet("nacionalidad")]
     public async Task<IActionResult> nacionalidad() => Ok(await _extensionesService.ListarNacionalidad());
 
+    // AllowAnonymous: catalogo global, lo usa la pantalla publica de registro.
+    [AllowAnonymous]
     [HttpGet("rubros")]
     public async Task<IActionResult> rubros() => Ok(await _extensionesService.ListarRubros());
 

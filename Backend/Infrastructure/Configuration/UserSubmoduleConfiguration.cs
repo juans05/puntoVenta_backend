@@ -9,7 +9,8 @@ namespace Infrastructure.Configuration
         public UserSubmoduleConfiguration(EntityTypeBuilder<AspNetUserSubModule> entityBuilder)
         {
 
-            entityBuilder.HasKey(e => new { e.UserId, e.SubmoduleId });
+            // TenantId en la clave: un usuario con acceso a varias empresas tiene permisos propios en cada una.
+            entityBuilder.HasKey(e => new { e.UserId, e.SubmoduleId, e.TenantId });
 
             entityBuilder.HasOne(d => d.User)
                            .WithMany(p => p.UserSubmodules)

@@ -13,6 +13,8 @@ namespace Application.Interfaces.IServices
     Task<MessageResult<object>> ListarUsuarios();
 
     Task<MessageResult<object>> CambiarEstadoUsuario(string id, bool activo);
+    Task<MessageResult<object>> ObtenerEmpresasUsuario(string id);
+    Task<MessageResult<object>> AsignarEmpresasUsuario(string id, List<EmpresaUsuarioPayload> empresas);
 
     }
 }

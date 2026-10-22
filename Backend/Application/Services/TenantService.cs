@@ -160,6 +160,40 @@ namespace Application.Services
             return MessageResult<object>.Of(message, mapeo);
 
         }
+        public async Task<MessageResult<object>> ListarMisEmpresas(string userId)
+        {
+            var (_, result, message) = await tenantRepository.ListarMisEmpresas(userId);
+            return MessageResult<object>.Of(message, result);
+        }
+
+        public async Task<MessageResult<object>> Registrar(RegistroPayload payload)
+        {
+            var (estado, result, message) = await tenantRepository.Registrar(payload);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, result);
+
+            return MessageResult<object>.Of(message, result);
+        }
+
+        public async Task<MessageResult<object>> CrearEmpresaPropietario(string userId, CrearEmpresaPropietarioPayload payload)
+        {
+            var (estado, result, message) = await tenantRepository.CrearEmpresaPropietario(userId, payload);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation
+                        ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, result);
+
+            return MessageResult<object>.Of(message, result);
+        }
+
         public async Task<MessageResult<object>> GetAllTenants()
         {
 

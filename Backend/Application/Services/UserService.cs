@@ -89,5 +89,33 @@ namespace Application.Services
             return MessageResult<object>.Of(message, null);
         }
 
+        public async Task<MessageResult<object>> ObtenerEmpresasUsuario(string id)
+        {
+            var (estado, result, message) = await _userRepository.ObtenerEmpresasUsuario(id);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError
+                    , message);
+
+            return MessageResult<object>.Of(message, result);
+        }
+
+        public async Task<MessageResult<object>> AsignarEmpresasUsuario(string id, List<EmpresaUsuarioPayload> empresas)
+        {
+            var (estado, message) = await _userRepository.AsignarEmpresasUsuario(id, empresas);
+
+            if (estado != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        estado == ServiceStatus.NotFound
+                        ? HttpStatusCode.NotFound
+                        : estado == ServiceStatus.FailedValidation
+                            ? HttpStatusCode.BadRequest
+                            : HttpStatusCode.InternalServerError
+                    , message);
+
+            return MessageResult<object>.Of(message, null);
+        }
+
     }
 }

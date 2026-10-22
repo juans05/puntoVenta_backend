@@ -37,5 +37,13 @@ namespace WEB_API.Controllers
         public async Task<IActionResult> CambiarEstadoUsuario(string id, [FromBody] CambiarEstadoUsuarioPayload payload) =>
             Ok(await _usersService.CambiarEstadoUsuario(id, payload.Activo));
 
+        // Empresas del dueño a las que entra el usuario y con que perfil (el repo valida que sea el dueño).
+        [HttpGet("{id}/empresas")]
+        public async Task<IActionResult> ObtenerEmpresasUsuario(string id) => Ok(await _usersService.ObtenerEmpresasUsuario(id));
+
+        [HttpPut("{id}/empresas")]
+        public async Task<IActionResult> AsignarEmpresasUsuario(string id, [FromBody] List<EmpresaUsuarioPayload> empresas) =>
+            Ok(await _usersService.AsignarEmpresasUsuario(id, empresas));
+
     }
 }

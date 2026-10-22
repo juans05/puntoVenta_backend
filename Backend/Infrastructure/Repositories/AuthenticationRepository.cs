@@ -70,10 +70,13 @@ namespace Infrastructure.Repositories
                     return (ServiceStatus.FailedValidation, 1100, authenticationModel);
                 }
 
-                if (user.Tenant != null && !user.Tenant.Activo)
+                var empresas = await EmpresasDelUsuario(user.Id);
+
+                // Sin ninguna empresa activa asignada no entra: o su empresa esta deshabilitada o el dueño le quito el acceso.
+                if (empresas.Count == 0)
                 {
-                    _logger.LogWarning("Token() user {UserName} tenant {TenantId} disabled", model.UserName, user.Tenant.Identificador);
-                    authenticationModel.MessageData = "La empresa se encuentra deshabilitada. Contacte al administrador.";
+                    _logger.LogWarning("Token() user {UserName} without active companies", model.UserName);
+                    authenticationModel.MessageData = "No tienes acceso a ninguna empresa activa. Contacte al administrador.";
 
                     return (ServiceStatus.FailedValidation, 1500, authenticationModel);
                 }
@@ -100,106 +103,14 @@ namespace Infrastructure.Repositories
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("Token() user {UserName} authenticated, issuing token", model.UserName);
-                    List<Claim> claims = new List<Claim>();
 
-                    var empresa = user.Tenant.TenantKey;
+                    // Entra a su empresa principal si sigue teniendo acceso; si no, a la primera que tenga.
+                    var tenant = empresas.FirstOrDefault(e => e.TenantId == user.TenantId)?.Tenant
+                                 ?? empresas.First().Tenant;
 
-                    claims = DefaultClaims(user.Id, user.FirstName, user.LastName, user.Email, user.NormalizedUserName, user.PhoneNumber, user.AvatarUrl, user.Tenant.Name, empresa,
-                        user.SucursalId?.ToString(), user.Tenant.PaisId?.ToString(), user.Tenant.RubroId.ToString(), user.Tenant.MonedaId?.ToString());
-
-                    // GetRolesAsync() usa el mismo DbContext cuyo tenant ambiental (_context.CurrentTenantName)
-                    // todavia es null en este punto del login (no hay claims de tenant en el HttpContext.User
-                    // antes de autenticarse) -- el query filter de Role (TenantId == null || TenantId ==
-                    // _tenant.Name) colapsa a "TenantId IS NULL" y nunca encuentra roles propios del tenant
-                    // (ej. "Cajero"). Se consulta AspNetUserRoles directo, ignorando ese filtro, y se filtra
-                    // a mano por el tenant real que ya conocemos via user.Tenant.Name.
-                    IList<string> userRoles = new List<string>();
-
-                    if (_userManager.SupportsUserRole)
-                    {
-                        userRoles = await _context.Roles.IgnoreQueryFilters().AsNoTracking()
-                            .Where(r => r.UserRoles.Any(ur => ur.UserId == user.Id) && (r.TenantId == null || r.TenantId == user.Tenant.Name))
-                            .Select(r => r.Name)
-                            .ToListAsync();
-
-                        foreach (string role in userRoles)
-                        {
-                            claims.Add(new Claim(ClaimTypes.Role, role));
-                        }
-                    }
-
-
-                    var applicationUserDto = _mapper.Map<ApplicationUserDto>(user);
-
-                    // Se unen dos fuentes de acceso: los submodulos asignados directo al usuario
-                    // (AspNetUserSubModule, el unico mecanismo usado hasta ahora) y los que le llegan
-                    // via Role -> RoleSubmodule (RoleRepository, existia en el codigo con tests pero
-                    // nunca estuvo conectado al login). Sin roles asignados (caso de todo usuario
-                    // existente hoy) ResolverAccesoUsuario devuelve vacio, asi que esto no cambia el
-                    // comportamiento de nadie hasta que un admin use la pantalla de Roles y Permisos.
-                    var (rutasPorRol, _) = await _roleRepository.ResolverAccesoUsuario(userRoles, user.Tenant.Name);
-
-                    var rutas = MergeAccesos(applicationUserDto.Resumen, rutasPorRol);
-
-                    claims.Add(new Claim("rutas", Newtonsoft.Json.JsonConvert.SerializeObject(rutas)));
-
-
-
-                    var key = Encoding.ASCII.GetBytes(_tokenSettings.SecretKey);
-
-                    var encriptionSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSettings.EncryptionSecret));
-
-                    var tokenHandler = new JwtSecurityTokenHandler();
-
-                    var expiresAt = new DateTime();
-
-                    if (user.UserName == "DEVELOPER")
-                    {
-                        expiresAt = DateTime.UtcNow.AddMinutes(2);
-                    }
-                    else
-                    {
-                        expiresAt = DateTime.UtcNow.AddMinutes(_tokenSettings.AccessTokenExpiration); //SOLO AQUI NO SE DEBE AGREGAR EL -5
-                    }
-
-
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(claims),
-                        Expires = expiresAt,
-                        Issuer = _tokenSettings.Issuer,
-                        Audience = _tokenSettings.Audience,
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                        //EncryptingCredentials = new EncryptingCredentials(encriptionSecret, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512)
-                    };
-
-                    authenticationModel.IsAuthenticated = true;
-                    authenticationModel.Token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
-                    authenticationModel.UserName = user.UserName;
-                    authenticationModel.TokenExpirationAt = DateTimeHelper.DateToSpanish(_tokenSettings.AccessTokenExpiration, _tokenSettings.DesfaceTimeWithServer);
-                    authenticationModel.TokenExpirationTimestamp = DateTimeHelper.GetUnixTimeMilliseconds(expiresAt);
-                    authenticationModel.TokenExpirationTimestampShort = DateTimeHelper.GetUnixTime(_tokenSettings.AccessTokenExpiration);
-
-                    if (user.UserTokens.Any(a => a.IsActive))
-                    {
-                        var activeRefreshToken = user.UserTokens.Where(a => a.IsActive == true).FirstOrDefault();
-                        activeRefreshToken.Revoked = DateTime.UtcNow.AddHours(-5);
-                    }
-
-                    var refreshToken = CreateRefreshToken();
-
-                    authenticationModel.RefreshToken = refreshToken.Token;
-
-                    authenticationModel.RefreshTokenExpirationAt = DateTimeHelper.Conversion(refreshToken.Expires, _tokenSettings.DesfaceTimeWithServer);
-
-                    authenticationModel.RefreshTokenExpirationTimestamp = DateTimeHelper.GetUnixTimeMilliseconds(refreshToken.Expires);
-                    authenticationModel.RefreshTokenExpirationTimestampShort = DateTimeHelper.GetUnixTime(_tokenSettings.RefreshTokenExpiration);
-
-                    user.UserTokens.Add(refreshToken);
-
-                    //_context.Update(user);
-
-                    await _context.SaveChangesAsync();
+                    await EmitirToken(user, tenant, authenticationModel);
+                    authenticationModel.Empresas = empresas.Select(ToEmpresaAcceso).ToList();
+                    authenticationModel.Empresas.ForEach(e => e.Activa = e.TenantId == authenticationModel.EmpresaActivaId);
 
                     _logger.LogInformation("Token() user {UserName} login OK", model.UserName);
 
@@ -221,6 +132,195 @@ namespace Infrastructure.Repositories
                 return (ServiceStatus.InternalError, 0, authenticationModel);
             }
 
+        }
+
+        // Arma los claims de la empresa indicada, firma el JWT y rota el refresh token.
+        private async Task EmitirToken(User user, Domain.Entities.Tenant tenant, AuthenticationModel authenticationModel)
+        {
+            List<Claim> claims = new List<Claim>();
+
+            var empresa = tenant.TenantKey;
+
+            // La sede asignada al usuario es de su empresa principal; en otra empresa entra a la sede principal de esa.
+            var sucursalId = tenant.Identificador == user.TenantId
+                ? user.SucursalId
+                : await _context.Sucursal.IgnoreQueryFilters().AsNoTracking()
+                    .Where(x => x.TenantId == tenant.Name).OrderBy(x => x.Id).Select(x => (int?)x.Id).FirstOrDefaultAsync();
+
+            claims = DefaultClaims(user.Id, user.FirstName, user.LastName, user.Email, user.NormalizedUserName, user.PhoneNumber, user.AvatarUrl, tenant.Name, empresa,
+                sucursalId?.ToString(), tenant.PaisId?.ToString(), tenant.RubroId.ToString(), tenant.MonedaId?.ToString());
+
+            // GetRolesAsync() usa el mismo DbContext cuyo tenant ambiental (_context.CurrentTenantName)
+            // todavia es null en este punto del login (no hay claims de tenant en el HttpContext.User
+            // antes de autenticarse) -- el query filter de Role (TenantId == null || TenantId ==
+            // _tenant.Name) colapsa a "TenantId IS NULL" y nunca encuentra roles propios del tenant
+            // (ej. "Cajero"). Se consulta AspNetUserRoles directo, ignorando ese filtro, y se filtra
+            // a mano por el tenant real que ya conocemos via tenant.Name.
+            IList<string> userRoles = new List<string>();
+
+            if (_userManager.SupportsUserRole)
+            {
+                userRoles = await _context.Roles.IgnoreQueryFilters().AsNoTracking()
+                    .Where(r => r.UserRoles.Any(ur => ur.UserId == user.Id) && (r.TenantId == null || r.TenantId == tenant.Name))
+                    .Select(r => r.Name)
+                    .ToListAsync();
+
+                foreach (string role in userRoles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
+
+            // UserSubmodules se carga ignorando query filters (todas las empresas del usuario): solo cuentan
+            // los de la empresa del token. Se mapea una copia para no tocar la coleccion trackeada.
+            var applicationUserDto = _mapper.Map<ApplicationUserDto>(new User
+            {
+                UserSubmodules = user.UserSubmodules.Where(x => x.TenantId == tenant.Name).ToList()
+            });
+
+            // Se unen dos fuentes de acceso: los submodulos asignados directo al usuario
+            // (AspNetUserSubModule, el unico mecanismo usado hasta ahora) y los que le llegan
+            // via Role -> RoleSubmodule (RoleRepository, existia en el codigo con tests pero
+            // nunca estuvo conectado al login). Sin roles asignados (caso de todo usuario
+            // existente hoy) ResolverAccesoUsuario devuelve vacio, asi que esto no cambia el
+            // comportamiento de nadie hasta que un admin use la pantalla de Roles y Permisos.
+            var (rutasPorRol, _) = await _roleRepository.ResolverAccesoUsuario(userRoles, tenant.Name);
+
+            var rutas = MergeAccesos(applicationUserDto.Resumen, rutasPorRol);
+
+            claims.Add(new Claim("rutas", Newtonsoft.Json.JsonConvert.SerializeObject(rutas)));
+
+
+
+            var key = Encoding.ASCII.GetBytes(_tokenSettings.SecretKey);
+
+            var encriptionSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSettings.EncryptionSecret));
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var expiresAt = new DateTime();
+
+            if (user.UserName == "DEVELOPER")
+            {
+                expiresAt = DateTime.UtcNow.AddMinutes(2);
+            }
+            else
+            {
+                expiresAt = DateTime.UtcNow.AddMinutes(_tokenSettings.AccessTokenExpiration); //SOLO AQUI NO SE DEBE AGREGAR EL -5
+            }
+
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = expiresAt,
+                Issuer = _tokenSettings.Issuer,
+                Audience = _tokenSettings.Audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                //EncryptingCredentials = new EncryptingCredentials(encriptionSecret, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512)
+            };
+
+            authenticationModel.IsAuthenticated = true;
+            authenticationModel.Token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+            authenticationModel.UserName = user.UserName;
+            authenticationModel.TokenExpirationAt = DateTimeHelper.DateToSpanish(_tokenSettings.AccessTokenExpiration, _tokenSettings.DesfaceTimeWithServer);
+            authenticationModel.TokenExpirationTimestamp = DateTimeHelper.GetUnixTimeMilliseconds(expiresAt);
+            authenticationModel.TokenExpirationTimestampShort = DateTimeHelper.GetUnixTime(_tokenSettings.AccessTokenExpiration);
+
+            user.UserTokens ??= new List<AspNetUserToken>();
+
+            if (user.UserTokens.Any(a => a.IsActive))
+            {
+                var activeRefreshToken = user.UserTokens.Where(a => a.IsActive == true).FirstOrDefault();
+                activeRefreshToken.Revoked = DateTime.UtcNow.AddHours(-5);
+            }
+
+            var refreshToken = CreateRefreshToken();
+
+            authenticationModel.RefreshToken = refreshToken.Token;
+
+            authenticationModel.RefreshTokenExpirationAt = DateTimeHelper.Conversion(refreshToken.Expires, _tokenSettings.DesfaceTimeWithServer);
+
+            authenticationModel.RefreshTokenExpirationTimestamp = DateTimeHelper.GetUnixTimeMilliseconds(refreshToken.Expires);
+            authenticationModel.RefreshTokenExpirationTimestampShort = DateTimeHelper.GetUnixTime(_tokenSettings.RefreshTokenExpiration);
+
+            user.UserTokens.Add(refreshToken);
+
+            //_context.Update(user);
+
+            authenticationModel.EmpresaActivaId = tenant.Identificador;
+
+            await _context.SaveChangesAsync();
+        }
+
+        // Empresas activas a las que el usuario tiene acceso, con los datos de la empresa para mostrarlas.
+        private Task<List<Domain.Entities.UsuarioEmpresa>> EmpresasDelUsuario(string userId)
+            => _context.UsuarioEmpresa.IgnoreQueryFilters().AsNoTracking()
+                .Include(x => x.Tenant).ThenInclude(t => t.EmpresaTenants).ThenInclude(et => et.Empresa)
+                .Where(x => x.UserId == userId && x.Estado && x.Tenant.Activo)
+                .OrderBy(x => x.TenantId)
+                .ToListAsync();
+
+        private static EmpresaAccesoDto ToEmpresaAcceso(Domain.Entities.UsuarioEmpresa x)
+        {
+            var empresa = x.Tenant.EmpresaTenants.Select(et => et.Empresa).FirstOrDefault();
+            return new EmpresaAccesoDto
+            {
+                TenantId = x.TenantId,
+                Nombre = empresa?.NombreComercial ?? empresa?.RazonSocial ?? x.Tenant.TenantKey,
+                Ruc = empresa?.Ruc,
+                EsPropietario = x.EsPropietario
+            };
+        }
+
+        public async Task<(ServiceStatus, List<EmpresaAccesoDto>)> ListarEmpresas(string userId)
+        {
+            var empresas = await EmpresasDelUsuario(userId);
+            return (ServiceStatus.Ok, empresas.Select(e =>
+            {
+                var dto = ToEmpresaAcceso(e);
+                dto.Activa = e.Tenant.Name == _context.CurrentTenantName;
+                return dto;
+            }).ToList());
+        }
+
+        // Emite un token para otra empresa del usuario (selector de empresa) sin volver a pedir la contrasena.
+        public async Task<(ServiceStatus, int, AuthenticationModel)> CambiarEmpresa(string userId, int tenantId)
+        {
+            var authenticationModel = new AuthenticationModel();
+            try
+            {
+                var empresas = await EmpresasDelUsuario(userId);
+                var acceso = empresas.FirstOrDefault(e => e.TenantId == tenantId);
+                if (acceso is null)
+                {
+                    authenticationModel.MessageData = "No tienes acceso a esa empresa";
+                    return (ServiceStatus.FailedValidation, 1600, authenticationModel);
+                }
+
+                var user = await _context.Users.AsTracking().IgnoreQueryFilters()
+                    .Include(p => p.Tenant)
+                    .Include(p => p.UserTokens)
+                    .Include(p => p.UserSubmodules).ThenInclude(p => p.Submodule).ThenInclude(p => p.Module)
+                    .FirstOrDefaultAsync(x => x.Id == userId && x.Estado);
+                if (user is null)
+                {
+                    authenticationModel.MessageData = "El usuario no existe o esta deshabilitado";
+                    return (ServiceStatus.FailedValidation, 1100, authenticationModel);
+                }
+
+                await EmitirToken(user, acceso.Tenant, authenticationModel);
+                authenticationModel.Empresas = empresas.Select(ToEmpresaAcceso).ToList();
+                authenticationModel.Empresas.ForEach(e => e.Activa = e.TenantId == authenticationModel.EmpresaActivaId);
+                return (ServiceStatus.Ok, 1, authenticationModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CambiarEmpresa() failed for user {UserId}", userId);
+                authenticationModel.MessageData = ex.Message;
+                return (ServiceStatus.InternalError, 0, authenticationModel);
+            }
         }
 
         //--------------------------------------------------------------------

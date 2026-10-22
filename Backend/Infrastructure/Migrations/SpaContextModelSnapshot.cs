@@ -1249,6 +1249,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("ClaveSol")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("CodigoAdaptador")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -1329,6 +1333,14 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("SunatClientId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SunatClientSecret")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("TenantId")
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
@@ -1344,6 +1356,10 @@ namespace Infrastructure.Migrations
                     b.Property<string>("UsuarioCreacion")
                         .HasMaxLength(15)
                         .HasColumnType("character varying(15)");
+
+                    b.Property<string>("UsuarioSol")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -2297,21 +2313,21 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<bool>("Estado")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("TenantId")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
                     b.Property<string>("UsuarioCreacion")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.HasKey("UserId", "SubmoduleId");
+                    b.HasKey("UserId", "SubmoduleId", "TenantId");
 
                     b.HasIndex("SubmoduleId");
 
@@ -4428,6 +4444,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("PaisId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("PlanCuentasEnBlanco")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("RubroId")
                         .HasColumnType("integer");
 
@@ -4773,6 +4792,41 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UnidadMedida");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UsuarioEmpresa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("EsPropietario")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UserId", "TenantId")
+                        .IsUnique();
+
+                    b.ToTable("UsuarioEmpresa");
                 });
 
             modelBuilder.Entity("Domain.Entities.WhatsappConversation", b =>
@@ -6199,6 +6253,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("CuentaContable");
 
                     b.Navigation("TipoIgv");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UsuarioEmpresa", b =>
+                {
+                    b.HasOne("Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Identity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

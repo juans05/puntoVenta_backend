@@ -327,7 +327,9 @@ namespace Infrastructure.Data
             }
         }
 
-        private static async Task SeedCatalogoTenant(SpaContext context, string tenantId)
+        // Publico: tambien lo llama TenantRepository al crear una empresa desde "Mis empresas",
+        // para que la empresa nueva quede operativa sin esperar al proximo arranque.
+        public static async Task SeedCatalogoTenant(SpaContext context, string tenantId)
         {
             if (!context.Seriecorrelativo.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
@@ -412,6 +414,10 @@ namespace Infrastructure.Data
             // (PCGE.xlsx, provisto por el usuario) para las cuentas de partida doble
             // (Activo/Pasivo/Patrimonio/Gasto/Ingreso). Se excluyen a proposito las cuentas de
             // orden, cierre y analitica de costos -- ver plan de Pieza 3.
+            // Empresa creada con el plan en blanco: no se le siembra ni completa el PCGE.
+            var planEnBlanco = context.Tenant.IgnoreQueryFilters().Any(t => t.Name.ToUpper() == tenantId.ToUpper() && t.PlanCuentasEnBlanco);
+            if (planEnBlanco) return;
+
             if (!context.CuentaContable.IgnoreQueryFilters().Any(x => x.TenantId == tenantId))
             {
                 var cuentaContableData = File.ReadAllText(Path.Combine(DefaultDataPath, "cuentacontable.json"));

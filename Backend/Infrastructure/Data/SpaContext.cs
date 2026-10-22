@@ -62,6 +62,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<Tenant> Tenant => Set<Tenant>();
     public DbSet<Empresa> Empresa => Set<Empresa>();
     public DbSet<EmpresaTenant> EmpresaTenant => Set<EmpresaTenant>();
+    public DbSet<UsuarioEmpresa> UsuarioEmpresa => Set<UsuarioEmpresa>();
     public DbSet<TipoDocumento> TipoDocumento => Set<TipoDocumento>();
     public DbSet<TipoDocumentoVenta> TipoDocumentoVenta => Set<TipoDocumentoVenta>();
     public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
@@ -256,6 +257,12 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Pedido>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<PedidoDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<ClienteCuenta>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+
+        // Sin query filter: el acceso usuario-empresa se consulta cruzando tenants (login, cambio de empresa).
+        modelBuilder.Entity<UsuarioEmpresa>().Property(x => x.UserId).IsRequired();
+        modelBuilder.Entity<UsuarioEmpresa>().HasIndex(x => new { x.UserId, x.TenantId }).IsUnique();
+        modelBuilder.Entity<UsuarioEmpresa>().HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<UsuarioEmpresa>().HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Cascade);
 
         new UserConfiguration(modelBuilder.Entity<User>());
         new RoleConfiguration(modelBuilder.Entity<Role>());

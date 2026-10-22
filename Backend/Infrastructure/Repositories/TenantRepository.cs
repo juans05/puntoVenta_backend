@@ -144,6 +144,17 @@ public class TenantRepository : ITenantRepository
         if (!result.Succeeded)
             throw new Exception($"No se pudo crear el usuario admin \"{username}\": {string.Join("; ", result.Errors.Select(e => e.Description))}");
 
+        // El admin fundador es el dueño de la cuenta: puede crear mas empresas y dar acceso a otros usuarios.
+        await dbContext.UsuarioEmpresa.AddAsync(new UsuarioEmpresa
+        {
+            UserId = newUser.Id,
+            TenantId = identificador,
+            EsPropietario = true,
+            Estado = true,
+            FechaCreacion = DateTime.UtcNow.AddHours(-5)
+        });
+        await dbContext.SaveChangesRegularAsync();
+
         return newUser;
     }
 
@@ -170,6 +181,283 @@ public class TenantRepository : ITenantRepository
         await dbContext.SaveChangesRegularAsync();
     }
 
+
+    // ---------------------------------------------------------------- Mis empresas (dueño de la cuenta)
+
+    private Task<bool> EsPropietario(string userId)
+        => dbContext.UsuarioEmpresa.AnyAsync(x => x.UserId == userId && x.EsPropietario && x.Estado);
+
+    // Empresas de las que el usuario es dueño, con cuantos usuarios tiene cada una. El cobro es por
+    // usuario: TotalUsuarios son los usuarios distintos con acceso a alguna de sus empresas.
+    public async Task<(ServiceStatus, object?, string)> ListarMisEmpresas(string userId)
+    {
+        var propias = await dbContext.UsuarioEmpresa.AsNoTracking()
+            .Where(x => x.UserId == userId && x.EsPropietario && x.Estado)
+            .Select(x => x.TenantId)
+            .ToListAsync();
+
+        var accesos = await dbContext.UsuarioEmpresa.AsNoTracking()
+            .Where(x => propias.Contains(x.TenantId) && x.Estado)
+            .Select(x => new { x.TenantId, x.UserId })
+            .ToListAsync();
+
+        var empresas = await dbContext.Tenant.AsNoTracking()
+            .Where(t => propias.Contains(t.Identificador))
+            .OrderBy(t => t.Identificador)
+            .Select(t => new
+            {
+                tenantId = t.Identificador,
+                empresa = t.EmpresaTenants.Select(et => et.Empresa).FirstOrDefault(),
+                activo = t.Activo,
+                planCuentasEnBlanco = t.PlanCuentasEnBlanco
+            })
+            .ToListAsync();
+
+        return (ServiceStatus.Ok, new
+        {
+            totalUsuarios = accesos.Select(a => a.UserId).Distinct().Count(),
+            empresas = empresas.Select(e => new
+            {
+                e.tenantId,
+                nombre = e.empresa?.NombreComercial ?? e.empresa?.RazonSocial ?? "",
+                razonSocial = e.empresa?.RazonSocial,
+                ruc = e.empresa?.Ruc,
+                e.activo,
+                usuarios = accesos.Count(a => a.TenantId == e.tenantId)
+            })
+        }, "Success");
+    }
+
+    // El dueño crea otra empresa: tenant nuevo con sus catalogos, plan de cuentas segun la opcion
+    // elegida (por defecto / en blanco / copiado de otra de sus empresas) y acceso completo para el.
+    public async Task<(ServiceStatus, object?, string)> CrearEmpresaPropietario(string userId, CrearEmpresaPropietarioPayload payload)
+    {
+        if (!await EsPropietario(userId))
+            return (ServiceStatus.FailedValidation, null, "Solo el dueño de la cuenta puede crear empresas");
+
+        if (string.IsNullOrWhiteSpace(payload.RazonSocial))
+            return (ServiceStatus.FailedValidation, null, "La razón social es obligatoria");
+
+        var opcion = (payload.PlanCuentas ?? OpcionPlanCuentas.Defecto).ToUpper();
+        if (opcion != OpcionPlanCuentas.Defecto && opcion != OpcionPlanCuentas.Blanco && opcion != OpcionPlanCuentas.Copiar)
+            return (ServiceStatus.FailedValidation, null, "Opción de plan de cuentas inválida");
+
+        Tenant? origenPlan = null;
+        if (opcion == OpcionPlanCuentas.Copiar)
+        {
+            // Solo se copia de una empresa a la que el usuario tiene acceso.
+            var tieneAcceso = payload.CopiarDeTenantId.HasValue && await dbContext.UsuarioEmpresa
+                .AnyAsync(x => x.UserId == userId && x.TenantId == payload.CopiarDeTenantId && x.Estado);
+            if (!tieneAcceso)
+                return (ServiceStatus.FailedValidation, null, "Elige una de tus empresas para copiar el plan de cuentas");
+            origenPlan = await dbContext.Tenant.AsNoTracking().FirstAsync(t => t.Identificador == payload.CopiarDeTenantId);
+        }
+
+        var actual = await dbContext.Tenant.AsNoTracking().FirstOrDefaultAsync(t => t.Name == dbContext.CurrentTenantName);
+        var rubroId = payload.RubroId ?? actual?.RubroId ?? 0;
+        if (rubroId == 0)
+            return (ServiceStatus.FailedValidation, null, "Elige el rubro de la empresa");
+
+        await using var transaccion = await dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var tenant = await CrearTenantEmpresa(payload, rubroId, actual?.PaisId, actual?.MonedaId,
+                opcion == OpcionPlanCuentas.Blanco, origenPlan, _ => Task.FromResult(userId));
+
+            await transaccion.CommitAsync();
+
+            return (ServiceStatus.Ok, new { tenantId = tenant.Identificador, nombre = payload.NombreComercial ?? payload.RazonSocial }, "Empresa creada");
+        }
+        catch (Exception ex)
+        {
+            await transaccion.RollbackAsync();
+            return (ServiceStatus.FailedValidation, null, $"Error al crear la empresa -> {ex.InnerException?.Message ?? ex.Message}");
+        }
+    }
+
+    // Registro publico: una persona crea su cuenta y su primera empresa, y queda como dueño.
+    public async Task<(ServiceStatus, object?, string)> Registrar(RegistroPayload p)
+    {
+        if (string.IsNullOrWhiteSpace(p.Nombres) || string.IsNullOrWhiteSpace(p.Usuario) || string.IsNullOrWhiteSpace(p.Email))
+            return (ServiceStatus.FailedValidation, null, "Completa tus nombres, usuario y correo");
+        if (string.IsNullOrEmpty(p.Password) || p.Password.Length < 6)
+            return (ServiceStatus.FailedValidation, null, "La contraseña debe tener al menos 6 caracteres");
+        if (string.IsNullOrWhiteSpace(p.RazonSocial))
+            return (ServiceStatus.FailedValidation, null, "Ingresa la razón social de tu empresa");
+        if (!await dbContext.Rubro.AnyAsync(r => r.Id == p.RubroId))
+            return (ServiceStatus.FailedValidation, null, "Elige el rubro de tu empresa");
+
+        var usuario = p.Usuario.Trim().ToUpper();
+        if (await _userManager.FindByNameAsync(usuario) is not null)
+            return (ServiceStatus.FailedValidation, null, "Ese usuario ya existe, elige otro");
+        if (await _userManager.FindByEmailAsync(p.Email.Trim()) is not null)
+            return (ServiceStatus.FailedValidation, null, "Ese correo ya está registrado");
+
+        await using var transaccion = await dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var empresa = new CrearEmpresaPropietarioPayload
+            {
+                RazonSocial = p.RazonSocial,
+                NombreComercial = p.NombreComercial,
+                Ruc = p.Ruc
+            };
+            await CrearTenantEmpresa(empresa, p.RubroId, null, null, false, null, async tenant =>
+            {
+                var user = new User
+                {
+                    FirstName = p.Nombres.Trim(),
+                    LastName = p.Apellidos?.Trim() ?? "",
+                    UserName = usuario,
+                    Email = p.Email.Trim(),
+                    PhoneNumber = p.Celular?.Trim(),
+                    Celular = p.Celular?.Trim(),
+                    TenantId = tenant.Identificador,
+                    FechaCreacion = DateTime.UtcNow.AddHours(-5).ToString("dd/MM/yyyy HH:mm:ss"),
+                    Estado = true,
+                    EmailConfirmed = true
+                };
+                var resultado = await _userManager.CreateAsync(user, p.Password);
+                if (!resultado.Succeeded)
+                    throw new InvalidOperationException(string.Join("; ", resultado.Errors.Select(e => e.Description)));
+                return user.Id;
+            });
+
+            await transaccion.CommitAsync();
+            return (ServiceStatus.Ok, new { usuario }, "Cuenta creada");
+        }
+        catch (Exception ex)
+        {
+            await transaccion.RollbackAsync();
+            return (ServiceStatus.FailedValidation, null, $"No se pudo crear la cuenta -> {ex.InnerException?.Message ?? ex.Message}");
+        }
+    }
+
+    // Crea la empresa completa: tenant, datos de la empresa, catalogos, plan de cuentas (por defecto,
+    // en blanco o copiado) y el dueño con acceso total. `obtenerDueño` recibe el tenant ya guardado y
+    // devuelve el Id del dueño (en el registro crea al usuario ahi, porque el usuario necesita el tenant).
+    // No abre transaccion: la abre quien llama.
+    private async Task<Tenant> CrearTenantEmpresa(CrearEmpresaPropietarioPayload payload, int rubroId, int? paisId, int? monedaId,
+        bool planEnBlanco, Tenant? origenPlan, Func<Tenant, Task<string>> obtenerDueño)
+    {
+        var tenantKey = await GenerarTenantKey(payload.Ruc, payload.NombreComercial ?? payload.RazonSocial);
+        var tenant = new Tenant
+        {
+            Identificador = (await dbContext.Tenant.Select(x => (int?)x.Identificador).MaxAsync() ?? 0) + 1,
+            TenantKey = tenantKey,
+            Name = tenantKey.ToUpper() + "1",
+            RubroId = rubroId,
+            PaisId = paisId,
+            MonedaId = monedaId,
+            Activo = true,
+            PlanCuentasEnBlanco = planEnBlanco
+        };
+        await dbContext.Tenant.AddAsync(tenant);
+
+        await dbContext.EmpresaTenant.AddAsync(new EmpresaTenant
+        {
+            Empresa = new Empresa
+            {
+                RazonSocial = payload.RazonSocial.Trim(),
+                NombreComercial = payload.NombreComercial?.Trim(),
+                Ruc = payload.Ruc?.Trim(),
+                Direccion = payload.Direccion?.Trim()
+            },
+            Tenant = tenant,
+            Estado = true,
+            FechaCreacion = DateTime.UtcNow.AddHours(-5)
+        });
+        await dbContext.SaveChangesRegularAsync();
+
+        var userId = await obtenerDueño(tenant);
+        await dbContext.UsuarioEmpresa.AddAsync(new UsuarioEmpresa
+        {
+            UserId = userId,
+            TenantId = tenant.Identificador,
+            EsPropietario = true,
+            Estado = true,
+            FechaCreacion = DateTime.UtcNow.AddHours(-5)
+        });
+        await dbContext.SaveChangesRegularAsync();
+
+        await CrearConfiguracionRentaTenant(tenant.Name, rubroId, null);
+
+        // Se copia antes del sembrado: el sembrado solo pone el PCGE si la empresa no tiene cuentas.
+        if (origenPlan is not null)
+            await CopiarPlanDeCuentas(origenPlan.Name, tenant.Name);
+
+        dbContext.ChangeTracker.Clear();
+        await PuntoVentaDbContextData.SeedCatalogoTenant(dbContext, tenant.Name);
+
+        // El sembrado deja la identidad fiscal vacia; se completa con los datos ingresados.
+        var fiscal = await dbContext.ConfiguracionFiscal.IgnoreQueryFilters().Where(x => x.TenantId == tenant.Name).ToListAsync();
+        foreach (var f in fiscal)
+        {
+            f.Ruc = payload.Ruc?.Trim();
+            f.RazonSocial = payload.RazonSocial.Trim();
+            f.NombreComercial = payload.NombreComercial?.Trim() ?? payload.RazonSocial.Trim();
+            f.Direccion = payload.Direccion?.Trim();
+        }
+        await dbContext.SaveChangesRegularAsync();
+
+        await AsociarModuleUser(userId, tenant.Name);
+        return tenant;
+    }
+
+    // TenantKey unico en minusculas: el RUC si viene, si no el nombre sin espacios ni simbolos.
+    private async Task<string> GenerarTenantKey(string? ruc, string nombre)
+    {
+        var limpio = System.Text.RegularExpressions.Regex.Replace(
+            (string.IsNullOrWhiteSpace(ruc) ? nombre : ruc).Trim().ToLower(), "[^a-z0-9]", "");
+        var baseKey = string.IsNullOrEmpty(limpio) ? "empresa" : limpio[..Math.Min(limpio.Length, 30)];
+        var key = baseKey;
+        for (var i = 2; await dbContext.Tenant.AnyAsync(t => t.TenantKey == key || t.Name == key.ToUpper() + "1"); i++)
+            key = baseKey + i;
+        return key;
+    }
+
+    // Copia el plan de cuentas completo de una empresa a otra, rehaciendo las referencias entre cuentas
+    // (padre, cargo/abono de destino y cierre) con los Id nuevos.
+    private async Task CopiarPlanDeCuentas(string origen, string destino)
+    {
+        var cuentas = await dbContext.CuentaContable.IgnoreQueryFilters().AsNoTracking()
+            .Where(c => c.TenantId == origen)
+            .OrderBy(c => c.Id)
+            .ToListAsync();
+        if (cuentas.Count == 0) return;
+
+        var refs = cuentas.Select(c => new[]
+        {
+            c.CuentaPadreId, c.CuentaCargo1Id, c.CuentaAbono1Id, c.CuentaCargo2Id,
+            c.CuentaAbono2Id, c.CuentaCargo3Id, c.CuentaAbono3Id, c.CuentaCierreId
+        }).ToList();
+        var idsOrigen = cuentas.Select(c => c.Id).ToList();
+
+        foreach (var c in cuentas)
+        {
+            c.Id = 0;
+            c.TenantId = destino;
+            c.CuentaPadreId = c.CuentaCargo1Id = c.CuentaAbono1Id = c.CuentaCargo2Id = null;
+            c.CuentaAbono2Id = c.CuentaCargo3Id = c.CuentaAbono3Id = c.CuentaCierreId = null;
+        }
+        await dbContext.CuentaContable.AddRangeAsync(cuentas);
+        await dbContext.SaveChangesRegularAsync();
+
+        var nuevoId = idsOrigen.Zip(cuentas, (viejo, c) => (viejo, c.Id)).ToDictionary(x => x.viejo, x => x.Id);
+        int? Nuevo(int? viejo) => viejo.HasValue && nuevoId.TryGetValue(viejo.Value, out var n) ? n : null;
+
+        for (var i = 0; i < cuentas.Count; i++)
+        {
+            var c = cuentas[i];
+            var r = refs[i];
+            c.CuentaPadreId = Nuevo(r[0]);
+            c.CuentaCargo1Id = Nuevo(r[1]); c.CuentaAbono1Id = Nuevo(r[2]);
+            c.CuentaCargo2Id = Nuevo(r[3]); c.CuentaAbono2Id = Nuevo(r[4]);
+            c.CuentaCargo3Id = Nuevo(r[5]); c.CuentaAbono3Id = Nuevo(r[6]);
+            c.CuentaCierreId = Nuevo(r[7]);
+        }
+        await dbContext.SaveChangesRegularAsync();
+    }
 
     public async Task<(ServiceStatus, object?, string)> GetEmpresa(string tenantNombre)
     {

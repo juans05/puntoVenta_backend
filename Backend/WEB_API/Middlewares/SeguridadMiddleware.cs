@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
 
 namespace API.Middlewares;
@@ -14,6 +14,7 @@ public class SeguridadMiddleware
     private static readonly (string Ruta, int Limite)[] Limites =
     {
         ("/api/autenticacion/token", 10),
+        ("/api/tenant/registro", 3),
         ("/api/cliente/auth", 10),
         ("/api/pedidos/publico", 20),
         ("/api/whatsapp/webhook", 60),

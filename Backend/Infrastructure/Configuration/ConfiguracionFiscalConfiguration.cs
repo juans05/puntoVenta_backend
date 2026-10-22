@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Domain.Entities;
 
@@ -59,6 +59,14 @@ public class ConfiguracionFiscalConfiguration
 
         // Token del proveedor de facturacion: cifrado en la BD (ver CifradoDatos).
         entityBuilder.Property(e => e.Token)
+                      .HasConversion(Infrastructure.Data.CifradoDatos.Conversor);
+
+        // Credenciales de SUNAT: la clave SOL y el client secret van cifrados como el token.
+        entityBuilder.Property(e => e.UsuarioSol).HasMaxLength(20);
+        entityBuilder.Property(e => e.SunatClientId).HasMaxLength(100);
+        entityBuilder.Property(e => e.ClaveSol).HasMaxLength(500)
+                      .HasConversion(Infrastructure.Data.CifradoDatos.Conversor);
+        entityBuilder.Property(e => e.SunatClientSecret).HasMaxLength(500)
                       .HasConversion(Infrastructure.Data.CifradoDatos.Conversor);
 
         entityBuilder.Property(e => e.TenantId)
