@@ -3667,7 +3667,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("CuentasInventarioMovimiento")
                         .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Descripcion")
                         .HasMaxLength(150)

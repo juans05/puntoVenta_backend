@@ -13,6 +13,8 @@ namespace Identitysoft.Infrastructure.Configuration
             entityBuilder.Property(e => e.VideoUrl).HasMaxLength(500);
             entityBuilder.Property(e => e.Galeria).HasColumnType("text");
             entityBuilder.Property(e => e.Descripcion).HasColumnType("text");
+            // JSON {movimiento: cuentaId}: con 12 pares ya ronda los 150 del default.
+            entityBuilder.Property(e => e.CuentasInventarioMovimiento).HasColumnType("text");
             entityBuilder.Property(e => e.CloudinaryPublicId).HasColumnType("character varying (255)");
         }
     }
