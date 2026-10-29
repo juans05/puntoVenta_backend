@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -109,7 +109,8 @@ namespace Infrastructure.Repositories
                                                              id = p.Id,
                                                              codigo = p.Codigo,
                                                              value = p.Descripcion,
-                                                             aplicaPorcentajeImpuesto = p.AplicaPorcentajeImpuesto
+                                                             aplicaPorcentajeImpuesto = p.AplicaPorcentajeImpuesto,
+                                                             porcentaje = p.Porcentaje
                                                          }).ToListAsync();
 
                 return (ServiceStatus.Ok, TipoIgv, "Success");
@@ -201,6 +202,8 @@ namespace Infrastructure.Repositories
                                                       codigo = p.Codigo,
                                                       descripcion = p.Descripcion,
                                                       aplicaPorcentajeImpuesto = p.AplicaPorcentajeImpuesto,
+                                                      // Para mostrar: las filas base gravadas usan el 18% del negocio.
+                                                      porcentaje = p.AplicaPorcentajeImpuesto ? p.Porcentaje ?? 18m : 0m,
                                                       estado = p.Estado,
                                                       esPersonalizado = p.TenantId != null,
                                                       cuentaContableId = _context.TipoIgvCuenta.Where(c => c.TipoIgvId == p.Id).Select(c => (int?)c.CuentaContableId).FirstOrDefault()
@@ -214,10 +217,17 @@ namespace Infrastructure.Repositories
             }
         }
 
+        // El % manda sobre el check: 0 = no aplica. Sin % (clientes viejos) se respeta el check con el % del negocio.
+        private static (bool aplica, decimal? porcentaje) AfectacionIgv(decimal? porcentaje, bool aplicaPorcentajeImpuesto) =>
+            porcentaje.HasValue ? (porcentaje > 0, porcentaje > 0 ? porcentaje : null) : (aplicaPorcentajeImpuesto, null);
+
         public async Task<(ServiceStatus, object?, string)> CrearTipoIgv(CreateTipoIgvPayload payload)
         {
             if (string.IsNullOrWhiteSpace(payload.Codigo) || string.IsNullOrWhiteSpace(payload.Descripcion))
                 return (ServiceStatus.FailedValidation, null, "Código y descripción son obligatorios");
+            if (payload.Porcentaje is < 0 or > 100)
+                return (ServiceStatus.FailedValidation, null, "El % del IGV debe estar entre 0 y 100");
+            var (aplica, porcentaje) = AfectacionIgv(payload.Porcentaje, payload.AplicaPorcentajeImpuesto);
 
             try
             {
@@ -225,7 +235,8 @@ namespace Infrastructure.Repositories
                 {
                     Codigo = payload.Codigo.Trim(),
                     Descripcion = payload.Descripcion.Trim(),
-                    AplicaPorcentajeImpuesto = payload.AplicaPorcentajeImpuesto
+                    AplicaPorcentajeImpuesto = aplica,
+                    Porcentaje = porcentaje
                 };
 
                 await _context.TipoIgv.AddAsync(entity);
@@ -245,6 +256,8 @@ namespace Infrastructure.Repositories
         {
             if (string.IsNullOrWhiteSpace(payload.Codigo) || string.IsNullOrWhiteSpace(payload.Descripcion))
                 return (ServiceStatus.FailedValidation, null, "Código y descripción son obligatorios");
+            if (payload.Porcentaje is < 0 or > 100)
+                return (ServiceStatus.FailedValidation, null, "El % del IGV debe estar entre 0 y 100");
 
             var entity = await _context.TipoIgv.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
@@ -256,7 +269,7 @@ namespace Infrastructure.Repositories
             {
                 entity.Codigo = payload.Codigo.Trim();
                 entity.Descripcion = payload.Descripcion.Trim();
-                entity.AplicaPorcentajeImpuesto = payload.AplicaPorcentajeImpuesto;
+                (entity.AplicaPorcentajeImpuesto, entity.Porcentaje) = AfectacionIgv(payload.Porcentaje, payload.AplicaPorcentajeImpuesto);
             }
             if (await GuardarCuentaIgv(entity.Id, payload.CuentaContableId) is { } errorCuenta)
                 return (ServiceStatus.FailedValidation, null, errorCuenta);

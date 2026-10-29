@@ -4648,6 +4648,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<decimal?>("Porcentaje")
+                        .HasColumnType("numeric(13,2)");
+
                     b.Property<string>("TenantId")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");

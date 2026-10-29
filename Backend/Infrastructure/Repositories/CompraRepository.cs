@@ -95,8 +95,9 @@ public class CompraRepository : ICompraRepository
             .FirstOrDefaultAsync();
         var calculadora = _taxCalculatorFactory.GetCalculator(PaisIdClaim);
 
-        var gravada = aplicaImpuesto ? calculadora.CalcularSubtotal(baseConDescuento, PaisIdClaim, config?.PorcentajeImpuesto) : baseConDescuento;
-        var igv = aplicaImpuesto ? calculadora.CalcularImpuesto(baseConDescuento, PaisIdClaim, config?.PorcentajeImpuesto) : 0m;
+        var tasa = tipoIgv?.Porcentaje ?? config?.PorcentajeImpuesto;
+        var gravada = aplicaImpuesto ? calculadora.CalcularSubtotal(baseConDescuento, PaisIdClaim, tasa) : baseConDescuento;
+        var igv = aplicaImpuesto ? calculadora.CalcularImpuesto(baseConDescuento, PaisIdClaim, tasa) : 0m;
 
         return (montoDescuento, otrosCargos, gravada, igv, baseConDescuento);
     }

@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.IProxies;
+using Application.Interfaces.IProxies;
 using Application.Interfaces.IServices;
 using AutoMapper;
 using Coravel.Invocable;
@@ -152,7 +152,6 @@ public class InvoiceJob : IInvocable
         comprobanteCabecera.ComprobanteDetalles.Select(x =>
         {
             var mtoBaseIgv = x.ValorUnitarioTotal - x.ValorIgv;
-            var aplicaImpuesto = x.TipoIgv?.AplicaPorcentajeImpuesto ?? true;
 
             return new Detail
             {
@@ -163,7 +162,7 @@ public class InvoiceJob : IInvocable
                 mtoValorUnitario = Math.Round(mtoBaseIgv / x.Cantidad, 2),
                 mtoValorVenta = mtoBaseIgv,
                 mtoBaseIgv = mtoBaseIgv,
-                porcentajeIgv = aplicaImpuesto ? impuesto : 0m,
+                porcentajeIgv = x.TipoIgv?.Tasa(impuesto) ?? impuesto,
                 igv = x.ValorIgv,
                 tipAfeIgv = x.TipoIgv?.Codigo ?? "10",
                 totalImpuestos = x.ValorIgv,

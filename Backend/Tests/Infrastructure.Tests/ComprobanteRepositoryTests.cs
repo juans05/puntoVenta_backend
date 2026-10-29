@@ -687,6 +687,34 @@ public class ComprobanteRepositoryTests
     }
 
     [Fact]
+    public async Task CrearComprobante_TipoIgvConPorcentajePropio_UsaEsePorcentaje()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        var productoId = await SeedProductoAsync(context, stock: 10);
+        var metodoPagoId = await SeedMetodoPagoAsync(context);
+        var tipoIgvId = await SeedTipoIgvAsync(context, "10", aplicaPorcentajeImpuesto: true);
+        (await context.TipoIgv.SingleAsync(t => t.Id == tipoIgvId)).Porcentaje = 10.5m;
+        await context.SaveChangesAsync();
+
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+
+        var (estado, _, _) = await repo.CrearComprobante(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            Total = 110.5m,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, ValorUnitario = 110.5m, TipoIgvId = tipoIgvId } },
+            DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 110.5m } }
+        });
+
+        Assert.Equal(ServiceStatus.Ok, estado);
+        var cabecera = await context.ComprobanteCabecera.SingleAsync();
+        Assert.Equal((100m, 10.5m, 10.5m), (cabecera.ValorSubtotal, cabecera.ValorIgv, cabecera.PorcentajeImpuesto));
+    }
+
+    [Fact]
     public async Task CrearComprobante_LineaGravadaYLineaExonerada_CalculaIgvSoloSobreLaGravada()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();

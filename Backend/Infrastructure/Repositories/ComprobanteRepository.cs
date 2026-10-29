@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.IRepository;
+using Application.Interfaces.IRepository;
 using Application.Abstractions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -148,7 +148,6 @@ namespace Infrastructure.Repositories
 
                 var impuesto = _taxCalculatorFactory.GetCalculator(paisId)
                                                     .GetImpuestoRate(paisId, config?.PorcentajeImpuesto);
-                var factor = 1m + (impuesto / 100m);
 
                 var detalle = _mapper.Map<List<ComprobanteDetalle>>(payload.DetalleComprobante);
 
@@ -162,17 +161,20 @@ namespace Infrastructure.Repositories
                     : new Dictionary<int, TipoIgv>();
 
                 var subtotalCalculado = 0m;
+                var tasaDocumento = impuesto;
 
                 foreach (var item in detalle)
                 {
-                    var aplicaImpuesto = !item.TipoIgvId.HasValue
-                        || !tiposIgv.TryGetValue(item.TipoIgvId.Value, out var tipoIgv)
-                        || tipoIgv.AplicaPorcentajeImpuesto;
+                    // Cada tipo puede tener su propio % (18, 10.5, 11...); sin tipo, el del negocio.
+                    var tasaLinea = item.TipoIgvId.HasValue && tiposIgv.TryGetValue(item.TipoIgvId.Value, out var tipoIgv)
+                        ? tipoIgv.Tasa(impuesto)
+                        : impuesto;
+                    if (tasaLinea > 0) tasaDocumento = tasaLinea;
 
                     var importeLinea = item.Cantidad * item.ValorUnitario;
 
                     item.ValorUnitarioTotal = importeLinea;
-                    item.ValorIgv = aplicaImpuesto ? importeLinea - (importeLinea / factor) : 0m;
+                    item.ValorIgv = tasaLinea > 0 ? importeLinea - (importeLinea / (1m + tasaLinea / 100m)) : 0m;
 
                     subtotalCalculado += importeLinea - item.ValorIgv;
                 }
@@ -192,7 +194,7 @@ namespace Infrastructure.Repositories
 
                 cabecera.ValorIgv = Math.Round(payload.Total - subtotalCalculado, 2);
 
-                cabecera.PorcentajeImpuesto = impuesto;
+                cabecera.PorcentajeImpuesto = tasaDocumento;
 
                 cabecera.TotalLetras = DecimalExtensions.ConvertirNumeroALetras(payload.Total);
 
@@ -1201,7 +1203,6 @@ namespace Infrastructure.Repositories
 
             var impuesto = _taxCalculatorFactory.GetCalculator(paisId)
                                                 .GetImpuestoRate(paisId, config?.PorcentajeImpuesto);
-            var factor = 1m + (impuesto / 100m);
 
             var company = new Company
             {
@@ -1242,19 +1243,20 @@ namespace Infrastructure.Repositories
                 valorVenta = comprobanteCabecera.ValorSubtotal,
                 mtoIGV = comprobanteCabecera.ValorIgv,
                 totalImpuestos = comprobanteCabecera.ValorIgv,
+                // Igual que InvoiceJob.ArmarDetails: usa el IGV ya calculado por linea (con el % de su TipoIgv).
                 details = comprobanteCabecera.ComprobanteDetalles.Select(x => new Detail
                 {
-                    unidad = "NIU",
+                    unidad = x.UnidadMedida?.Codigo ?? "NIU",
                     codProducto = "P001",
                     cantidad = x.Cantidad,
                     descripcion = x.Producto.Nombre,
-                    mtoValorUnitario = Math.Round(x.ValorUnitario / factor, 2),
-                    mtoValorVenta = Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad,
-                    mtoBaseIgv = Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad,
-                    porcentajeIgv = impuesto,
-                    igv = (x.ValorUnitario * x.Cantidad) - (Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad),
-                    tipAfeIgv = "10",
-                    totalImpuestos = (x.ValorUnitario * x.Cantidad) - (Math.Round(x.ValorUnitario / factor, 2) * x.Cantidad),
+                    mtoValorUnitario = Math.Round((x.ValorUnitarioTotal - x.ValorIgv) / x.Cantidad, 2),
+                    mtoValorVenta = x.ValorUnitarioTotal - x.ValorIgv,
+                    mtoBaseIgv = x.ValorUnitarioTotal - x.ValorIgv,
+                    porcentajeIgv = x.TipoIgv?.Tasa(impuesto) ?? impuesto,
+                    igv = x.ValorIgv,
+                    tipAfeIgv = x.TipoIgv?.Codigo ?? "10",
+                    totalImpuestos = x.ValorIgv,
                     mtoPrecioUnitario = x.ValorUnitario,
                 }).ToList(),
                 legends = new List<Legend>
