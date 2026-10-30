@@ -35,6 +35,17 @@ public class TenantResolverSucursalTests
         => Assert.Equal(9, TenantResolver.GetSucursalId(Contexto("2", "9", "Administrador"), "T", null));
 
     [Fact]
+    public void SinSedeNiHeader_UsaLaSedePrincipal_YSigueEligiendoConElHeader()
+    {
+        var sinHeader = Contexto(null, null);
+        ((ClaimsIdentity)sinHeader.User.Identity!).AddClaim(new Claim(ClaimConstants.SucursalPrincipal, "5"));
+        var conHeader = Contexto(null, "7");
+        ((ClaimsIdentity)conHeader.User.Identity!).AddClaim(new Claim(ClaimConstants.SucursalPrincipal, "5"));
+
+        Assert.Equal((5, 7), (TenantResolver.GetSucursalId(sinHeader, "T", null), TenantResolver.GetSucursalId(conHeader, "T", null)));
+    }
+
+    [Fact]
     public void SinHeader_UsaLaSedeDelToken()
         => Assert.Equal(2, TenantResolver.GetSucursalId(Contexto("2", null), "T", null));
 }

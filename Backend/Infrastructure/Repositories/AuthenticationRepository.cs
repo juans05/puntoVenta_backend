@@ -142,13 +142,14 @@ namespace Infrastructure.Repositories
             var empresa = tenant.TenantKey;
 
             // La sede asignada al usuario es de su empresa principal; en otra empresa entra a la sede principal de esa.
-            var sucursalId = tenant.Identificador == user.TenantId
-                ? user.SucursalId
-                : await _context.Sucursal.IgnoreQueryFilters().AsNoTracking()
-                    .Where(x => x.TenantId == tenant.Name).OrderBy(x => x.Id).Select(x => (int?)x.Id).FirstOrDefaultAsync();
+            var sedePrincipal = await _context.Sucursal.IgnoreQueryFilters().AsNoTracking()
+                .Where(x => x.TenantId == tenant.Name).OrderBy(x => x.Id).Select(x => (int?)x.Id).FirstOrDefaultAsync();
+            var sucursalId = tenant.Identificador == user.TenantId ? user.SucursalId : sedePrincipal;
 
             claims = DefaultClaims(user.Id, user.FirstName, user.LastName, user.Email, user.NormalizedUserName, user.PhoneNumber, user.AvatarUrl, tenant.Name, empresa,
                 sucursalId?.ToString(), tenant.PaisId?.ToString(), tenant.RubroId.ToString(), tenant.MonedaId?.ToString());
+            // Va aparte de "sede" para que quien no tiene sede asignada (ej. el dueño) pueda seguir cambiandola con X-Sucursal.
+            if (sedePrincipal.HasValue) claims.Add(new Claim(ClaimConstants.SucursalPrincipal, sedePrincipal.Value.ToString()));
 
             // GetRolesAsync() usa el mismo DbContext cuyo tenant ambiental (_context.CurrentTenantName)
             // todavia es null en este punto del login (no hay claims de tenant en el HttpContext.User

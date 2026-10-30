@@ -156,7 +156,10 @@ public class TenantResolver : ITenantResolver
             if (puedeCambiarDeSede) return headerSucursal;
         }
 
-        return claimSucursal;
+        // Sin sede propia ni elegida (ej. el dueño que se registro) se trabaja en la sede principal: sin
+        // esto la sesion queda sin sede y no ve nada de lo que guarda en una sede (ej. productos).
+        return claimSucursal
+            ?? (int.TryParse(context.User.FindFirstValue(ClaimConstants.SucursalPrincipal), out var p) ? p : null);
     }
 
     private static int? ParseInt(string? value)
