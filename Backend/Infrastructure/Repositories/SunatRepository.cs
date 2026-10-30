@@ -76,7 +76,9 @@ public class SunatRepository
     }
 
     // Token de la API SIRE (dura ~1 hora). Error = mensaje listo para mostrar.
-    public async Task<(string? Token, string? Error)> ObtenerTokenSire()
+    // detalleCredenciales: solo desde ProbarConexion (exclusivo del dueño) se muestra con que usuario SOL se intento;
+    // "Traer de SUNAT" lo usan tambien los contadores y no deben ver el usuario SOL.
+    public async Task<(string? Token, string? Error)> ObtenerTokenSire(bool detalleCredenciales = false)
     {
         var c = await Configuracion();
         if (c is null || string.IsNullOrWhiteSpace(c.Ruc))
@@ -110,9 +112,10 @@ public class SunatRepository
 
             var detalle = cuerpo.TryGetValue("error_description", out var d) ? d?.ToString()
                         : cuerpo.TryGetValue("error", out var e) ? e?.ToString() : null;
-            // Se muestra con que RUC/usuario se intento (son de la propia empresa) para detectar un usuario SOL de otro RUC.
-            return (null, $"SUNAT rechazó las credenciales{(string.IsNullOrEmpty(detalle) ? "" : $": {detalle}")}. " +
-                          $"Se intentó con el RUC {ruc} y el usuario SOL {usuarioSol}: verifica que ese usuario pertenezca a ese RUC, la clave SOL y el client ID/secret de ese mismo RUC.");
+            var error = $"SUNAT rechazó las credenciales{(string.IsNullOrEmpty(detalle) ? "" : $": {detalle}")}";
+            return (null, detalleCredenciales
+                ? $"{error}. Se intentó con el RUC {ruc} y el usuario SOL {usuarioSol}: verifica que ese usuario pertenezca a ese RUC, la clave SOL y el client ID/secret de ese mismo RUC."
+                : $"{error}. El dueño de la empresa puede revisarlas en Mi Empresa → Certificado y Clave SOL.");
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
@@ -125,7 +128,7 @@ public class SunatRepository
     public async Task<string?> ProbarConexion()
     {
         if (!await EsPropietario()) return "Solo el dueño de la empresa puede probar las credenciales de SUNAT";
-        var (token, error) = await ObtenerTokenSire();
+        var (token, error) = await ObtenerTokenSire(detalleCredenciales: true);
         if (token is null) return error;
 
         var cliente = ClienteSire(token);
