@@ -100,6 +100,9 @@ public class ProveedorRepository : IProveedorRepository
         }
     }
 
+    private static string EscaparLike(string valor) =>
+        valor.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+
     public async Task<(ServiceStatus, DataCollection<ProveedorDto>?, string)> GetProveedor(ProveedorPayload payload)
     {
 
@@ -108,7 +111,24 @@ public class ProveedorRepository : IProveedorRepository
         try
         {
 
-            if (payload.Value is null)
+            if (!string.IsNullOrWhiteSpace(payload.Nombre) || !string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+            {
+                var query = dbContext.Proveedor.AsNoTracking().Where(p => p.Estado == true);
+                if (!string.IsNullOrWhiteSpace(payload.Nombre))
+                {
+                    var nombre = EscaparLike(payload.Nombre.Trim());
+                    query = query.Where(p => EF.Functions.ILike(p.Nombre, $"%{nombre}%"));
+                }
+                if (!string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+                {
+                    var doc = EscaparLike(payload.NumeroDocumento.Trim());
+                    query = query.Where(p => p.Ruc != null && EF.Functions.ILike(p.Ruc, $"%{doc}%"));
+                }
+                lista = await query.OrderBy(p => p.Nombre)
+                    .ProjectTo<ProveedorDto>(mapper.ConfigurationProvider)
+                    .GetPagedAsync(payload.Page, payload.Amount);
+            }
+            else if (payload.Value is null)
             {
 
                 lista = await dbContext.Proveedor.AsNoTracking().Where( p => p.Estado == true)

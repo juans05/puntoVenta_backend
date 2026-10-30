@@ -85,6 +85,9 @@ public class SunatRepository
             || string.IsNullOrWhiteSpace(c.SunatClientId) || string.IsNullOrEmpty(c.SunatClientSecret))
             return (null, "Completa usuario SOL, clave SOL, client ID y client secret");
 
+        // SUNAT espera RUC + usuario SOL en mayusculas y sin espacios; la web de SOL lo tolera, la API no.
+        var ruc = c.Ruc.Trim();
+        var usuarioSol = c.UsuarioSol.Trim().ToUpperInvariant();
         var cliente = _httpClientFactory.CreateClient();
         cliente.Timeout = TimeSpan.FromSeconds(30);
         try
@@ -97,7 +100,7 @@ public class SunatRepository
                     ["scope"] = ScopeSire,
                     ["client_id"] = c.SunatClientId,
                     ["client_secret"] = c.SunatClientSecret,
-                    ["username"] = c.Ruc.Trim() + c.UsuarioSol,
+                    ["username"] = ruc + usuarioSol,
                     ["password"] = c.ClaveSol
                 }));
 
@@ -107,7 +110,9 @@ public class SunatRepository
 
             var detalle = cuerpo.TryGetValue("error_description", out var d) ? d?.ToString()
                         : cuerpo.TryGetValue("error", out var e) ? e?.ToString() : null;
-            return (null, $"SUNAT rechazó las credenciales{(string.IsNullOrEmpty(detalle) ? "" : $": {detalle}")}");
+            // Se muestra con que RUC/usuario se intento (son de la propia empresa) para detectar un usuario SOL de otro RUC.
+            return (null, $"SUNAT rechazó las credenciales{(string.IsNullOrEmpty(detalle) ? "" : $": {detalle}")}. " +
+                          $"Se intentó con el RUC {ruc} y el usuario SOL {usuarioSol}: verifica que ese usuario pertenezca a ese RUC, la clave SOL y el client ID/secret de ese mismo RUC.");
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
@@ -115,11 +120,45 @@ public class SunatRepository
         }
     }
 
+    // Ademas de pedir el token hace una consulta real a SIRE (periodos del Registro de Ventas): SUNAT puede
+    // entregar el token y aun asi rechazar las consultas a SIRE.
     public async Task<string?> ProbarConexion()
     {
         if (!await EsPropietario()) return "Solo el dueño de la empresa puede probar las credenciales de SUNAT";
-        var (_, error) = await ObtenerTokenSire();
-        return error;
+        var (token, error) = await ObtenerTokenSire();
+        if (token is null) return error;
+
+        var cliente = ClienteSire(token);
+        try
+        {
+            var r = await cliente.GetAsync($"{BaseSire}/rvierce/padron/web/omisos/{LibroRvie}/periodos");
+            if (r.IsSuccessStatusCode) return null;
+            return r.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                ? await MensajeSireNoAutorizado(r, token)
+                : $"SUNAT respondió HTTP {(int)r.StatusCode} al consultar SIRE: {await Recorte(r)}";
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return "No se pudo conectar con SUNAT, intenta de nuevo en unos minutos";
+        }
+    }
+
+    private HttpClient ClienteSire(string token)
+    {
+        var cliente = _httpClientFactory.CreateClient();
+        cliente.Timeout = TimeSpan.FromSeconds(60);
+        cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        cliente.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        return cliente;
+    }
+
+    // El 401 de SIRE suele venir con el motivo en WWW-Authenticate o en el cuerpo: se muestra tal cual.
+    private static async Task<string> MensajeSireNoAutorizado(HttpResponseMessage r, string token)
+    {
+        var motivo = string.Join(" ", r.Headers.WwwAuthenticate.Select(h => h.ToString()));
+        return "SUNAT entregó el token pero rechazó la consulta a SIRE (HTTP 401). " +
+               $"Motivo: {(string.IsNullOrWhiteSpace(motivo) ? "no indicado" : motivo)}. Respuesta: {await Recorte(r)}. " +
+               $"Datos del token: {DatosDelToken(token)}";
     }
 
     // ---------------------------------------------------------------- Ventas (RVIE)
@@ -142,10 +181,7 @@ public class SunatRepository
         var (token, errorToken) = await ObtenerTokenSire();
         if (token is null) return (null, errorToken);
 
-        var cliente = _httpClientFactory.CreateClient();
-        cliente.Timeout = TimeSpan.FromSeconds(60);
-        cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        cliente.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        var cliente = ClienteSire(token);
 
         try
         {
@@ -154,8 +190,7 @@ public class SunatRepository
                 var r = await cliente.GetAsync($"{BaseSire}/rvie/propuesta/web/propuesta/{periodo}/exportapropuesta?codTipoArchivo=0");
                 var json = await LeerJson(r);
                 if (r.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                    return (null, "SUNAT entregó el token pero no permite usar SIRE con este usuario o RUC. " +
-                                  $"Datos del token: {DatosDelToken(token)}");
+                    return (null, await MensajeSireNoAutorizado(r, token));
                 if (!r.IsSuccessStatusCode)
                     return (null, ErrorSunat(json, $"SUNAT no generó la propuesta (HTTP {(int)r.StatusCode}): {await Recorte(r)}"));
                 numTicket = json?["numTicket"]?.ToString();
