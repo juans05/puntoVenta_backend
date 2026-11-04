@@ -37,3 +37,8 @@ public class ActualizarCuentaContablePayload : CrearCuentaContablePayload
 {
     public bool Estado { get; set; } = true;
 }
+
+public class GuardarCuentaPorDefectoPayload
+{
+    public int? CuentaContableId { get; set; }
+}

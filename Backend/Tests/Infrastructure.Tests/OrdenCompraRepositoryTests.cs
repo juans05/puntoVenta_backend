@@ -317,6 +317,29 @@ public class OrdenCompraRepositoryTests
     }
 
     [Fact]
+    public async Task Factura_PreciosDeLaOrdenSonSinIgv_ElIgvSeSumaEncimaYCuadraConLaRecepcion()
+    {
+        var (repo, _, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        await ConfigurarAsync(repo);
+        var productoId = await SeedProductoAsync(context);
+        var (_, orden, _) = await repo.CrearOrden(Orden(productoId, cantidad: 10, costo: 5m));
+        await repo.RegistrarRecepcion(orden!.Id, new CreateRecepcionPayload { Detalle = new() { new() { OrdenCompraDetalleId = orden.Detalle[0].Id, Cantidad = 10 } } });
+
+        var (estado, compra, mensaje) = await repo.FacturarOrden(orden.Id, Factura(productoId, 10, 5m));
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(50m, compra!.ValorGravada);  // 10 x 5 sin IGV
+        Assert.Equal(9m, compra.ValorIgv);        // 18% encima
+        Assert.Equal(59m, compra.Total);
+        // La recepcion cargo 50 a 20/61 y la factura carga los mismos 50 a 60.
+        var asientoFactura = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == compra.Id);
+        Assert.Contains(asientoFactura.Detalle, d => d.CuentaContable!.Codigo == "60" && d.Debe == 50m);
+        Assert.Contains(asientoFactura.Detalle, d => d.CuentaContable!.Codigo == "42" && d.Haber == 59m);
+    }
+
+    [Fact]
     public async Task Factura_ConDiferenciaDePrecio_AdvertirPideConfirmarYBloquearRechaza()
     {
         var (repo, _, context, connection) = Preparar();

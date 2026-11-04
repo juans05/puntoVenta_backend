@@ -71,3 +71,13 @@ public class CuentaContable : EntityBase
     public int? CuentaCierreId { get; set; }
     public CuentaContable? CuentaCierre { get; set; }
 }
+
+// Cuenta por defecto de la empresa para un codigo fijo del motor de asientos ("60", "42", "40111"...):
+// cuando el producto, el IGV o el tercero no traen cuenta propia, el asiento usa esta cuenta de
+// ultimo nivel en vez del codigo corto (ver AsientoContableRepository.Generar).
+public class CuentaPorDefecto : EntityBase
+{
+    public string Codigo { get; set; } = null!;
+    public int CuentaContableId { get; set; }
+    public CuentaContable? CuentaContable { get; set; }
+}

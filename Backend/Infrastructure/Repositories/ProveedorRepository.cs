@@ -36,6 +36,8 @@ public class ProveedorRepository : IProveedorRepository
         {
             if (ValidacionContacto.Validar(payload.Email, payload.Telefono, payload.Celular) is { } errorContacto)
                 return (ServiceStatus.FailedValidation, null, errorContacto);
+            if (await CuentaUltimoNivel.Validar(dbContext.CuentaContable, payload.CuentaPorPagarId) is { } errorCuenta)
+                return (ServiceStatus.FailedValidation, null, errorCuenta);
 
             var entity = mapper.Map<Proveedor>(payload);
 
@@ -57,6 +59,8 @@ public class ProveedorRepository : IProveedorRepository
     {
         try
         {
+            if (await CuentaUltimoNivel.Validar(dbContext.CuentaContable, payload.CuentaPorPagarId) is { } errorCuenta)
+                return (ServiceStatus.FailedValidation, null, errorCuenta);
 
             var search = await dbContext.Proveedor.AsNoTracking()
                             .FirstAsync(p => p.Id == payload.ProveedorId);

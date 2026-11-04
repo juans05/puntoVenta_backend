@@ -207,6 +207,73 @@ public class CompraRepositoryTests
     }
 
     // compra directa "20") deben separarse en el asiento, sumando exacto a ValorGravada.
+    // Factura de compra de un BIEN con cuentas configuradas ("Kardex.docx"): Debe = costo/gasto del
+    // producto (6x), IGV = cuenta del Gravado aunque no se elija tipo, Haber = cuenta del proveedor.
+    [Fact]
+    public async Task CrearCompra_DeBienConCuentasConfiguradas_ElAsientoUsaLaConfiguracion()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var costo = new CuentaContable { Codigo = "60111001", Nombre = "Mercaderias", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "60" };
+        var igvCta = new CuentaContable { Codigo = "40111001", Nombre = "IGV credito", Tipo = TipoCuentaContable.Pasivo, Nivel = 5, ClaseCuenta = "40" };
+        var porPagar = new CuentaContable { Codigo = "42121001", Nombre = "Facturas por pagar", Tipo = TipoCuentaContable.Pasivo, Nivel = 5, ClaseCuenta = "42" };
+        var gravado = new TipoIgv { Codigo = "10", Descripcion = "Gravado", AplicaPorcentajeImpuesto = true };
+        context.AddRange(costo, igvCta, porPagar, gravado);
+        await context.SaveChangesAsync();
+        context.TipoIgvCuenta.Add(new TipoIgvCuenta { TipoIgvId = gravado.Id, CuentaContableId = igvCta.Id });
+        var producto = new Producto { Nombre = "Bien", Precio = 10m, Stock = 0, RestriccionEdad = 0, CuentaCostoId = costo.Id };
+        var proveedor = new Proveedor { Nombre = "Prov", Ruc = "20123456789", CuentaPorPagarId = porPagar.Id };
+        context.AddRange(producto, proveedor);
+        await context.SaveChangesAsync();
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            ProveedorId = proveedor.Id, // sin TipoIgvId: se calcula como Gravado
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 1, CostoUnitario = 118m } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto!.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "60111001" && d.Debe == 100m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "40111001" && d.Debe == 18m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "42121001" && d.Haber == 118m);
+    }
+
+    // Cuentas por defecto de la empresa: sin cuenta propia en producto/IGV/proveedor, el asiento usa
+    // la hoja que la empresa eligio para "60" y "42" en vez del codigo corto.
+    [Fact]
+    public async Task CrearCompra_ConCuentasPorDefectoDeLaEmpresa_UsaLaHojaEnVezDelCodigoCorto()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var compras = new CuentaContable { Codigo = "60111000", Nombre = "Mercaderias", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "60" };
+        var porPagar = new CuentaContable { Codigo = "42121000", Nombre = "Facturas emitidas", Tipo = TipoCuentaContable.Pasivo, Nivel = 5, ClaseCuenta = "42" };
+        context.CuentaContable.AddRange(compras, porPagar);
+        await context.SaveChangesAsync();
+        context.CuentaPorDefecto.AddRange(
+            new CuentaPorDefecto { Codigo = "60", CuentaContableId = compras.Id },
+            new CuentaPorDefecto { Codigo = "42", CuentaContableId = porPagar.Id });
+        await context.SaveChangesAsync();
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 118m } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto!.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "60111000" && d.Debe == 100m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "42121000" && d.Haber == 118m);
+        Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo is "60" or "42");
+    }
+
     [Fact]
     public async Task CrearCompra_ConCuentaContablePorLinea_AgrupaElAsientoPorCuentaYCuadraConGravada()
     {
@@ -215,7 +282,10 @@ public class CompraRepositoryTests
 
         var productoId1 = await SeedProductoAsync(context);
         var productoId2 = await SeedProductoAsync(context);
-        var cuenta63Id = await context.CuentaContable.AsNoTracking().Where(c => c.Codigo == "63").Select(c => c.Id).SingleAsync();
+        var cuenta63 = new CuentaContable { Codigo = "63110000", Nombre = "Transporte", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "63" };
+        context.CuentaContable.Add(cuenta63);
+        await context.SaveChangesAsync();
+        var cuenta63Id = cuenta63.Id;
         var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
         var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
 
@@ -235,7 +305,7 @@ public class CompraRepositoryTests
         var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
             .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto.Id);
         Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "60" && d.Debe == 100m);
-        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "63" && d.Debe == 50m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "63110000" && d.Debe == 50m);
 
         // Ambas lineas son bienes: las dos entran al almacen (20/61) por el total, aunque una se facturo a 63.
         var entrada = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
@@ -355,8 +425,8 @@ public class CompraRepositoryTests
         using var _ = connection;
 
         var productoId = await SeedProductoAsync(context);
-        var cuenta63 = await context.CuentaContable.AsTracking().SingleAsync(c => c.Codigo == "63");
-        cuenta63.ModoCentroCosto = ModoCentroCostoCuenta.Obligatorio;
+        var cuenta63 = new CuentaContable { Codigo = "63110000", Nombre = "Transporte", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "63", ModoCentroCosto = ModoCentroCostoCuenta.Obligatorio };
+        context.CuentaContable.Add(cuenta63);
         await context.SaveChangesAsync();
 
         var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
@@ -377,8 +447,8 @@ public class CompraRepositoryTests
         using var _ = connection;
 
         var productoId = await SeedProductoAsync(context);
-        var cuenta63 = await context.CuentaContable.AsTracking().SingleAsync(c => c.Codigo == "63");
-        cuenta63.ModoCentroCosto = ModoCentroCostoCuenta.Obligatorio;
+        var cuenta63 = new CuentaContable { Codigo = "63110000", Nombre = "Transporte", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "63", ModoCentroCosto = ModoCentroCostoCuenta.Obligatorio };
+        context.CuentaContable.Add(cuenta63);
         var centroCosto = new CentroCosto { Nombre = "Administración" };
         context.CentroCosto.Add(centroCosto);
         await context.SaveChangesAsync();

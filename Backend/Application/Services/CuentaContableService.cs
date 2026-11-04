@@ -31,4 +31,6 @@ public class CuentaContableService
     public async Task<MessageResult<object>> Listar(bool incluirInactivas) => Resolver(await _repo.Listar(incluirInactivas));
     public async Task<MessageResult<object>> Obtener(int id) => Resolver(await _repo.Obtener(id));
     public async Task<MessageResult<object>> ListarCodigosEeffNiif() => Resolver(await _repo.ListarCodigosEeffNiif());
+    public async Task<MessageResult<object>> ListarPorDefecto() => Resolver(await _repo.ListarPorDefecto());
+    public async Task<MessageResult<object>> GuardarPorDefecto(string codigo, int? cuentaContableId) => Resolver(await _repo.GuardarPorDefecto(codigo, cuentaContableId));
 }

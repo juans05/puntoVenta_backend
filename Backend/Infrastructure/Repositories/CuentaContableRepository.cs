@@ -27,9 +27,9 @@ public class CuentaContableRepository : ICuentaContableRepository
     };
 
     // Jerarquia PCGE de 5 niveles (ver "configuracion plan de cuentas ERPdocx.docx"): la cantidad
-    // de digitos del codigo determina el nivel, no se elige a mano. Nivel 5 (8 digitos) es la
-    // unica hoja habilitada para asientos -- eso no se valida aqui, ver nota en la entidad.
-    private static readonly Dictionary<int, int> NivelPorLongitudCodigo = new() { { 2, 1 }, { 3, 2 }, { 4, 3 }, { 5, 4 }, { 8, 5 } };
+    // de digitos del codigo determina el nivel, no se elige a mano. Nivel 5 (7 u 8 digitos) sin
+    // subcuentas es la unica hoja habilitada para asientos -- eso no se valida aqui, ver nota en la entidad.
+    private static readonly Dictionary<int, int> NivelPorLongitudCodigo = new() { { 2, 1 }, { 3, 2 }, { 4, 3 }, { 5, 4 }, { 7, 5 }, { 8, 5 } };
 
     private readonly SpaContext _context;
 
@@ -145,7 +145,7 @@ public class CuentaContableRepository : ICuentaContableRepository
         var codigo = payload.Codigo.Trim();
         if (!codigo.All(char.IsDigit)) return "El código solo puede contener dígitos";
         if (!NivelPorLongitudCodigo.ContainsKey(codigo.Length))
-            return "El código debe tener 2, 3, 4, 5 u 8 dígitos (Niveles 01 a 05 del plan de cuentas)";
+            return "El código debe tener 2, 3, 4, 5, 7 u 8 dígitos (Niveles 01 a 05 del plan de cuentas)";
         if (string.IsNullOrWhiteSpace(payload.Nombre)) return "El nombre es obligatorio";
         if (!TiposValidos.Contains(payload.Tipo)) return "Tipo de cuenta inválido";
         if (!string.IsNullOrWhiteSpace(payload.ModoCentroCosto) && !ModosCentroCostoValidos.Contains(payload.ModoCentroCosto))
@@ -230,7 +230,16 @@ public class CuentaContableRepository : ICuentaContableRepository
         var query = Query();
         if (!incluirInactivas) query = query.Where(c => c.Estado);
         var cuentas = await query.OrderBy(c => c.Codigo).ToListAsync();
-        return (ServiceStatus.Ok, cuentas.Select(ToDto).ToList(), "Success");
+        // Ordenados, la subcuenta de un codigo (si existe) es el siguiente: hoja = el siguiente no empieza con el.
+        var todos = await _context.CuentaContable.AsNoTracking().Select(c => c.Codigo).ToListAsync();
+        todos.Sort(StringComparer.Ordinal);
+        var dtos = cuentas.Select(ToDto).ToList();
+        foreach (var d in dtos)
+        {
+            var i = todos.BinarySearch(d.Codigo, StringComparer.Ordinal);
+            d.EsHoja = d.Nivel == 5 && (i + 1 >= todos.Count || !todos[i + 1].StartsWith(d.Codigo));
+        }
+        return (ServiceStatus.Ok, dtos, "Success");
     }
 
     public async Task<(ServiceStatus, CuentaContableDto?, string)> Obtener(int id)
@@ -254,5 +263,84 @@ public class CuentaContableRepository : ICuentaContableRepository
             .Select(c => new { id = c.Id, codigo = c.Codigo, nombre = c.Nombre, categoria = c.Categoria })
             .ToListAsync();
         return (ServiceStatus.Ok, data, "Success");
+    }
+
+    // Codigos fijos que usan los asientos automaticos cuando falta la cuenta propia (ver
+    // CompraRepository, ComprobanteRepository, OrdenCompraRepository, AsientoContableRepository).
+    public static readonly (string Codigo, string Uso)[] CodigosPorDefecto =
+    {
+        ("60", "Compras de mercaderías (factura de bienes)"),
+        ("63", "Servicios de terceros (factura de servicios)"),
+        ("20", "Mercaderías (entrada y salida del almacén)"),
+        ("61", "Variación de existencias"),
+        ("42", "Cuentas por pagar a proveedores"),
+        ("40111", "IGV (compras y ventas)"),
+        ("70", "Ventas"),
+        ("69", "Costo de ventas"),
+        ("10", "Caja (ventas al contado)"),
+        ("12", "Cuentas por cobrar (ventas al crédito)"),
+        ("79", "Cargas imputables a cuentas de costos (destino)"),
+    };
+
+    public async Task<(ServiceStatus, object?, string)> ListarPorDefecto()
+    {
+        var elegidas = await _context.CuentaPorDefecto.AsNoTracking()
+            .Select(c => new { c.Codigo, c.CuentaContableId, Cuenta = c.CuentaContable!.Codigo + " - " + c.CuentaContable.Nombre })
+            .ToDictionaryAsync(c => c.Codigo);
+        var data = CodigosPorDefecto.Select(d => new
+        {
+            codigo = d.Codigo,
+            uso = d.Uso,
+            cuentaContableId = elegidas.TryGetValue(d.Codigo, out var e) ? (int?)e.CuentaContableId : null,
+            cuenta = e?.Cuenta
+        }).ToList();
+        return (ServiceStatus.Ok, data, "Success");
+    }
+
+    // Guarda (o quita con null) la cuenta por defecto de un codigo. Debe ser de ultimo nivel y
+    // estar bajo ese codigo (ej. para "60" una 60xxxxxx), asi no se cruza una cuenta de otra clase.
+    public async Task<(ServiceStatus, object?, string)> GuardarPorDefecto(string codigo, int? cuentaContableId)
+    {
+        if (!CodigosPorDefecto.Any(d => d.Codigo == codigo))
+            return (ServiceStatus.FailedValidation, null, $"El código {codigo} no es una cuenta por defecto");
+        var actual = await _context.CuentaPorDefecto.AsTracking().FirstOrDefaultAsync(c => c.Codigo == codigo);
+        if (cuentaContableId is null)
+        {
+            if (actual != null) _context.CuentaPorDefecto.Remove(actual);
+            await _context.SaveChangesAsync();
+            return await ListarPorDefecto();
+        }
+        if (await CuentaUltimoNivel.Validar(_context.CuentaContable, cuentaContableId) is { } error)
+            return (ServiceStatus.FailedValidation, null, error);
+        var hoja = await _context.CuentaContable.AsNoTracking().Where(c => c.Id == cuentaContableId).Select(c => c.Codigo).FirstAsync();
+        if (!hoja.StartsWith(codigo))
+            return (ServiceStatus.FailedValidation, null, $"Para {codigo} elige una cuenta que empiece con {codigo}");
+
+        if (actual == null) _context.CuentaPorDefecto.Add(new CuentaPorDefecto { Codigo = codigo, CuentaContableId = cuentaContableId.Value });
+        else actual.CuentaContableId = cuentaContableId.Value;
+        await _context.SaveChangesAsync();
+        return await ListarPorDefecto();
+    }
+}
+
+// Regla del plan de cuentas: solo el ultimo nivel (Nivel 5 = 7 u 8 digitos, sin subcuentas) admite registros. Toda cuenta
+// que se asigna a un maestro (producto, proveedor, cliente, impuesto) pasa por aca. Devuelve el error o null.
+public static class CuentaUltimoNivel
+{
+    public static async Task<string?> Validar(IQueryable<CuentaContable> cuentas, params int?[] ids)
+    {
+        var pedidos = ids.Where(i => i.HasValue).Select(i => i!.Value).Distinct().ToList();
+        if (pedidos.Count == 0) return null;
+        var codigos = await cuentas.AsNoTracking().Where(c => pedidos.Contains(c.Id)).Select(c => c.Codigo).ToListAsync();
+        if (codigos.Count != pedidos.Count) return "Una de las cuentas contables elegidas no existe";
+        return await ValidarCodigos(cuentas, codigos);
+    }
+
+    public static async Task<string?> ValidarCodigos(IQueryable<CuentaContable> cuentas, IEnumerable<string> codigos)
+    {
+        foreach (var c in codigos.Distinct())
+            if (c.Length < 7 || await cuentas.AnyAsync(o => o.Codigo.Length > c.Length && o.Codigo.StartsWith(c)))
+                return $"La cuenta {c} no es de último nivel: elige la subcuenta más detallada (7 u 8 dígitos, sin subcuentas)";
+        return null;
     }
 }

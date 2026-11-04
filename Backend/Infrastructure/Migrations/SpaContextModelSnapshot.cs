@@ -1617,6 +1617,45 @@ namespace Infrastructure.Migrations
                     b.ToTable("CuentaContable");
                 });
 
+            modelBuilder.Entity("Domain.Entities.CuentaPorDefecto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<int>("CuentaContableId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CuentaContableId");
+
+                    b.HasIndex("TenantId", "Codigo")
+                        .IsUnique();
+
+                    b.ToTable("CuentaPorDefecto");
+                });
+
             modelBuilder.Entity("Domain.Entities.Departamento", b =>
                 {
                     b.Property<int>("Id")
@@ -5436,6 +5475,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("CuentaCierre");
 
                     b.Navigation("CuentaPadre");
+                });
+
+            modelBuilder.Entity("Domain.Entities.CuentaPorDefecto", b =>
+                {
+                    b.HasOne("Domain.Entities.CuentaContable", "CuentaContable")
+                        .WithMany()
+                        .HasForeignKey("CuentaContableId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CuentaContable");
                 });
 
             modelBuilder.Entity("Domain.Entities.DepartamentoAprobador", b =>

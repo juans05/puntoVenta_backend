@@ -113,11 +113,11 @@ public class CierreAnualRepository : ICierreAnualRepository
         var porCodigo = new Dictionary<string, CuentaContable>();
         foreach (var req in CuentasRequeridas)
         {
-            var hoja = cuentas.Where(c => c.Estado && c.Codigo.Length == 8 && c.Codigo.StartsWith(req)).OrderBy(c => c.Codigo).FirstOrDefault();
+            var hoja = cuentas.Where(c => c.Estado && c.Codigo.Length >= 7 && c.Codigo.StartsWith(req) && !cuentas.Any(o => o.Codigo.Length > c.Codigo.Length && o.Codigo.StartsWith(c.Codigo))).OrderBy(c => c.Codigo).FirstOrDefault();
             if (hoja != null) porCodigo[req] = hoja;
         }
         var faltan = CuentasRequeridas.Where(c => !porCodigo.ContainsKey(c)).ToList();
-        Item("Existe una cuenta de 8 dígitos (último nivel) bajo 88, 89, 4017, 591 y 592", faltan.Count == 0, "Faltan en el plan de cuentas: " + string.Join(", ", faltan));
+        Item("Existe una cuenta de último nivel bajo 88, 89, 4017, 591 y 592", faltan.Count == 0, "Faltan en el plan de cuentas: " + string.Join(", ", faltan));
 
         Plan? plan = null;
         string? errorPlan = null;

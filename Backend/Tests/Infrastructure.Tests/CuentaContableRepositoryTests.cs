@@ -15,6 +15,7 @@ public class CuentaContableRepositoryTests
     [InlineData("777", 2)]
     [InlineData("7777", 3)]
     [InlineData("77777", 4)]
+    [InlineData("7777777", 5)]
     [InlineData("77777777", 5)]
     public async Task Crear_CalculaNivelYClaseCuentaSegunLargoDelCodigo(string codigo, int nivelEsperado)
     {
@@ -43,6 +44,25 @@ public class CuentaContableRepositoryTests
 
         Assert.Equal(Domain.Models.ServiceStatus.FailedValidation, estado);
         Assert.NotEmpty(mensaje);
+    }
+
+    // Ultimo nivel = cuenta de 7 u 8 digitos sin subcuentas (ej. la 60 de 7 digitos de Kardex.docx).
+    [Fact]
+    public async Task UltimoNivel_AceptaSieteDigitosSinSubcuentas_YRechazaLaQueTieneHijas()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+        var repo = new CuentaContableRepository(context);
+        var (_, hoja7, _) = await repo.Crear(new CrearCuentaContablePayload { Codigo = "6011101", Nombre = "Mercaderias", Tipo = "Gasto" });
+        var (_, padre7, _) = await repo.Crear(new CrearCuentaContablePayload { Codigo = "6011102", Nombre = "Padre", Tipo = "Gasto" });
+        await repo.Crear(new CrearCuentaContablePayload { Codigo = "60111021", Nombre = "Hija", Tipo = "Gasto" });
+
+        Assert.Null(await CuentaUltimoNivel.Validar(context.CuentaContable, hoja7!.Id));
+        Assert.Contains("6011102", await CuentaUltimoNivel.Validar(context.CuentaContable, padre7!.Id));
+        var (_, lista, _) = await repo.Listar();
+        Assert.True(lista!.Single(c => c.Codigo == "6011101").EsHoja);
+        Assert.False(lista!.Single(c => c.Codigo == "6011102").EsHoja);
+        Assert.True(lista!.Single(c => c.Codigo == "60111021").EsHoja);
     }
 
     [Fact]

@@ -72,8 +72,11 @@ public class CompraRepository : ICompraRepository
 
     // Subtotal -> Descuento -> Otros cargos -> separacion Gravada/IGV segun el TipoIgv elegido para
     // el documento (a diferencia de las ventas, en compras el IGV es por documento, no por linea).
+    // preciosSinIgv: los costos son valor de venta (factura de una orden de compra) y el IGV se suma
+    // encima; si no, los costos ya traen IGV y se separa (compra directa).
     private async Task<(decimal montoDescuento, decimal otrosCargos, decimal gravada, decimal igv, decimal total)> CalcularTotalesCompra(
-        decimal subtotalProductos, decimal? porcentajeDescuento, decimal? montoDescuentoFijo, decimal? otrosCargosPayload, int? tipoIgvId)
+        decimal subtotalProductos, decimal? porcentajeDescuento, decimal? montoDescuentoFijo, decimal? otrosCargosPayload, int? tipoIgvId,
+        bool preciosSinIgv = false)
     {
         var montoDescuento = porcentajeDescuento.HasValue && porcentajeDescuento.Value > 0
             ? Math.Round(subtotalProductos * porcentajeDescuento.Value / 100m, 2)
@@ -96,6 +99,11 @@ public class CompraRepository : ICompraRepository
         var calculadora = _taxCalculatorFactory.GetCalculator(PaisIdClaim);
 
         var tasa = tipoIgv?.Porcentaje ?? config?.PorcentajeImpuesto;
+        if (preciosSinIgv)
+        {
+            var igvEncima = aplicaImpuesto ? Math.Round(baseConDescuento * (tasa ?? 18m) / 100m, 2) : 0m;
+            return (montoDescuento, otrosCargos, baseConDescuento, igvEncima, baseConDescuento + igvEncima);
+        }
         var gravada = aplicaImpuesto ? calculadora.CalcularSubtotal(baseConDescuento, PaisIdClaim, tasa) : baseConDescuento;
         var igv = aplicaImpuesto ? calculadora.CalcularImpuesto(baseConDescuento, PaisIdClaim, tasa) : 0m;
 
@@ -225,7 +233,8 @@ public class CompraRepository : ICompraRepository
             }
 
             var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
-                subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
+                subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId,
+                preciosSinIgv: deOrden);
 
             var compra = new Compra
             {
@@ -285,7 +294,7 @@ public class CompraRepository : ICompraRepository
                 };
             }).ToList();
 
-            if (await ValidarCentroCostoObligatorio(detalle) is { } errorCentroCosto)
+            if ((await CuentaUltimoNivel.Validar(_context.CuentaContable, detalle.Select(d => d.CuentaContableId).ToArray()) ?? await ValidarCentroCostoObligatorio(detalle)) is { } errorCentroCosto)
             {
                 await _context.Database.RollbackTransactionAsync();
                 return (ServiceStatus.FailedValidation, null, errorCentroCosto);
@@ -359,10 +368,11 @@ public class CompraRepository : ICompraRepository
                 Producto? ProductoDe(CompraDetalle d) => d.ProductoId is int pid && productosCuenta.TryGetValue(pid, out var p) ? p : null;
                 bool EsServicio(CompraDetalle d) => ProductoDe(d)?.EsServicio ?? ordenServicio;
 
-                // Debe de la factura: cuenta de la linea; si no, la de gasto del servicio; si no, 63/60.
+                // Debe de la factura: cuenta de la linea; si no, la de costo/gasto del producto (bien o
+                // servicio, "Kardex.docx": 6XXXXXX del producto); si no, 63/60.
                 var lineasFactura = new List<LineaAsientoContable>();
                 lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada,
-                    d => d.CuentaContableId ?? (EsServicio(d) ? ProductoDe(d)?.CuentaCostoId : null),
+                    d => d.CuentaContableId ?? ProductoDe(d)?.CuentaCostoId,
                     d => EsServicio(d) ? "63" : "60"));
                 if (igv > 0) lineasFactura.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(new[] { compra.TipoIgvId }), igv, 0));
                 lineasFactura.Add(new LineaAsientoContable(cuentaPorPagarCodigo ?? "42", 0, total) { CuentaAsociada = rucProveedor });

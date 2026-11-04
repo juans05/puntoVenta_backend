@@ -281,8 +281,8 @@ namespace Infrastructure.Repositories
         // Crea, cambia o quita (null) la cuenta del IGV de este tipo para el negocio actual.
         private async Task<string?> GuardarCuentaIgv(int tipoIgvId, int? cuentaContableId)
         {
-            if (cuentaContableId.HasValue && !await _context.CuentaContable.AnyAsync(c => c.Id == cuentaContableId))
-                return "La cuenta contable elegida no existe";
+            if (await CuentaUltimoNivel.Validar(_context.CuentaContable, cuentaContableId) is { } errorCuenta)
+                return errorCuenta;
 
             var actual = await _context.TipoIgvCuenta.AsTracking().FirstOrDefaultAsync(c => c.TipoIgvId == tipoIgvId);
             if (!cuentaContableId.HasValue)

@@ -15,4 +15,7 @@ public interface ICuentaContableRepository
     Task<CuentaContableDto?> ObtenerPorCodigo(string codigo);
 
     Task<(ServiceStatus, object?, string)> ListarCodigosEeffNiif();
+
+    Task<(ServiceStatus, object?, string)> ListarPorDefecto();
+    Task<(ServiceStatus, object?, string)> GuardarPorDefecto(string codigo, int? cuentaContableId);
 }

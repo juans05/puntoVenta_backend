@@ -31,17 +31,6 @@ public class ProductRepository : IProductRepository
 
 }
 
-    // Las cuentas contables del producto solo pueden ser de ultimo nivel (Nivel 5 = 8 digitos): es la
-    // unica hoja que admite asientos. Devuelve el mensaje de error o null.
-    private async Task<string?> ValidarCuentasUltimoNivel(params int?[] ids)
-    {
-        var pedidos = ids.Where(i => i.HasValue).Select(i => i!.Value).Distinct().ToList();
-        if (pedidos.Count == 0) return null;
-        var cuentas = await dbContext.CuentaContable.AsNoTracking().Where(c => pedidos.Contains(c.Id)).Select(c => new { c.Id, c.Codigo }).ToListAsync();
-        if (cuentas.Count != pedidos.Count) return "Una de las cuentas contables elegidas no existe";
-        return cuentas.Any(c => c.Codigo.Length != 8) ? "Las cuentas contables del producto deben ser de último nivel (8 dígitos)" : null;
-    }
-
     private const int MaxGaleria = 5;
 
     private static bool UrlHttp(string? u) => Uri.TryCreate(u?.Trim(), UriKind.Absolute, out var x) && (x.Scheme == Uri.UriSchemeHttp || x.Scheme == Uri.UriSchemeHttps);
@@ -75,7 +64,7 @@ public class ProductRepository : IProductRepository
         {
             if (ValidarMedia(payload.VideoUrl, payload.Galeria, payload.Descripcion) is { } errorMedia)
                 return (ServiceStatus.FailedValidation, null, errorMedia);
-            if (await ValidarCuentasUltimoNivel(new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
+            if (await CuentaUltimoNivel.Validar(dbContext.CuentaContable, new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
                 return (ServiceStatus.FailedValidation, null, errorCuentas);
         //    var goods = new Producto { Nombre = goodsDto.Nombre, Precio = goodsDto.Precio };
 
@@ -113,7 +102,7 @@ public class ProductRepository : IProductRepository
         {
             if (ValidarMedia(payload.VideoUrl, payload.Galeria, payload.Descripcion) is { } errorMedia)
                 return (ServiceStatus.FailedValidation, null, errorMedia);
-            if (await ValidarCuentasUltimoNivel(new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
+            if (await CuentaUltimoNivel.Validar(dbContext.CuentaContable, new[] { payload.CuentaIngresoId, payload.CuentaIngresoDebeId, payload.CuentaCostoId, payload.CuentaGastoHaberId, payload.CuentaInventarioId }.Concat(CuentasInventarioDe(payload.CuentasInventarioMovimiento)).ToArray()) is { } errorCuentas)
                 return (ServiceStatus.FailedValidation, null, errorCuentas);
 
             var producto = await dbContext.Producto.AsNoTracking()

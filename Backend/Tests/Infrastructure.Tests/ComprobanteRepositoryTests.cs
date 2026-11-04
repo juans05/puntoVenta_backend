@@ -262,6 +262,54 @@ public class ComprobanteRepositoryTests
         Assert.DoesNotContain(asiento.Detalle, d => d.CuentaContable!.Codigo == "20");
     }
 
+    // Venta de un bien con todo configurado ("Kardex.docx"): venta 12x / IGV 40x / 70x y salida 69x / 20x.
+    [Fact]
+    public async Task CrearComprobante_BienConTodasLasCuentasConfiguradas_LosAsientosUsanLaConfiguracion()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        await SeedTipoDocumentoVentaAsync(context);
+        CuentaContable Hoja(string c) => new() { Codigo = c, Nombre = c, Tipo = "Activo", Nivel = 5, ClaseCuenta = c[..2] };
+        var c12 = Hoja("12121001"); var c40 = Hoja("40111001"); var c70 = Hoja("70111001"); var c69 = Hoja("69111001"); var c20 = Hoja("20111001");
+        var gravado = new TipoIgv { Codigo = "10", Descripcion = "Gravado", AplicaPorcentajeImpuesto = true };
+        context.AddRange(c12, c40, c70, c69, c20, gravado);
+        await context.SaveChangesAsync();
+        context.TipoIgvCuenta.Add(new TipoIgvCuenta { TipoIgvId = gravado.Id, CuentaContableId = c40.Id });
+        var producto = new Producto
+        {
+            Nombre = "Bien", Precio = 11.8m, Stock = 10, CostoUnitario = 6m, RestriccionEdad = 0,
+            CuentaIngresoDebeId = c12.Id, CuentaIngresoId = c70.Id, CuentaCostoId = c69.Id, CuentaGastoHaberId = c20.Id
+        };
+        context.Producto.Add(producto);
+        await context.SaveChangesAsync();
+        var metodoPagoId = await SeedMetodoPagoAsync(context);
+        var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
+
+        var (estado, _, mensaje) = await repo.CrearComprobante(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            Total = 23.6m,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 2, ValorUnitario = 11.8m } },
+            DetallePago = new List<PagoPayload> { new() { MetodoPagoId = metodoPagoId, Monto = 23.6m } }
+        });
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var cabecera = await context.ComprobanteCabecera.SingleAsync();
+        var venta = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Venta" && a.OrigenId == cabecera.Id);
+        var codigos = venta.Detalle.Select(d => $"{d.CuentaContable!.Codigo} D{d.Debe:0.00} H{d.Haber:0.00}").ToList();
+        Assert.True(venta.Detalle.All(d => d.CuentaContable!.Codigo.Length == 8), string.Join(" | ", codigos));
+        Assert.Contains(venta.Detalle, d => d.CuentaContable!.Codigo == "12121001" && d.Debe == cabecera.ValorTotal);
+        Assert.Contains(venta.Detalle, d => d.CuentaContable!.Codigo == "40111001" && d.Haber == cabecera.ValorIgv);
+        Assert.Contains(venta.Detalle, d => d.CuentaContable!.Codigo == "70111001" && d.Haber > 0);
+
+        var salida = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == OrigenAsientoContable.SalidaVenta && a.OrigenId == cabecera.Id);
+        Assert.Contains(salida.Detalle, d => d.CuentaContable!.Codigo == "69111001" && d.Debe == 12m);
+        Assert.Contains(salida.Detalle, d => d.CuentaContable!.Codigo == "20111001" && d.Haber == 12m);
+    }
+
     [Fact]
     public async Task CrearComprobante_ProductoServicio_AsientoSinCostoNiInventario()
     {

@@ -10,6 +10,8 @@ public class CuentaContableDto
     public bool Estado { get; set; }
 
     public int Nivel { get; set; }
+    // Ultimo nivel de su rama (Nivel 5, 7 u 8 digitos, sin subcuentas): la unica que admite asientos.
+    public bool EsHoja { get; set; }
     public string ClaseCuenta { get; set; } = null!;
     public bool TipoAnexo { get; set; }
     public string? TipoAnexoClase { get; set; }

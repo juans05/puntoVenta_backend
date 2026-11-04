@@ -27,6 +27,8 @@ public class CuentaIgvTests
         Assert.Equal("40112", await context.CodigoCuentaIgvAsync(new int?[] { null, gravado.Id }));
         // Un tipo que no aplica IGV no define la cuenta del IGV.
         Assert.Equal("40111", await context.CodigoCuentaIgvAsync(new int?[] { exonerado.Id }));
-        Assert.Equal("40111", await context.CodigoCuentaIgvAsync(new int?[] { null }));
+        // Sin tipo elegido el documento es Gravado: usa la cuenta configurada del "10".
+        Assert.Equal("40112", await context.CodigoCuentaIgvAsync(new int?[] { null }));
+        Assert.Equal("40112", await context.CodigoCuentaIgvAsync(new int?[0]));
     }
 }

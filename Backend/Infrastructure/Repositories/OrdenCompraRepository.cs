@@ -174,6 +174,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         if (payload.TipoOrden is not (TipoOrdenCompra.Bien or TipoOrdenCompra.Servicio))
             return (ServiceStatus.FailedValidation, null, "Tipo de orden no válido");
         if (ValidarDetalle(payload.Detalle, payload.TipoOrden) is { } error) return (ServiceStatus.FailedValidation, null, error);
+        if (await CuentaUltimoNivel.Validar(_context.CuentaContable, payload.Detalle.Select(d => d.CuentaContableId).ToArray()) is { } errorCuenta)
+            return (ServiceStatus.FailedValidation, null, errorCuenta);
 
         try
         {
@@ -230,6 +232,8 @@ public class OrdenCompraRepository : IOrdenCompraRepository
         if (payload.TipoOrden is not (TipoOrdenCompra.Bien or TipoOrdenCompra.Servicio))
             return (ServiceStatus.FailedValidation, null, "Tipo de orden no válido");
         if (ValidarDetalle(payload.Detalle, payload.TipoOrden) is { } error) return (ServiceStatus.FailedValidation, null, error);
+        if (await CuentaUltimoNivel.Validar(_context.CuentaContable, payload.Detalle.Select(d => d.CuentaContableId).ToArray()) is { } errorCuenta)
+            return (ServiceStatus.FailedValidation, null, errorCuenta);
 
         var orden = await _context.OrdenCompra.AsTracking().Include(o => o.Detalles).FirstOrDefaultAsync(o => o.Id == id);
         if (orden == null) return (ServiceStatus.NotFound, null, "Orden no encontrada");

@@ -128,6 +128,13 @@ public class AsientoContableRepository : IAsientoContableRepository
         if (totalDebe != totalHaber)
             return (ServiceStatus.FailedValidation, null, $"El asiento no cuadra: debe {totalDebe} vs haber {totalHaber}");
 
+        // Codigos fijos del motor ("60", "42", "40111"...) -> cuenta de ultimo nivel elegida por la
+        // empresa en Contabilidad > Cuentas por defecto. Sin configurar, se queda el codigo corto.
+        var porDefecto = await _context.CuentaPorDefecto.AsNoTracking()
+            .Select(c => new { c.Codigo, Hoja = c.CuentaContable!.Codigo }).ToDictionaryAsync(c => c.Codigo, c => c.Hoja);
+        foreach (var l in lineas)
+            if (porDefecto.TryGetValue(l.CuentaCodigo, out var hoja)) l.CuentaCodigo = hoja;
+
         var codigos = lineas.Select(l => l.CuentaCodigo).Distinct().ToList();
         var cuentas = await _context.CuentaContable.AsNoTracking()
             .Where(c => codigos.Contains(c.Codigo)).ToDictionaryAsync(c => c.Codigo);
@@ -150,8 +157,9 @@ public class AsientoContableRepository : IAsientoContableRepository
                 return (ServiceStatus.FailedValidation, null, "La cuenta de destino debe ser una cuenta existente de la clase 9");
         }
 
+        var codigo79 = porDefecto.GetValueOrDefault("79", "79");
         var cuenta79Id = lineas.Any(l => l.CuentaDestinoId.HasValue)
-            ? await _context.CuentaContable.AsNoTracking().Where(c => c.Codigo == "79").Select(c => (int?)c.Id).FirstOrDefaultAsync()
+            ? await _context.CuentaContable.AsNoTracking().Where(c => c.Codigo == codigo79).Select(c => (int?)c.Id).FirstOrDefaultAsync()
             : null;
 
         var asiento = new AsientoContable
@@ -178,7 +186,7 @@ public class AsientoContableRepository : IAsientoContableRepository
         return await ObtenerConDetalle(asiento.Id);
     }
 
-    // Asiento manual: solo cuentas de ultimo nivel (8 digitos) y CC1 cuando la cuenta lo exige.
+    // Asiento manual: solo cuentas de ultimo nivel (7 u 8 digitos, sin subcuentas) y CC1 cuando la cuenta lo exige.
     // Generar valida que cuadre, que las cuentas/centros existan en el tenant y el destino 9X.
     public async Task<(ServiceStatus, AsientoContableDto?, string)> CrearManual(CrearAsientoManualPayload payload)
     {
@@ -187,8 +195,10 @@ public class AsientoContableRepository : IAsientoContableRepository
         var lineas = payload.Lineas?.Where(l => l.Debe != 0 || l.Haber != 0).ToList() ?? new();
         if (lineas.Any(l => l.Debe > 0 && l.Haber > 0))
             return (ServiceStatus.FailedValidation, null, "Una línea no puede tener débito y crédito a la vez");
-        if (lineas.Any(l => string.IsNullOrWhiteSpace(l.CuentaCodigo) || l.CuentaCodigo.Length != 8))
-            return (ServiceStatus.FailedValidation, null, "Cada línea debe usar una cuenta de último nivel (8 dígitos)");
+        if (lineas.Any(l => string.IsNullOrWhiteSpace(l.CuentaCodigo)))
+            return (ServiceStatus.FailedValidation, null, "Cada línea debe usar una cuenta de último nivel");
+        if (await CuentaUltimoNivel.ValidarCodigos(_context.CuentaContable, lineas.Select(l => l.CuentaCodigo)) is { } errorHoja)
+            return (ServiceStatus.FailedValidation, null, errorHoja);
 
         var codigos = lineas.Select(l => l.CuentaCodigo).Distinct().ToList();
         var exigenCentro = await _context.CuentaContable.AsNoTracking()

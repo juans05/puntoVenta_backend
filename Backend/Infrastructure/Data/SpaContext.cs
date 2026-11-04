@@ -68,6 +68,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
     public DbSet<TipoIgv> TipoIgv => Set<TipoIgv>();
     public DbSet<TipoIgvCuenta> TipoIgvCuenta => Set<TipoIgvCuenta>();
+    public DbSet<CuentaPorDefecto> CuentaPorDefecto => Set<CuentaPorDefecto>();
     public DbSet<TipoDetraccion> TipoDetraccion => Set<TipoDetraccion>();
     public DbSet<UnidadMedida> UnidadMedida => Set<UnidadMedida>();
     public DbSet<PrecioAlternativo> PrecioAlternativo => Set<PrecioAlternativo>();
@@ -137,10 +138,12 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     // ponytail: una sola cuenta de IGV por comprobante; repartir por linea si se mezclan tipos con cuentas distintas.
     public async Task<string> CodigoCuentaIgvAsync(IEnumerable<int?> tipoIgvIds)
     {
-        var ids = tipoIgvIds.Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
-        if (ids.Count == 0) return "40111";
+        var lista = tipoIgvIds.ToList();
+        var ids = lista.Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
+        // Sin tipo elegido (null) el documento se calcula como Gravado: usa la cuenta del "10".
+        var incluyeGravado = ids.Count == 0 || lista.Any(id => !id.HasValue);
         var codigo = await TipoIgvCuenta.AsNoTracking()
-            .Where(t => ids.Contains(t.TipoIgvId) && t.TipoIgv!.AplicaPorcentajeImpuesto)
+            .Where(t => (ids.Contains(t.TipoIgvId) || (incluyeGravado && t.TipoIgv!.Codigo == "10")) && t.TipoIgv!.AplicaPorcentajeImpuesto)
             .OrderBy(t => t.TipoIgvId)
             .Select(t => t.CuentaContable!.Codigo)
             .FirstOrDefaultAsync();
@@ -204,6 +207,10 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<TipoIgvCuenta>().HasIndex(e => new { e.TenantId, e.TipoIgvId }).IsUnique();
         modelBuilder.Entity<TipoIgvCuenta>().HasOne(e => e.CuentaContable).WithMany().HasForeignKey(e => e.CuentaContableId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<TipoIgvCuenta>().HasOne(e => e.TipoIgv).WithMany().HasForeignKey(e => e.TipoIgvId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CuentaPorDefecto>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<CuentaPorDefecto>().HasIndex(e => new { e.TenantId, e.Codigo }).IsUnique();
+        modelBuilder.Entity<CuentaPorDefecto>().Property(e => e.Codigo).HasMaxLength(8);
+        modelBuilder.Entity<CuentaPorDefecto>().HasOne(e => e.CuentaContable).WithMany().HasForeignKey(e => e.CuentaContableId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<TipoDetraccion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<UnidadMedida>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);
         modelBuilder.Entity<TipoOperacion>().HasQueryFilter(e => e.TenantId == null || e.TenantId == _tenant.Name);

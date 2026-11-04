@@ -34,6 +34,8 @@ public class ClienteRepository :  IClienteRepository
         {
             if (ValidacionContacto.Validar(payload.Email, payload.Telefono) is { } errorContacto)
                 return (ServiceStatus.FailedValidation, null, errorContacto);
+            if (await CuentaUltimoNivel.Validar(dbContext.CuentaContable, payload.CuentaPorCobrarId) is { } errorCuenta)
+                return (ServiceStatus.FailedValidation, null, errorCuenta);
 
             var entity = mapper.Map<Cliente>(payload);
 
@@ -59,6 +61,8 @@ public class ClienteRepository :  IClienteRepository
     {
         try
         {
+            if (await CuentaUltimoNivel.Validar(dbContext.CuentaContable, payload.CuentaPorCobrarId) is { } errorCuenta)
+                return (ServiceStatus.FailedValidation, null, errorCuenta);
 
             var search = await dbContext.Cliente.AsNoTracking()
                                                 .FirstAsync(p => p.Id == payload.ClienteId);
