@@ -9,6 +9,7 @@ namespace Application.Interfaces.IServices;
 public interface IComprobanteService
 {
     Task<MessageResult<object>> CrearComprobante(ComprobantePayload request);
+    Task<MessageResult<object>> SimularAsiento(ComprobantePayload request);
 
     Task<MessageResult<object>> CrearNotaCreditoDebito(NotaPayload request);
 

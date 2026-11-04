@@ -11,6 +11,9 @@ public interface IAsientoContableRepository
 {
     Task<(ServiceStatus, AsientoContableDto?, string)> Generar(string origenTipo, int origenId, string glosa, List<LineaAsientoContable> lineas,
         bool aplicarDestino = true, DateTime? fechaDocumento = null, DateTime? fechaVencimiento = null, DateTime? fecha = null);
+    // Vista previa: con Simulados != null, Generar no guarda; arma el asiento con las cuentas reales
+    // (por defecto, hojas, nombres) y lo agrega a esta lista.
+    List<AsientoContableDto>? Simulados { get; set; }
     Task<(ServiceStatus, AsientoContableDto?, string)> Reversar(string origenTipo, int origenId);
     Task<(ServiceStatus, AsientoContableDto?, string)> CrearManual(CrearAsientoManualPayload payload);
     Task<(ServiceStatus, AsientoContableDto?, string)> AnularManual(int id);

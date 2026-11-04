@@ -37,6 +37,14 @@ public class ComprobanteService : IComprobanteService
         return MessageResult<object>.Of(message, resp);
 
     }
+    public async Task<MessageResult<object>> SimularAsiento(ComprobantePayload request)
+    {
+        var (estado, resp, message) = await _comprobanteRepository.SimularAsiento(request);
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.BadRequest, message, null);
+        return MessageResult<object>.Of(message, resp);
+    }
+
     public async Task<MessageResult<object>> CrearNotaCreditoDebito(NotaPayload request)
     {
 

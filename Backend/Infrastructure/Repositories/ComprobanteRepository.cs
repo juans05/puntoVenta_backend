@@ -143,43 +143,8 @@ namespace Infrastructure.Repositories
 
                 var (_, config) = await ObtenerConfiguracionFiscalPorTenant(_context.CurrentTenantName);
 
-                var paisId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimConstants.Pais) is { } paisClaim
-                            && int.TryParse(paisClaim, out var parsedPais) ? parsedPais : (int?)null;
-
-                var impuesto = _taxCalculatorFactory.GetCalculator(paisId)
-                                                    .GetImpuestoRate(paisId, config?.PorcentajeImpuesto);
-
                 var detalle = _mapper.Map<List<ComprobanteDetalle>>(payload.DetalleComprobante);
-
-                // El IGV se calcula por linea (cada una puede ser Gravada, Exonerada o Inafecta
-                // segun su TipoIgv) y la cabecera resulta de sumar las lineas -- si ninguna linea
-                // trae TipoIgvId (flujos viejos como Facturacion/ModalPay) todas caen en "Gravado",
-                // dando el mismo resultado que el calculo global de antes.
-                var tipoIgvIds = detalle.Where(d => d.TipoIgvId.HasValue).Select(d => d.TipoIgvId!.Value).Distinct().ToList();
-                var tiposIgv = tipoIgvIds.Count > 0
-                    ? await _context.TipoIgv.AsNoTracking().Where(t => tipoIgvIds.Contains(t.Id)).ToDictionaryAsync(t => t.Id)
-                    : new Dictionary<int, TipoIgv>();
-
-                var subtotalCalculado = 0m;
-                var tasaDocumento = impuesto;
-
-                foreach (var item in detalle)
-                {
-                    // Cada tipo puede tener su propio % (18, 10.5, 11...); sin tipo, el del negocio.
-                    var tasaLinea = item.TipoIgvId.HasValue && tiposIgv.TryGetValue(item.TipoIgvId.Value, out var tipoIgv)
-                        ? tipoIgv.Tasa(impuesto)
-                        : impuesto;
-                    if (tasaLinea > 0) tasaDocumento = tasaLinea;
-
-                    var importeLinea = item.Cantidad * item.ValorUnitario;
-
-                    item.ValorUnitarioTotal = importeLinea;
-                    item.ValorIgv = tasaLinea > 0 ? importeLinea - (importeLinea / (1m + tasaLinea / 100m)) : 0m;
-
-                    subtotalCalculado += importeLinea - item.ValorIgv;
-                }
-
-                cabecera.ValorTotal = payload.Total;
+                await CalcularImportes(cabecera, detalle, payload.Total, config?.PorcentajeImpuesto);
 
                 // MontoDetraccion no viene del payload: se calcula con el porcentaje del tipo elegido.
                 cabecera.MontoDetraccion = null;
@@ -189,12 +154,6 @@ namespace Infrastructure.Repositories
                     if (porcentaje == null) return (ServiceStatus.FailedValidation, null, "El tipo de detracción elegido no existe");
                     cabecera.MontoDetraccion = Math.Round(payload.Total * porcentaje.Value / 100m, 2);
                 }
-
-                cabecera.ValorSubtotal = Math.Round(subtotalCalculado, 2);
-
-                cabecera.ValorIgv = Math.Round(payload.Total - subtotalCalculado, 2);
-
-                cabecera.PorcentajeImpuesto = tasaDocumento;
 
                 cabecera.TotalLetras = DecimalExtensions.ConvertirNumeroALetras(payload.Total);
 
@@ -754,6 +713,74 @@ namespace Infrastructure.Repositories
                 return (ServiceStatus.FailedValidation, null, $"Error en Anular Venta -> {ex.InnerException?.Message ?? ex.Message}");
             }
 
+        }
+
+        // IGV por linea (cada una puede ser Gravada, Exonerada o Inafecta segun su TipoIgv) y totales de
+        // la cabecera como suma de las lineas. Sin TipoIgvId (flujos viejos) todas caen en "Gravado".
+        // Lo usan CrearComprobante y SimularAsiento, asi la vista previa calcula igual que la venta.
+        private async Task CalcularImportes(ComprobanteCabecera cabecera, List<ComprobanteDetalle> detalle, decimal total, decimal? porcentajeConfig)
+        {
+            var paisId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimConstants.Pais) is { } paisClaim
+                        && int.TryParse(paisClaim, out var parsedPais) ? parsedPais : (int?)null;
+            var impuesto = _taxCalculatorFactory.GetCalculator(paisId).GetImpuestoRate(paisId, porcentajeConfig);
+
+            var tipoIgvIds = detalle.Where(d => d.TipoIgvId.HasValue).Select(d => d.TipoIgvId!.Value).Distinct().ToList();
+            var tiposIgv = tipoIgvIds.Count > 0
+                ? await _context.TipoIgv.AsNoTracking().Where(t => tipoIgvIds.Contains(t.Id)).ToDictionaryAsync(t => t.Id)
+                : new Dictionary<int, TipoIgv>();
+
+            var subtotalCalculado = 0m;
+            var tasaDocumento = impuesto;
+            foreach (var item in detalle)
+            {
+                // Cada tipo puede tener su propio % (18, 10.5, 11...); sin tipo, el del negocio.
+                var tasaLinea = item.TipoIgvId.HasValue && tiposIgv.TryGetValue(item.TipoIgvId.Value, out var tipoIgv)
+                    ? tipoIgv.Tasa(impuesto)
+                    : impuesto;
+                if (tasaLinea > 0) tasaDocumento = tasaLinea;
+
+                var importeLinea = item.Cantidad * item.ValorUnitario;
+                item.ValorUnitarioTotal = importeLinea;
+                item.ValorIgv = tasaLinea > 0 ? importeLinea - (importeLinea / (1m + tasaLinea / 100m)) : 0m;
+                subtotalCalculado += importeLinea - item.ValorIgv;
+            }
+
+            cabecera.ValorTotal = total;
+            cabecera.ValorSubtotal = Math.Round(subtotalCalculado, 2);
+            cabecera.ValorIgv = Math.Round(total - subtotalCalculado, 2);
+            cabecera.PorcentajeImpuesto = tasaDocumento;
+        }
+
+        // Vista previa de los asientos que generaria la venta, con las cuentas configuradas (producto,
+        // cliente, IGV, cuentas por defecto). No guarda nada: usa GenerarAsientoVenta en modo simulacion.
+        public async Task<(ServiceStatus, object?, string)> SimularAsiento(ComprobantePayload payload)
+        {
+            if (payload.DetalleComprobante == null || payload.DetalleComprobante.Count == 0)
+                return (ServiceStatus.Ok, new List<Domain.DTO.AsientoContableDto>(), "Success");
+            var total = Math.Round(payload.DetalleComprobante.Sum(q => q.ValorUnitario * q.Cantidad), 2);
+
+            var cabecera = _mapper.Map<ComprobanteCabecera>(payload);
+            cabecera.StockYaDescontado = payload.PedidoVentaId.HasValue;
+            cabecera.FechaVenta = payload.FechaVenta ?? DateTime.UtcNow.AddHours(-5);
+            if (cabecera.ClienteId == null && !string.IsNullOrWhiteSpace(payload.NumeroDocumento))
+                cabecera.ClienteId = await _context.Cliente.AsNoTracking().Where(c => c.NumeroDocumento == payload.NumeroDocumento).Select(c => (int?)c.Id).FirstOrDefaultAsync();
+
+            var (_, config) = await ObtenerConfiguracionFiscalPorTenant(_context.CurrentTenantName);
+            var detalle = _mapper.Map<List<ComprobanteDetalle>>(payload.DetalleComprobante);
+            await CalcularImportes(cabecera, detalle, total, config?.PorcentajeImpuesto);
+
+            var ids = detalle.Select(d => d.ProductoId).Distinct().ToList();
+            var productos = await _context.Producto.AsNoTracking().Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
+            if (ids.Any(id => !productos.ContainsKey(id)))
+                return (ServiceStatus.FailedValidation, null, "Uno de los productos no existe");
+
+            _asientoContableRepository.Simulados = new();
+            try
+            {
+                var (estado, _, mensaje) = await GenerarAsientoVenta(cabecera, detalle, payload.EsCredito, productos);
+                return estado == ServiceStatus.Ok ? (ServiceStatus.Ok, _asientoContableRepository.Simulados, "Success") : (estado, null, mensaje);
+            }
+            finally { _asientoContableRepository.Simulados = null; }
         }
 
         // Asiento contable de la venta. La contraparte (Caja/Cuentas por Cobrar) lleva el TOTAL con

@@ -8,6 +8,7 @@ namespace Application.Interfaces.IRepository;
 public interface IComprobanteRepository
 {
     Task<(ServiceStatus, object?, string)> CrearComprobante(ComprobantePayload payload);
+    Task<(ServiceStatus, object?, string)> SimularAsiento(ComprobantePayload payload);
 
     Task<(ServiceStatus, object?, string)> CrearNotaCreditoDebito(NotaPayload payload);
 

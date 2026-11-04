@@ -22,6 +22,8 @@ public class AsientoContableRepository : IAsientoContableRepository
         _context = context;
     }
 
+    public List<AsientoContableDto>? Simulados { get; set; }
+
     private async Task<string> GenerarNumero()
         => $"AS-{((await _context.AsientoContable.IgnoreQueryFilters().CountAsync(a => a.TenantId == _context.CurrentTenantName)) + 1).ToString().PadLeft(6, '0')}";
 
@@ -164,7 +166,7 @@ public class AsientoContableRepository : IAsientoContableRepository
 
         var asiento = new AsientoContable
         {
-            Numero = await GenerarNumero(),
+            Numero = Simulados != null ? "Vista previa" : await GenerarNumero(),
             Fecha = fecha ?? DateTime.UtcNow.AddHours(-5),
             FechaDocumento = fechaDocumento,
             FechaVencimiento = fechaVencimiento,
@@ -180,6 +182,19 @@ public class AsientoContableRepository : IAsientoContableRepository
             }, l.CuentaAsociada, l.CentroCosto1Id, l.CentroCosto2Id, l.CuentaDestinoId, l.Descripcion))
             .Concat(aplicarDestino ? LineasDestino(lineas, cuentas, cuenta79Id) : new()).ToList()
         };
+        if (Simulados != null)
+        {
+            var ids = asiento.Detalle.SelectMany(d => new[] { (int?)d.CuentaContableId, d.CuentaDestinoId }).Where(i => i.HasValue).Select(i => i!.Value).Distinct().ToList();
+            var porId = await _context.CuentaContable.AsNoTracking().Where(c => ids.Contains(c.Id)).ToDictionaryAsync(c => c.Id);
+            foreach (var d in asiento.Detalle)
+            {
+                d.CuentaContable = porId[d.CuentaContableId];
+                if (d.CuentaDestinoId.HasValue) d.CuentaDestino = porId[d.CuentaDestinoId.Value];
+            }
+            var simulado = ToDto(asiento);
+            Simulados.Add(simulado);
+            return (ServiceStatus.Ok, simulado, "Success");
+        }
         _context.AsientoContable.Add(asiento);
         await _context.SaveChangesAsync();
 

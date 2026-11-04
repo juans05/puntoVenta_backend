@@ -23,6 +23,10 @@ public class FacturacionController : ControllerBase
     [HttpPost("crear")]
     public async Task<IActionResult> CrearComprobante(ComprobantePayload payload) => Ok(await _comprobanteService.CrearComprobante(payload));
 
+    // Vista previa del asiento de la venta con las cuentas configuradas. No guarda nada.
+    [HttpPost("simular-asiento")]
+    public async Task<IActionResult> SimularAsiento(ComprobantePayload payload) => Ok(await _comprobanteService.SimularAsiento(payload));
+
     // Lee un XML UBL (factura/boleta de SUNAT) y devuelve cliente + lineas para precargar la venta.
     // No guarda nada: el usuario revisa y emite desde el formulario.
     [HttpPost("importar-xml")]

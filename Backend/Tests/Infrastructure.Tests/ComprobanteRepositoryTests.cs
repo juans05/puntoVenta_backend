@@ -286,6 +286,21 @@ public class ComprobanteRepositoryTests
         var metodoPagoId = await SeedMetodoPagoAsync(context);
         var repo = new ComprobanteRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null, new Application.Abstractions.TaxCalculatorFactory());
 
+        // Vista previa: mismas cuentas configuradas que el asiento real, sin guardar nada.
+        var (estadoSim, sim, mensajeSim) = await repo.SimularAsiento(new ComprobantePayload
+        {
+            TipoDocumentoVentaId = 2,
+            DetalleComprobante = new List<ComprobanteDetallePayload> { new() { ProductoId = producto.Id, Cantidad = 2, ValorUnitario = 11.8m } }
+        });
+        Assert.True(estadoSim == ServiceStatus.Ok, mensajeSim);
+        var simulados = Assert.IsType<List<Domain.DTO.AsientoContableDto>>(sim);
+        Assert.Equal(2, simulados.Count);
+        Assert.Contains(simulados[0].Detalle, d => d.CuentaCodigo == "12121001" && d.CuentaNombre == "12121001" && d.Debe == 23.6m);
+        Assert.Contains(simulados[0].Detalle, d => d.CuentaCodigo == "40111001" && d.Haber == 3.6m);
+        Assert.Contains(simulados[0].Detalle, d => d.CuentaCodigo == "70111001" && d.Haber == 20m);
+        Assert.Contains(simulados[1].Detalle, d => d.CuentaCodigo == "69111001" && d.Debe == 12m);
+        Assert.Equal(0, await context.AsientoContable.CountAsync());
+
         var (estado, _, mensaje) = await repo.CrearComprobante(new ComprobantePayload
         {
             TipoDocumentoVentaId = 2,
