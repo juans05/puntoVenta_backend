@@ -63,6 +63,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<Empresa> Empresa => Set<Empresa>();
     public DbSet<EmpresaTenant> EmpresaTenant => Set<EmpresaTenant>();
     public DbSet<UsuarioEmpresa> UsuarioEmpresa => Set<UsuarioEmpresa>();
+    public DbSet<TenantApp> TenantApp => Set<TenantApp>();
     public DbSet<TipoDocumento> TipoDocumento => Set<TipoDocumento>();
     public DbSet<TipoDocumentoVenta> TipoDocumentoVenta => Set<TipoDocumentoVenta>();
     public DbSet<MotivoNota> MotivoNota => Set<MotivoNota>();
@@ -270,6 +271,11 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<UsuarioEmpresa>().HasIndex(x => new { x.UserId, x.TenantId }).IsUnique();
         modelBuilder.Entity<UsuarioEmpresa>().HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<UsuarioEmpresa>().HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Cascade);
+
+        // Sin query filter: se lee en el login para el claim "apps".
+        modelBuilder.Entity<TenantApp>().Property(x => x.App).HasMaxLength(20).IsRequired();
+        modelBuilder.Entity<TenantApp>().HasIndex(x => new { x.TenantIdentificador, x.App }).IsUnique();
+        modelBuilder.Entity<TenantApp>().HasOne<Tenant>().WithMany().HasForeignKey(x => x.TenantIdentificador).OnDelete(DeleteBehavior.Cascade);
 
         new UserConfiguration(modelBuilder.Entity<User>());
         new RoleConfiguration(modelBuilder.Entity<Role>());

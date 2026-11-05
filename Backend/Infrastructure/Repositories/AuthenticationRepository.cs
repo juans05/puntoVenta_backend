@@ -30,6 +30,7 @@ namespace Infrastructure.Repositories
         private readonly IMapper _mapper;
         private readonly ILogger<AuthenticationRepository> _logger;
         private readonly IRoleRepository _roleRepository;
+        private readonly TenantAppRepository _tenantApps;
 
         public AuthenticationRepository(
             SpaContext context,
@@ -39,8 +40,10 @@ namespace Infrastructure.Repositories
             TokenValidationParameters tokenValidationParameters,
             IMapper mapper,
             ILogger<AuthenticationRepository> logger,
-            IRoleRepository roleRepository)
+            IRoleRepository roleRepository,
+            TenantAppRepository tenantApps)
         {
+            _tenantApps = tenantApps;
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -191,6 +194,7 @@ namespace Infrastructure.Repositories
             var rutas = MergeAccesos(applicationUserDto.Resumen, rutasPorRol);
 
             claims.Add(new Claim("rutas", Newtonsoft.Json.JsonConvert.SerializeObject(rutas)));
+            claims.Add(new Claim(ClaimConstants.Apps, Newtonsoft.Json.JsonConvert.SerializeObject(await _tenantApps.AppsContratadas(tenant.Identificador))));
 
 
 
