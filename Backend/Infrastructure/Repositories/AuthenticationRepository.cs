@@ -31,6 +31,7 @@ namespace Infrastructure.Repositories
         private readonly ILogger<AuthenticationRepository> _logger;
         private readonly IRoleRepository _roleRepository;
         private readonly TenantAppRepository _tenantApps;
+        private readonly Infrastructure.Identidad.FirmadorToken _firmador;
 
         public AuthenticationRepository(
             SpaContext context,
@@ -41,9 +42,11 @@ namespace Infrastructure.Repositories
             IMapper mapper,
             ILogger<AuthenticationRepository> logger,
             IRoleRepository roleRepository,
-            TenantAppRepository tenantApps)
+            TenantAppRepository tenantApps,
+            Infrastructure.Identidad.FirmadorToken firmador)
         {
             _tenantApps = tenantApps;
+            _firmador = firmador;
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -198,8 +201,6 @@ namespace Infrastructure.Repositories
 
 
 
-            var key = Encoding.ASCII.GetBytes(_tokenSettings.SecretKey);
-
             var encriptionSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSettings.EncryptionSecret));
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -222,7 +223,7 @@ namespace Infrastructure.Repositories
                 Expires = expiresAt,
                 Issuer = _tokenSettings.Issuer,
                 Audience = _tokenSettings.Audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials = _firmador.Credenciales(),
                 //EncryptingCredentials = new EncryptingCredentials(encriptionSecret, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512)
             };
 

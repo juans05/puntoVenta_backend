@@ -110,10 +110,16 @@ var decriptKey = Encoding.UTF8.GetBytes(builder.Configuration.GetSection("TokenM
 
 // Staff y clientes de la tienda firman con la misma clave: la audiencia es lo que separa un token
 // del otro (sin ella, un cliente logueado en la tienda pasaba como staff en toda la API).
+// Con TokenManagement:RsaPrivateKeyPem el staff firma RS256 (las otras apps de la suite validan con
+// /.well-known/jwks.json); se sigue aceptando la clave HMAC para los tokens emitidos antes.
+var firmadorToken = new Infrastructure.Identidad.FirmadorToken(
+    builder.Configuration["TokenManagement:SecretKey"], builder.Configuration["TokenManagement:RsaPrivateKeyPem"]);
+builder.Services.AddSingleton(firmadorToken);
+
 var tokenValidationParameters = new TokenValidationParameters
 {
     ValidateIssuerSigningKey = true,
-    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+    IssuerSigningKeys = firmadorToken.ClavesValidacion(),
     //TokenDecryptionKey = new SymmetricSecurityKey(decriptKey),
     ValidateIssuer = true,
     ValidIssuer = builder.Configuration["TokenManagement:Issuer"],
