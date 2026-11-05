@@ -287,6 +287,22 @@ Cada miembro elige cuáles recibe. *Decisión propia:* si el celular de alertas 
 - **Origen:** número de leads, demos y ganados **por anuncio de Meta** (id y título del `referral`) y "sin anuncio".
 - **Exportación a Excel** de los leads y de las métricas.
 
+**KPIs para saber cómo van las ventas y qué está fallando.** El usuario pidió más KPIs; esta selección es *propuesta propia*. Todos se filtran por rango de fechas, línea de producto, comercial y origen. Cada uno se muestra **comparado con el período anterior** (flecha y %), y se marca en rojo cuando empeora más de 20 % (*decisión propia*).
+
+| Pregunta | KPI |
+|---|---|
+| ¿Cuánto vendemos? | Ventas ganadas (cantidad y monto), ticket promedio, monto por línea y por comercial. Al marcar **Ganado**, el comercial ingresa el monto y el plan |
+| ¿Dónde se cae la gente? | Embudo con **tasa de paso entre etapas**: leads → calificados → demo agendada → demo realizada → ganado. Se resalta la etapa con mayor caída |
+| ¿Qué tan rápido avanzamos? | Tiempo promedio entre etapas y **ciclo de venta** (primer mensaje → ganado) |
+| ¿Por qué perdemos? | Distribución de **motivos de pérdida** y de **motivos de descarte** |
+| ¿Llegan los clientes a la demo? | **Tasa de asistencia** (realizadas / agendadas) y no-asistencias por comercial |
+| ¿Cómo rinde cada comercial? | Demos realizadas, tasa de cierre (ganados / demos realizadas), tiempo de primera respuesta humana, leads sin atender, monto vendido |
+| ¿Cómo rinde la IA? | Tiempo de primera respuesta, % de leads calificados sin intervención humana, preguntas sin respuesta (las que más se repiten), traspasos por enojo o por pedido de humano, bajas (personas que pidieron no ser contactadas) |
+| ¿Funciona el seguimiento? | % de leads "en seguimiento" que vuelven a responder y % que llegan a demo |
+| ¿Qué publicidad conviene? | Leads, demos, ganados y monto **por anuncio y campaña**. Con el gasto de Meta Ads (copiando `meta-ads` de Wuarikes, que usa permisos ya aprobados): **costo por lead, costo por demo y costo por venta** |
+| ¿Cuándo escriben? | Leads por día de la semana y hora, y % fuera del horario de los comerciales |
+| ¿Qué viene? | Demos agendadas para los próximos 7 días y leads en seguimiento activos |
+
 ### Pantallas (frontend Next.js)
 
 1. Login, contra el endpoint de login de PuntoVenta.
