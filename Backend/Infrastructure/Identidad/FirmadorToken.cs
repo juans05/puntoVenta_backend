@@ -19,7 +19,18 @@ public class FirmadorToken
         if (string.IsNullOrWhiteSpace(rsaPrivateKeyPem)) return;
 
         var rsa = RSA.Create();
-        rsa.ImportFromPem(rsaPrivateKeyPem);
+        try
+        {
+            // Variables de entorno suelen traer el PEM en una linea con "\n" escapados y/o entre comillas.
+            rsa.ImportFromPem(rsaPrivateKeyPem.Trim().Trim('"').Replace("\\n", "\n"));
+            // Una clave publica importa sin error pero no firma: cada login daria 500.
+            rsa.ExportParameters(true);
+        }
+        catch (Exception ex) when (ex is ArgumentException or CryptographicException)
+        {
+            throw new InvalidOperationException(
+                "TokenManagement:RsaPrivateKeyPem no contiene una clave privada RSA en formato PEM valido.", ex);
+        }
         _rsa = new RsaSecurityKey(rsa) { KeyId = KeyIdDe(rsa) };
     }
 

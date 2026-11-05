@@ -71,6 +71,32 @@ public class FirmadorTokenTests
         Assert.False(string.IsNullOrEmpty(clave.Kid));
     }
 
+    // Formato tipico al pegar la clave en una variable de entorno (Railway/.env): una linea con "\n" escapados, entre comillas.
+    [Fact]
+    public void PemEscapadoYEntreComillas_SeAcepta()
+    {
+        var pemEnUnaLinea = "\"" + NuevoPem().Replace("\r\n", "\n").Replace("\n", "\\n") + "\"";
+        var firmador = new FirmadorToken(Secreto, pemEnUnaLinea);
+
+        Validar(Firmar(firmador), firmador.Jwks().GetSigningKeys());
+    }
+
+    [Fact]
+    public void PemDeClavePublica_FallaAlArrancarNombrandoLaVariable()
+    {
+        var publica = new string(PemEncoding.Write("PUBLIC KEY", RSA.Create(2048).ExportSubjectPublicKeyInfo()));
+
+        var ex = Assert.Throws<InvalidOperationException>(() => new FirmadorToken(Secreto, publica));
+        Assert.Contains("RsaPrivateKeyPem", ex.Message);
+    }
+
+    [Fact]
+    public void PemInvalido_FallaAlArrancarNombrandoLaVariable()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() => new FirmadorToken(Secreto, "no-es-un-pem"));
+        Assert.Contains("RsaPrivateKeyPem", ex.Message);
+    }
+
     [Fact]
     public void ConRsa_TokenFirmadoConOtraClaveRsa_NoValida()
     {
