@@ -15,6 +15,12 @@ public class SunatCredencialesPayload
     public string? ClientSecret { get; set; }
 }
 
+public class ImportarVentasSunatPayload
+{
+    public string NumTicket { get; set; } = "";
+    public List<string> Comprobantes { get; set; } = new();
+}
+
 // Credenciales de la empresa activa para la API de SUNAT (SIRE) y obtencion del token OAuth con
 // Clave SOL. Solo el dueño de la empresa las ve y las cambia: dan acceso a todo el RUC ante SUNAT.
 public class SunatRepository
@@ -24,12 +30,15 @@ public class SunatRepository
     private readonly SpaContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly Application.Interfaces.IRepository.IAsientoContableRepository _asientos;
 
-    public SunatRepository(SpaContext context, IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory)
+    public SunatRepository(SpaContext context, IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory,
+        Application.Interfaces.IRepository.IAsientoContableRepository asientos)
     {
         _context = context;
         _httpContextAccessor = httpContextAccessor;
         _httpClientFactory = httpClientFactory;
+        _asientos = asientos;
     }
 
     private async Task<bool> EsPropietario()
@@ -134,7 +143,7 @@ public class SunatRepository
         var cliente = ClienteSire(token);
         try
         {
-            var r = await cliente.GetAsync($"{BaseSire}/rvierce/padron/web/omisos/{LibroRvie}/periodos");
+            var r = await GetSire(cliente, $"{BaseSire}/rvierce/padron/web/omisos/{LibroRvie}/periodos");
             if (r.IsSuccessStatusCode) return null;
             return r.StatusCode == System.Net.HttpStatusCode.Unauthorized
                 ? await MensajeSireNoAutorizado(r, token)
@@ -155,6 +164,14 @@ public class SunatRepository
         return cliente;
     }
 
+    // El manual de SIRE pide Content-Type: application/json tambien en los GET; HttpClient solo lo envia con contenido.
+    private static Task<HttpResponseMessage> GetSire(HttpClient cliente, string url)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, url) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+        request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        return cliente.SendAsync(request);
+    }
+
     // El 401 de SIRE suele venir con el motivo en WWW-Authenticate o en el cuerpo: se muestra tal cual.
     private static async Task<string> MensajeSireNoAutorizado(HttpResponseMessage r, string token)
     {
@@ -170,19 +187,63 @@ public class SunatRepository
 
     private const string BaseSire = "https://api-sire.sunat.gob.pe/v1/contribuyente/migeigv/libros";
     private const string LibroRvie = "140000";
+    private const string LibroRce = "080000";
 
     // Propuesta de ventas del periodo (yyyymm) cruzada con lo emitido en el sistema. SUNAT la arma
     // en segundo plano: si aun no esta lista se devuelve el ticket para volver a consultar con el.
     public async Task<(object? Data, string? Error)> PropuestaVentas(string periodo, string? numTicket)
     {
+        var (filas, ticket, error) = await ObtenerPropuesta(periodo, numTicket, LibroRvie);
+        if (error is not null) return (null, error);
+        return filas is null
+            ? (new { estado = "PROCESANDO", numTicket = ticket }, null)
+            : (new { estado = "LISTO", numTicket = ticket, comprobantes = await CruzarConSistema(filas) }, null);
+    }
+
+    // ---------------------------------------------------------------- Compras (RCE)
+    // Manual "API del Registro de Compras Electronico": misma mecanica de ticket/archivo que ventas,
+    // con el libro 080000. La propuesta trae las facturas que los proveedores emitieron al RUC
+    // (cabecera y montos, sin productos): el front las abre una por una en el formulario de compra.
+    public async Task<(object? Data, string? Error)> PropuestaCompras(string periodo, string? numTicket)
+    {
+        var (filas, ticket, error) = await ObtenerPropuesta(periodo, numTicket, LibroRce);
+        if (error is not null) return (null, error);
+        return filas is null
+            ? (new { estado = "PROCESANDO", numTicket = ticket }, null)
+            : (new { estado = "LISTO", numTicket = ticket, comprobantes = await CruzarConCompras(filas) }, null);
+    }
+
+    // Una compra ya registrada se reconoce por RUC del proveedor + serie + numero (sin ceros a la izquierda:
+    // SUNAT manda "123" y el usuario pudo escribir "00000123").
+    private async Task<object> CruzarConCompras(List<ComprobanteSunat> filas)
+    {
+        static string Num(string? n) => (n ?? "").Trim().TrimStart('0');
+        var series = filas.Select(f => f.Serie).Distinct().ToList();
+        var locales = await _context.Compra.AsNoTracking()
+            .Where(c => c.Estado != "ANULADO" && c.Serie != null && series.Contains(c.Serie))
+            .Select(c => new { Ruc = c.Proveedor != null ? c.Proveedor.Ruc : null, c.Serie, c.Numero })
+            .ToListAsync();
+        var registradas = locales.Select(c => $"{c.Ruc}|{c.Serie}|{Num(c.Numero)}").ToHashSet();
+
+        return filas.Select(f => new
+        {
+            f.Fecha, f.FechaVencimiento, f.Tipo, f.Serie, f.Numero, docProveedor = f.DocCliente, proveedor = f.Cliente,
+            f.BaseGravada, f.Igv, f.Total, f.Moneda,
+            enSistema = registradas.Contains($"{f.DocCliente}|{f.Serie}|{Num(f.Numero)}")
+        }).ToList();
+    }
+
+    // Filas de la propuesta, o filas=null (con el ticket) si SUNAT aun no termina de armarla.
+    private async Task<(List<ComprobanteSunat>? Filas, string? NumTicket, string? Error)> ObtenerPropuesta(string periodo, string? numTicket, string libro)
+    {
         if (!System.Text.RegularExpressions.Regex.IsMatch(periodo ?? "", @"^\d{6}$"))
-            return (null, "El periodo debe tener el formato AAAAMM");
+            return (null, null, "El periodo debe tener el formato AAAAMM");
         // El ticket viaja en la URL hacia SUNAT: solo se aceptan digitos (formato AAAA99999999).
         if (!string.IsNullOrEmpty(numTicket) && !System.Text.RegularExpressions.Regex.IsMatch(numTicket, @"^\d{1,20}$"))
-            return (null, "Ticket inválido");
+            return (null, null, "Ticket inválido");
 
         var (token, errorToken) = await ObtenerTokenSire();
-        if (token is null) return (null, errorToken);
+        if (token is null) return (null, null, errorToken);
 
         var cliente = ClienteSire(token);
 
@@ -190,49 +251,50 @@ public class SunatRepository
         {
             if (string.IsNullOrWhiteSpace(numTicket))
             {
-                var r = await cliente.GetAsync($"{BaseSire}/rvie/propuesta/web/propuesta/{periodo}/exportapropuesta?codTipoArchivo=0");
+                var r = await GetSire(cliente, libro == LibroRce
+                    ? $"{BaseSire}/rce/propuesta/web/propuesta/{periodo}/exportacioncomprobantepropuesta?codTipoArchivo=0&codOrigenEnvio=2"
+                    : $"{BaseSire}/rvie/propuesta/web/propuesta/{periodo}/exportapropuesta?codTipoArchivo=0");
                 var json = await LeerJson(r);
                 if (r.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                    return (null, await MensajeSireNoAutorizado(r, token));
+                    return (null, null, await MensajeSireNoAutorizado(r, token));
                 if (!r.IsSuccessStatusCode)
-                    return (null, ErrorSunat(json, $"SUNAT no generó la propuesta (HTTP {(int)r.StatusCode}): {await Recorte(r)}"));
+                    return (null, null, ErrorSunat(json, $"SUNAT no generó la propuesta (HTTP {(int)r.StatusCode}): {await Recorte(r)}"));
                 numTicket = json?["numTicket"]?.ToString();
-                if (string.IsNullOrEmpty(numTicket)) return (null, "SUNAT no devolvió el ticket de la propuesta");
+                if (string.IsNullOrEmpty(numTicket)) return (null, null, "SUNAT no devolvió el ticket de la propuesta");
             }
 
             // El archivo suele estar listo en segundos; se espera un poco antes de devolver el ticket.
             for (var intento = 0; intento < 8; intento++)
             {
                 if (intento > 0) await Task.Delay(TimeSpan.FromSeconds(3));
-                var archivo = await ArchivoDelTicket(cliente, periodo, numTicket);
+                var archivo = await ArchivoDelTicket(cliente, periodo, numTicket, libro);
                 if (archivo is null) continue;
 
-                var contenido = await cliente.GetAsync(
+                var contenido = await GetSire(cliente, 
                     $"{BaseSire}/rvierce/gestionprocesosmasivos/web/masivo/archivoreporte" +
                     $"?nomArchivoReporte={Uri.EscapeDataString(archivo.Value.Nombre)}&codTipoArchivoReporte={archivo.Value.Tipo}" +
-                    $"&codLibro={LibroRvie}&perTributario={periodo}&codProceso={archivo.Value.Proceso}&numTicket={numTicket}");
+                    $"&codLibro={libro}&perTributario={periodo}&codProceso={archivo.Value.Proceso}&numTicket={numTicket}");
                 if (!contenido.IsSuccessStatusCode)
-                    return (null, ErrorSunat(await LeerJson(contenido), "SUNAT no entregó el archivo de la propuesta"));
+                    return (null, null, ErrorSunat(await LeerJson(contenido), "SUNAT no entregó el archivo de la propuesta"));
 
                 var filas = LeerPropuesta(await contenido.Content.ReadAsByteArrayAsync());
-                if (filas is null) return (null, "El archivo de SUNAT no tiene el formato esperado");
-                return (new { estado = "LISTO", numTicket, comprobantes = await CruzarConSistema(filas) }, null);
+                return filas is null ? (null, null, "El archivo de SUNAT no tiene el formato esperado") : (filas, numTicket, null);
             }
 
-            return (new { estado = "PROCESANDO", numTicket }, null);
+            return (null, numTicket, null);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
-            return (null, "No se pudo conectar con SUNAT, intenta de nuevo en unos minutos");
+            return (null, null, "No se pudo conectar con SUNAT, intenta de nuevo en unos minutos");
         }
     }
 
     // Archivo generado para el ticket, o null si SUNAT aun lo esta procesando.
-    private async Task<(string Nombre, string Tipo, string Proceso)?> ArchivoDelTicket(HttpClient cliente, string periodo, string numTicket)
+    private async Task<(string Nombre, string Tipo, string Proceso)?> ArchivoDelTicket(HttpClient cliente, string periodo, string numTicket, string libro)
     {
-        var r = await cliente.GetAsync(
+        var r = await GetSire(cliente, 
             $"{BaseSire}/rvierce/gestionprocesosmasivos/web/masivo/consultaestadotickets" +
-            $"?perIni={periodo}&perFin={periodo}&page=1&perPage=20&numTicket={numTicket}&codLibro={LibroRvie}&codOrigenEnvio=2");
+            $"?perIni={periodo}&perFin={periodo}&page=1&perPage=20&numTicket={numTicket}&codLibro={libro}&codOrigenEnvio=2");
         if (!r.IsSuccessStatusCode) return null;
 
         var registros = (await LeerJson(r))?["registros"]?.AsArray();
@@ -292,7 +354,7 @@ public class SunatRepository
     }
 
     public record ComprobanteSunat(string Fecha, string Tipo, string Serie, string Numero, string? DocCliente,
-        string? Cliente, decimal BaseGravada, decimal Igv, decimal Total, string? Moneda);
+        string? Cliente, decimal BaseGravada, decimal Igv, decimal Total, string? Moneda, string? FechaVencimiento = null);
 
     // El txt (RS 112-2021, separado por "|") trae una fila de encabezados: las columnas se ubican por
     // nombre y no por posicion, para no romperse si SUNAT agrega o reordena columnas.
@@ -320,7 +382,9 @@ public class SunatRepository
         var iNumero = Col(c => c.StartsWith("nro cp"));
         var iDoc = Col(c => c.StartsWith("nro doc identidad"));
         var iCliente = cab.FindLastIndex(c => c.Contains("razon social"));
-        var iBase = Col(c => c.StartsWith("bi gravada"));
+        // Ventas: "BI Gravada"; Compras: "BI Gravado DG" (destinada a operaciones gravadas).
+        var iBase = Col(c => c.StartsWith("bi gravad"));
+        var iVcto = Col(c => c.Contains("vcto"));
         var iIgv = Col(c => c.StartsWith("igv"));
         var iTotal = Col(c => c.StartsWith("total cp"));
         var iMoneda = Col(c => c == "moneda");
@@ -332,7 +396,7 @@ public class SunatRepository
 
         return lineas.Skip(1).Select(l => l.Split('|')).Select(f => new ComprobanteSunat(
             Val(f, iFecha) ?? "", Val(f, iTipo) ?? "", Val(f, iSerie) ?? "", Val(f, iNumero) ?? "",
-            Val(f, iDoc), Val(f, iCliente), Num(f, iBase), Num(f, iIgv), Num(f, iTotal), Val(f, iMoneda))).ToList();
+            Val(f, iDoc), Val(f, iCliente), Num(f, iBase), Num(f, iIgv), Num(f, iTotal), Val(f, iMoneda), Val(f, iVcto))).ToList();
     }
 
     private static string Normalizar(string s)
@@ -341,6 +405,106 @@ public class SunatRepository
             .Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
             .ToArray());
         return sinTildes.Trim().ToLowerInvariant();
+    }
+
+    // Importa los comprobantes elegidos (serie-numero) del periodo. Los montos, fechas y clientes se toman
+    // del archivo de SUNAT, nunca del navegador: asi nadie puede registrar como "aceptada" una venta inventada.
+    public async Task<(int Importados, List<string> Omitidos, string? Error)> ImportarVentas(string periodo, string numTicket, List<string> claves)
+    {
+        if (string.IsNullOrWhiteSpace(numTicket)) return (0, new(), "Vuelve a consultar el periodo antes de importar");
+        var (filas, _, error) = await ObtenerPropuesta(periodo, numTicket, LibroRvie);
+        if (error is not null) return (0, new(), error);
+        if (filas is null) return (0, new(), "SUNAT aún está preparando el archivo, intenta de nuevo en unos segundos");
+        var elegidas = new HashSet<string>(claves ?? new());
+        var (importados, omitidos) = await RegistrarVentas(filas.Where(f => elegidas.Contains($"{f.Serie}-{f.Numero}")).ToList());
+        return (importados, omitidos, null);
+    }
+
+    // Registra en el sistema facturas/boletas que solo estan en SUNAT (emitidas en otro sistema o en SEE-SOL).
+    // La propuesta no trae productos: la venta queda sin detalle, ya aceptada (no pasa por el job de envio),
+    // al credito y con su asiento 12 / 40 / 70. Devuelve cuantas se importaron y el motivo de las omitidas.
+    public async Task<(int Importados, List<string> Omitidos)> RegistrarVentas(List<ComprobanteSunat> filas)
+    {
+        var omitidos = new List<string>();
+        var importados = 0;
+        foreach (var f in filas)
+        {
+            var nombre = $"{f.Serie}-{f.Numero}";
+            int? tipo = f.Tipo.TrimStart('0') switch { "1" => (int)Domain.Enumerations.TipoComprobante.Factura, "3" => (int)Domain.Enumerations.TipoComprobante.Boleta, _ => null };
+            if (tipo is null) { omitidos.Add($"{nombre}: solo se importan facturas y boletas"); continue; }
+            if (!string.IsNullOrEmpty(f.Moneda) && f.Moneda != "PEN") { omitidos.Add($"{nombre}: solo se importan comprobantes en soles"); continue; }
+            if (!int.TryParse(f.Numero, out var correlativo)
+                || !DateTime.TryParseExact(f.Fecha, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var fecha))
+            { omitidos.Add($"{nombre}: número o fecha no válidos"); continue; }
+            if (await _context.ComprobanteCabecera.IgnoreQueryFilters()
+                    .AnyAsync(c => c.TenantId == _context.CurrentTenantName && c.Serie == f.Serie && c.Correlativo == correlativo))
+            { omitidos.Add($"{nombre}: ya está en el sistema"); continue; }
+
+            await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var cliente = string.IsNullOrWhiteSpace(f.DocCliente) ? null
+                    : await _context.Cliente.FirstOrDefaultAsync(c => c.NumeroDocumento == f.DocCliente);
+                if (cliente is null && !string.IsNullOrWhiteSpace(f.DocCliente) && !string.IsNullOrWhiteSpace(f.Cliente))
+                {
+                    cliente = new Domain.Entities.Cliente
+                    {
+                        NumeroDocumento = f.DocCliente,
+                        Nombre = f.Cliente,
+                        TipoDocumentoId = f.DocCliente.Length == 11 ? 5 : 1 // RUC : DNI (ver tipodocumento.json)
+                    };
+                    _context.Cliente.Add(cliente);
+                    await _context.SaveChangesAsync();
+                }
+
+                var cabecera = new Domain.Entities.ComprobanteCabecera
+                {
+                    TipoDocumentoVentaId = tipo.Value,
+                    ClienteId = cliente?.Id,
+                    NumeroDocumento = f.DocCliente,
+                    RazonSocial = f.Cliente,
+                    Serie = f.Serie,
+                    Correlativo = correlativo,
+                    ValorTotal = f.Total,
+                    ValorIgv = f.Igv,
+                    ValorSubtotal = f.Total - f.Igv,
+                    PorcentajeImpuesto = f.Total - f.Igv > 0 ? Math.Round(f.Igv * 100 / (f.Total - f.Igv), 2) : 0,
+                    FechaVenta = fecha,
+                    EsCredito = true,
+                    EstadoComprobante = Domain.Enumerations.EstatusComprobante.Facturado,
+                    EnviadoSunat = Domain.Enumerations.EstatusEnvioSunat.Enviado,
+                    MensajeSunat = "Importado del Registro de Ventas de SUNAT (SIRE)",
+                    Observacion = "Importado de SUNAT: sin detalle de productos"
+                };
+                _context.ComprobanteCabecera.Add(cabecera);
+                await _context.SaveChangesAsync();
+
+                var lineas = new List<Domain.Payloads.LineaAsientoContable>
+                {
+                    new("12", f.Total, 0) { CuentaAsociada = f.DocCliente },
+                    new("70", 0, f.Total - f.Igv)
+                };
+                if (f.Igv > 0) lineas.Add(new("40111", 0, f.Igv));
+                var (estado, _, error) = await _asientos.Generar(Domain.Entities.OrigenAsientoContable.Venta, cabecera.Id,
+                    $"Venta {cabecera.Serie}-{cabecera.Correlativo}", lineas, fechaDocumento: fecha);
+                if (estado != Domain.Models.ServiceStatus.Ok)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                    _context.ChangeTracker.Clear();
+                    omitidos.Add($"{nombre}: {error}");
+                    continue;
+                }
+                await _context.Database.CommitTransactionAsync();
+                importados++;
+            }
+            catch (DbUpdateException)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                _context.ChangeTracker.Clear();
+                omitidos.Add($"{nombre}: no se pudo registrar");
+            }
+        }
+        return (importados, omitidos);
     }
 
     // Marca cada comprobante de SUNAT segun exista en el sistema (misma serie y numero, cualquier sede).
