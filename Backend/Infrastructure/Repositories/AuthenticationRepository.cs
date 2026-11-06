@@ -30,6 +30,8 @@ namespace Infrastructure.Repositories
         private readonly IMapper _mapper;
         private readonly ILogger<AuthenticationRepository> _logger;
         private readonly IRoleRepository _roleRepository;
+        private readonly TenantAppRepository _tenantApps;
+        private readonly Infrastructure.Identidad.FirmadorToken _firmador;
 
         public AuthenticationRepository(
             SpaContext context,
@@ -39,8 +41,12 @@ namespace Infrastructure.Repositories
             TokenValidationParameters tokenValidationParameters,
             IMapper mapper,
             ILogger<AuthenticationRepository> logger,
-            IRoleRepository roleRepository)
+            IRoleRepository roleRepository,
+            TenantAppRepository tenantApps,
+            Infrastructure.Identidad.FirmadorToken firmador)
         {
+            _tenantApps = tenantApps;
+            _firmador = firmador;
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -191,10 +197,9 @@ namespace Infrastructure.Repositories
             var rutas = MergeAccesos(applicationUserDto.Resumen, rutasPorRol);
 
             claims.Add(new Claim("rutas", Newtonsoft.Json.JsonConvert.SerializeObject(rutas)));
+            claims.Add(new Claim(ClaimConstants.Apps, Newtonsoft.Json.JsonConvert.SerializeObject(await _tenantApps.AppsContratadas(tenant.Identificador))));
 
 
-
-            var key = Encoding.ASCII.GetBytes(_tokenSettings.SecretKey);
 
             var encriptionSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSettings.EncryptionSecret));
 
@@ -218,7 +223,7 @@ namespace Infrastructure.Repositories
                 Expires = expiresAt,
                 Issuer = _tokenSettings.Issuer,
                 Audience = _tokenSettings.Audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials = _firmador.Credenciales(),
                 //EncryptingCredentials = new EncryptingCredentials(encriptionSecret, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512)
             };
 

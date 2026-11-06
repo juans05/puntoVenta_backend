@@ -933,6 +933,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ProductoId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("SucursalDestinoId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("SucursalId")
                         .HasColumnType("integer");
 
@@ -4504,6 +4507,36 @@ namespace Infrastructure.Migrations
                     b.ToTable("Tenant");
                 });
 
+            modelBuilder.Entity("Domain.Entities.TenantApp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("App")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("Desde")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("TenantIdentificador")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantIdentificador", "App")
+                        .IsUnique();
+
+                    b.ToTable("TenantApp");
+                });
+
             modelBuilder.Entity("Domain.Entities.TiendaConfig", b =>
                 {
                     b.Property<int>("Id")
@@ -6287,6 +6320,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("Pais");
 
                     b.Navigation("Rubro");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TenantApp", b =>
+                {
+                    b.HasOne("Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantIdentificador")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.TipoIgvCuenta", b =>

@@ -18,6 +18,9 @@
 
         public TimeSpan TokenLifeTime { get; set; }
 
+        // PEM de la clave privada RSA para firmar RS256. Vacio = HMAC con SecretKey (comportamiento anterior).
+        public string? RsaPrivateKeyPem { get; set; }
+
         // Audiencia de los tokens de clientes de la tienda: distinta a la del staff para que un
         // token de cliente no sirva en la API de administracion (y viceversa).
         public static string AudienciaCliente(string? audienceStaff) => $"{audienceStaff}/cliente";

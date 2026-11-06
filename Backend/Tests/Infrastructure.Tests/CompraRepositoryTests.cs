@@ -155,6 +155,43 @@ public class CompraRepositoryTests
     }
 
     [Fact]
+    public async Task CrearCompra_ConSucursalEnLaLinea_ElStockEntraAEsaSedeYAnularLoDevuelveAhi()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var sede1 = await context.Sucursal.IgnoreQueryFilters().FirstAsync();
+        var sede2 = new Sucursal { Nombre = "Sede 2", MonedaId = sede1.MonedaId, PaisId = sede1.PaisId, RubroId = sede1.RubroId, TenantId = sede1.TenantId };
+        context.Sucursal.Add(sede2);
+        await context.SaveChangesAsync();
+
+        var productoId = await SeedProductoAsync(context);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, compra, _) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 5, CostoUnitario = 10m, SucursalDestinoId = sede2.Id } }
+        });
+
+        Assert.Equal(ServiceStatus.Ok, estado);
+        int StockEn(int sedeId) => context.ProductoSucursalStock.IgnoreQueryFilters().AsNoTracking()
+            .Where(s => s.ProductoId == productoId && s.SucursalId == sedeId).Select(s => s.Stock).FirstOrDefault();
+        Assert.Equal(5, StockEn(sede2.Id));
+        Assert.Equal(0, StockEn(sede1.Id));
+        Assert.Equal(sede2.Id, compra!.Detalle[0].SucursalDestinoId);
+
+        await repo.AnularCompra(compra.Id);
+        Assert.Equal(0, StockEn(sede2.Id));
+
+        // Sede inexistente / de otra empresa: se rechaza.
+        var (estadoInvalido, _, _) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 10m, SucursalDestinoId = 999999 } }
+        });
+        Assert.Equal(ServiceStatus.FailedValidation, estadoInvalido);
+    }
+
+    [Fact]
     public async Task CrearCompra_SinTipoIgvNiDescuento_TotalIgualQueAntes()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();
@@ -315,6 +352,35 @@ public class CompraRepositoryTests
     }
 
     // Linea sin cuenta elegida: usa la cuenta del producto (servicio -> gasto Debe; bien -> inventario de Compra).
+    [Fact]
+    public async Task SimularAsiento_ConCuentaDelProducto_LaMuestraYNoGuardaNada()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var cuentaCompra = new CuentaContable { Codigo = "60111000", Nombre = "Mercaderias manufacturadas", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "60" };
+        context.CuentaContable.Add(cuentaCompra);
+        await context.SaveChangesAsync();
+        var bien = new Producto { Nombre = "Caja", Precio = 1, Stock = 0, RestriccionEdad = 0, CuentaCostoId = cuentaCompra.Id };
+        context.Producto.Add(bien);
+        await context.SaveChangesAsync();
+        var tipoIgvExoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, resultado, mensaje) = await repo.SimularAsiento(new CreateCompraPayload
+        {
+            TipoIgvId = tipoIgvExoneradoId,
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = bien.Id, Cantidad = 2, CostoUnitario = 10m } }
+        }, deOrden: false);
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asientos = Assert.IsType<List<Domain.DTO.AsientoContableDto>>(resultado);
+        Assert.Contains(asientos[0].Detalle, d => d.CuentaCodigo == "60111000" && d.Debe == 20m);
+        Assert.DoesNotContain(asientos[0].Detalle, d => d.CuentaCodigo == "60");
+        Assert.Equal(0, await context.AsientoContable.CountAsync());
+        Assert.Equal(0, await context.Compra.CountAsync());
+    }
+
     [Fact]
     public async Task CrearCompra_SinCuentaEnLinea_UsaLaCuentaDelProducto()
     {

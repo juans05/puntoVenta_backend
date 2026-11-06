@@ -9,4 +9,6 @@ public class ClaimConstants
     public const string Pais = "pais";
     public const string Rubro = "rubro";
     public const string Moneda = "moneda";
+    // Apps de la suite contratadas por la empresa del token, JSON array: ["arp","arm"].
+    public const string Apps = "apps";
 }

@@ -146,6 +146,16 @@ public class CompraRepository : ICompraRepository
     // Si una linea postea a una cuenta con ModoCentroCosto=OBLIGATORIO, esa linea debe traer su
     // propio CentroCostoId (ver CuentaContable.ModoCentroCosto / "configuracion plan de cuentas
     // ERPdocx.docx": "fundamental para las cuentas de gastos y costos").
+    // La sede destino viene del cliente y StockSucursalHelper ignora los filtros de tenant: se
+    // valida contra el DbSet filtrado para que no se pueda mover stock a una sede de otra empresa.
+    private async Task<string?> ValidarSucursalesDestino(IEnumerable<int?> ids)
+    {
+        var pedidas = ids.Where(id => id.HasValue).Select(id => id!.Value).Distinct().ToList();
+        if (pedidas.Count == 0) return null;
+        var validas = await _context.Sucursal.CountAsync(s => pedidas.Contains(s.Id));
+        return validas == pedidas.Count ? null : "La sucursal de una línea no es válida";
+    }
+
     private async Task<string?> ValidarCentroCostoObligatorio(List<CompraDetalle> detalle)
     {
         var cuentaIds = detalle.Where(d => d.CuentaContableId.HasValue).Select(d => d.CuentaContableId!.Value).Distinct().ToList();
@@ -187,6 +197,134 @@ public class CompraRepository : ICompraRepository
                 && c.Serie != null && c.Numero != null && c.Serie.ToUpper() == s && c.Numero == n)
             .Select(c => c.NumeroCompra).FirstOrDefaultAsync();
         return existente == null ? null : $"El documento {s}-{n} de este proveedor ya está registrado en la compra {existente}";
+    }
+
+    // Si la linea viene de una orden y no trae su propio Centro de Costo/Cuenta, hereda lo
+    // que ya se eligio al crear la orden -- evita pedirselo de nuevo al facturar.
+    private async Task<List<CompraDetalle>> ArmarDetalle(CreateCompraPayload payload, int compraId)
+    {
+        var ordenDetalleIds = payload.Detalle.Where(d => d.OrdenCompraDetalleId.HasValue && (d.CentroCostoId == null || d.CuentaContableId == null))
+            .Select(d => d.OrdenCompraDetalleId!.Value).ToList();
+        var clasificacionOrden = ordenDetalleIds.Count == 0
+            ? new Dictionary<int, (int? CentroCostoId, int? CuentaContableId)>()
+            : await _context.OrdenCompraDetalle.AsNoTracking().Where(od => ordenDetalleIds.Contains(od.Id))
+                .ToDictionaryAsync(od => od.Id, od => (od.CentroCostoId, od.CuentaContableId));
+
+        return payload.Detalle.Select(d =>
+        {
+            var heredado = d.OrdenCompraDetalleId.HasValue && clasificacionOrden.TryGetValue(d.OrdenCompraDetalleId.Value, out var c) ? c : default;
+            return new CompraDetalle
+            {
+                CompraId = compraId,
+                ProductoId = d.ProductoId,
+                Descripcion = d.Descripcion,
+                OrdenCompraDetalleId = d.OrdenCompraDetalleId,
+                Cantidad = d.Cantidad,
+                CostoUnitario = d.CostoUnitario,
+                CentroCostoId = d.CentroCostoId ?? heredado.CentroCostoId,
+                CuentaContableId = d.CuentaContableId ?? heredado.CuentaContableId,
+                SucursalDestinoId = d.SucursalDestinoId
+            };
+        }).ToList();
+    }
+
+    // Asiento contable de la factura. "42" lleva el TOTAL con IGV -- lo que realmente se le
+    // debe al proveedor -- y el IGV se reconoce aparte en 40111 (credito fiscal) en vez de
+    // mezclarse con el costo/gasto/puente. Usa gravada (post-descuento, pre-IGV) en vez de
+    // subtotalProductos (pre-descuento) para que cuadre con compra.Total/ValorIgv.
+    // Metodo PCGE 60/61: la factura va a 60 Compras (bien) / 63 (servicio); la mercaderia
+    // entra a 20 contra 61 en un asiento aparte (EntradaCompra aqui, o la Recepcion de la orden).
+    // Lo usan CrearCompraCore y SimularAsiento. Devuelve el error, o null si todo fue bien.
+    private async Task<string?> GenerarAsientosCompra(Compra compra, List<CompraDetalle> detalle,
+        decimal subtotalProductos, decimal gravada, decimal igv, decimal total, bool deOrden)
+    {
+        if (gravada <= 0) return null;
+
+        var ordenServicio = deOrden && await _context.OrdenCompra.AsNoTracking()
+            .Where(o => o.Id == compra.OrdenCompraId).Select(o => o.TipoOrden).FirstOrDefaultAsync() == TipoOrdenCompra.Servicio;
+
+        // Si el proveedor tiene su propia Cuenta por Pagar (configurada al crearlo), la
+        // factura postea ahi en vez de "42" -- mismo patron que Producto.CuentaIngresoId.
+        var proveedor = compra.ProveedorId.HasValue
+            ? await _context.Proveedor.AsNoTracking().Where(p => p.Id == compra.ProveedorId)
+                .Select(p => new { p.Ruc, CuentaPorPagar = p.CuentaPorPagarId.HasValue ? p.CuentaPorPagar!.Codigo : null }).FirstOrDefaultAsync()
+            : null;
+
+        var productoIds = detalle.Where(d => d.ProductoId.HasValue).Select(d => d.ProductoId!.Value).Distinct().ToList();
+        var productosCuenta = await _context.Producto.AsNoTracking().Where(p => productoIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
+        Producto? ProductoDe(CompraDetalle d) => d.ProductoId is int pid && productosCuenta.TryGetValue(pid, out var p) ? p : null;
+        bool EsServicio(CompraDetalle d) => ProductoDe(d)?.EsServicio ?? ordenServicio;
+
+        // Debe de la factura: cuenta de la linea; si no, la de costo/gasto del producto (bien o
+        // servicio, "Kardex.docx": 6XXXXXX del producto); si no, 63/60.
+        var lineasFactura = new List<LineaAsientoContable>();
+        lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada,
+            d => d.CuentaContableId ?? ProductoDe(d)?.CuentaCostoId,
+            d => EsServicio(d) ? "63" : "60"));
+        if (igv > 0) lineasFactura.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(new[] { compra.TipoIgvId }), igv, 0));
+        lineasFactura.Add(new LineaAsientoContable(proveedor?.CuentaPorPagar ?? "42", 0, total) { CuentaAsociada = proveedor?.Ruc });
+
+        var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
+            OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}", lineasFactura,
+            fechaDocumento: compra.FechaEmision ?? compra.FechaCompra, fechaVencimiento: compra.FechaVencimiento);
+        if (estadoAsiento != ServiceStatus.Ok)
+            return $"No se pudo generar el asiento contable -> {mensajeAsiento}";
+
+        // Compra directa: la mercaderia entra en este mismo paso -> 20 (inventario del producto) / 61,
+        // al mismo valor (post-descuento, pre-IGV) que se cargo a 60 en la factura.
+        var bienes = deOrden ? new List<CompraDetalle>() : detalle.Where(d => !EsServicio(d)).ToList();
+        var subtotalBienes = bienes.Sum(d => d.Cantidad * d.CostoUnitario);
+        var valorBienes = subtotalProductos > 0 ? Math.Round(subtotalBienes * gravada / subtotalProductos, 2) : 0m;
+        if (valorBienes <= 0) return null;
+
+        var lineasEntrada = await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaInventarioCompra, _ => "20");
+        // Haber: contrapartida del movimiento Compra de cada producto (61 por defecto).
+        lineasEntrada.AddRange((await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaContrapartidaCompra, _ => "61"))
+            .Select(l => new LineaAsientoContable(l.CuentaCodigo, 0, l.Debe)));
+        var (estadoEntrada, _, mensajeEntrada) = await _asientoContableRepository.Generar(
+            OrigenAsientoContable.EntradaCompra, compra.Id, $"Entrada de mercadería - Factura {compra.NumeroCompra}", lineasEntrada);
+        return estadoEntrada == ServiceStatus.Ok ? null : $"No se pudo generar el asiento de entrada -> {mensajeEntrada}";
+    }
+
+    // Vista previa de los asientos que generaria la factura con las cuentas configuradas (linea,
+    // producto, proveedor, IGV, cuentas por defecto). No guarda nada: mismo GenerarAsientosCompra
+    // en modo simulacion. deOrden = factura de una orden (precios sin IGV, sin entrada de mercaderia).
+    public async Task<(ServiceStatus, object?, string)> SimularAsiento(CreateCompraPayload payload, bool deOrden)
+    {
+        if (payload.Detalle == null || payload.Detalle.Count == 0)
+            return (ServiceStatus.Ok, new List<AsientoContableDto>(), "Success");
+
+        var subtotalProductos = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
+        var (_, _, gravada, igv, total) = await CalcularTotalesCompra(
+            subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId,
+            preciosSinIgv: deOrden);
+
+        // Sin crear el proveedor (la compra real lo crea por RUC si no existe): solo se busca.
+        var proveedorId = payload.ProveedorId ?? (string.IsNullOrWhiteSpace(payload.ProveedorRuc) ? null
+            : await _context.Proveedor.AsNoTracking().Where(p => p.Ruc == payload.ProveedorRuc).Select(p => (int?)p.Id).FirstOrDefaultAsync());
+        var ordenId = deOrden ? payload.OrdenCompraId : null;
+        if (ordenId.HasValue && proveedorId == null)
+            proveedorId = await _context.OrdenCompra.AsNoTracking().Where(o => o.Id == ordenId).Select(o => o.ProveedorId).FirstOrDefaultAsync();
+
+        var compra = new Compra
+        {
+            NumeroCompra = "(vista previa)",
+            ProveedorId = proveedorId,
+            TipoIgvId = payload.TipoIgvId,
+            OrdenCompraId = ordenId,
+            FechaCompra = payload.FechaCompra ?? NowLocal(),
+            FechaEmision = payload.FechaEmision,
+            FechaVencimiento = payload.FechaVencimiento
+        };
+        var detalle = await ArmarDetalle(payload, 0);
+
+        _asientoContableRepository.Simulados = new();
+        try
+        {
+            var error = await GenerarAsientosCompra(compra, detalle, subtotalProductos, gravada, igv, total, deOrden);
+            return error == null ? (ServiceStatus.Ok, _asientoContableRepository.Simulados, "Success") : (ServiceStatus.FailedValidation, null, error);
+        }
+        finally { _asientoContableRepository.Simulados = null; }
     }
 
     public Task<(ServiceStatus, CompraDto?, string)> CrearCompra(CreateCompraPayload payload)
@@ -269,32 +407,9 @@ public class CompraRepository : ICompraRepository
             await _context.Compra.AddAsync(compra);
             await _context.SaveChangesAsync();
 
-            // Si la linea viene de una orden y no trae su propio Centro de Costo/Cuenta, hereda lo
-            // que ya se eligio al crear la orden -- evita pedirselo de nuevo al facturar.
-            var ordenDetalleIds = payload.Detalle.Where(d => d.OrdenCompraDetalleId.HasValue && (d.CentroCostoId == null || d.CuentaContableId == null))
-                .Select(d => d.OrdenCompraDetalleId!.Value).ToList();
-            var clasificacionOrden = ordenDetalleIds.Count == 0
-                ? new Dictionary<int, (int? CentroCostoId, int? CuentaContableId)>()
-                : await _context.OrdenCompraDetalle.AsNoTracking().Where(od => ordenDetalleIds.Contains(od.Id))
-                    .ToDictionaryAsync(od => od.Id, od => (od.CentroCostoId, od.CuentaContableId));
+            var detalle = await ArmarDetalle(payload, compra.Id);
 
-            var detalle = payload.Detalle.Select(d =>
-            {
-                var heredado = d.OrdenCompraDetalleId.HasValue && clasificacionOrden.TryGetValue(d.OrdenCompraDetalleId.Value, out var c) ? c : default;
-                return new CompraDetalle
-                {
-                    CompraId = compra.Id,
-                    ProductoId = d.ProductoId,
-                    Descripcion = d.Descripcion,
-                    OrdenCompraDetalleId = d.OrdenCompraDetalleId,
-                    Cantidad = d.Cantidad,
-                    CostoUnitario = d.CostoUnitario,
-                    CentroCostoId = d.CentroCostoId ?? heredado.CentroCostoId,
-                    CuentaContableId = d.CuentaContableId ?? heredado.CuentaContableId
-                };
-            }).ToList();
-
-            if ((await CuentaUltimoNivel.Validar(_context.CuentaContable, detalle.Select(d => d.CuentaContableId).ToArray()) ?? await ValidarCentroCostoObligatorio(detalle)) is { } errorCentroCosto)
+            if ((await CuentaUltimoNivel.Validar(_context.CuentaContable, detalle.Select(d => d.CuentaContableId).ToArray()) ?? await ValidarCentroCostoObligatorio(detalle) ?? await ValidarSucursalesDestino(detalle.Select(d => d.SucursalDestinoId))) is { } errorCentroCosto)
             {
                 await _context.Database.RollbackTransactionAsync();
                 return (ServiceStatus.FailedValidation, null, errorCentroCosto);
@@ -317,7 +432,7 @@ public class CompraRepository : ICompraRepository
                 var stockTotalAnterior = producto.Stock ?? 0;
                 producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
 
-                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, item.Cantidad);
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, item.SucursalDestinoId ?? compra.SucursalId, item.Cantidad);
                 if (!ajuste.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();
@@ -342,69 +457,10 @@ public class CompraRepository : ICompraRepository
 
             await _context.SaveChangesAsync();
 
-            // Asiento contable de la factura. "42" lleva el TOTAL con IGV -- lo que realmente se le
-            // debe al proveedor -- y el IGV se reconoce aparte en 40111 (credito fiscal) en vez de
-            // mezclarse con el costo/gasto/puente. Usa gravada (post-descuento, pre-IGV) en vez de
-            // subtotalProductos (pre-descuento) para que cuadre con compra.Total/ValorIgv.
-            // Metodo PCGE 60/61: la factura va a 60 Compras (bien) / 63 (servicio); la mercaderia
-            // entra a 20 contra 61 en un asiento aparte (EntradaCompra aqui, o la Recepcion de la orden).
-            if (gravada > 0)
+            if (await GenerarAsientosCompra(compra, detalle, subtotalProductos, gravada, igv, total, deOrden) is { } errorAsiento)
             {
-                var ordenServicio = deOrden && await _context.OrdenCompra.AsNoTracking()
-                    .Where(o => o.Id == compra.OrdenCompraId).Select(o => o.TipoOrden).FirstOrDefaultAsync() == TipoOrdenCompra.Servicio;
-
-                // Si el proveedor tiene su propia Cuenta por Pagar (configurada al crearlo), la
-                // factura postea ahi en vez de "42" -- mismo patron que Producto.CuentaIngresoId.
-                var rucProveedor = compra.ProveedorId.HasValue
-                    ? await _context.Proveedor.AsNoTracking().Where(p => p.Id == compra.ProveedorId).Select(p => p.Ruc).FirstOrDefaultAsync()
-                    : null;
-                var cuentaPorPagarCodigo = compra.ProveedorId.HasValue
-                    ? await _context.Proveedor.AsNoTracking().Where(p => p.Id == compra.ProveedorId)
-                        .Select(p => p.CuentaPorPagarId.HasValue ? p.CuentaPorPagar!.Codigo : null).FirstOrDefaultAsync()
-                    : null;
-
-                var productoIds = detalle.Where(d => d.ProductoId.HasValue).Select(d => d.ProductoId!.Value).Distinct().ToList();
-                var productosCuenta = await _context.Producto.AsNoTracking().Where(p => productoIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
-                Producto? ProductoDe(CompraDetalle d) => d.ProductoId is int pid && productosCuenta.TryGetValue(pid, out var p) ? p : null;
-                bool EsServicio(CompraDetalle d) => ProductoDe(d)?.EsServicio ?? ordenServicio;
-
-                // Debe de la factura: cuenta de la linea; si no, la de costo/gasto del producto (bien o
-                // servicio, "Kardex.docx": 6XXXXXX del producto); si no, 63/60.
-                var lineasFactura = new List<LineaAsientoContable>();
-                lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada,
-                    d => d.CuentaContableId ?? ProductoDe(d)?.CuentaCostoId,
-                    d => EsServicio(d) ? "63" : "60"));
-                if (igv > 0) lineasFactura.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(new[] { compra.TipoIgvId }), igv, 0));
-                lineasFactura.Add(new LineaAsientoContable(cuentaPorPagarCodigo ?? "42", 0, total) { CuentaAsociada = rucProveedor });
-
-                var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
-                    OrigenAsientoContable.Factura, compra.Id, $"Factura {compra.NumeroCompra}", lineasFactura,
-                    fechaDocumento: compra.FechaEmision ?? compra.FechaCompra, fechaVencimiento: compra.FechaVencimiento);
-                if (estadoAsiento != ServiceStatus.Ok)
-                {
-                    await _context.Database.RollbackTransactionAsync();
-                    return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento contable -> {mensajeAsiento}");
-                }
-
-                // Compra directa: la mercaderia entra en este mismo paso -> 20 (inventario del producto) / 61,
-                // al mismo valor (post-descuento, pre-IGV) que se cargo a 60 en la factura.
-                var bienes = deOrden ? new List<CompraDetalle>() : detalle.Where(d => !EsServicio(d)).ToList();
-                var subtotalBienes = bienes.Sum(d => d.Cantidad * d.CostoUnitario);
-                var valorBienes = subtotalProductos > 0 ? Math.Round(subtotalBienes * gravada / subtotalProductos, 2) : 0m;
-                if (valorBienes > 0)
-                {
-                    var lineasEntrada = await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaInventarioCompra, _ => "20");
-                    // Haber: contrapartida del movimiento Compra de cada producto (61 por defecto).
-                    lineasEntrada.AddRange((await LineasDebePorCuenta(bienes, subtotalBienes, valorBienes, d => ProductoDe(d)?.CuentaContrapartidaCompra, _ => "61"))
-                        .Select(l => new LineaAsientoContable(l.CuentaCodigo, 0, l.Debe)));
-                    var (estadoEntrada, _, mensajeEntrada) = await _asientoContableRepository.Generar(
-                        OrigenAsientoContable.EntradaCompra, compra.Id, $"Entrada de mercadería - Factura {compra.NumeroCompra}", lineasEntrada);
-                    if (estadoEntrada != ServiceStatus.Ok)
-                    {
-                        await _context.Database.RollbackTransactionAsync();
-                        return (ServiceStatus.FailedValidation, null, $"No se pudo generar el asiento de entrada -> {mensajeEntrada}");
-                    }
-                }
+                await _context.Database.RollbackTransactionAsync();
+                return (ServiceStatus.FailedValidation, null, errorAsiento);
             }
 
             await _context.Database.CommitTransactionAsync();
@@ -448,7 +504,7 @@ public class CompraRepository : ICompraRepository
                 var stockTotalAnterior = producto.Stock ?? 0;
                 producto.CostoUnitario = CosteoInventario.QuitarDePromedio(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
 
-                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
+                var ajuste = await StockSucursalHelper.Ajustar(_context, producto, item.SucursalDestinoId ?? compra.SucursalId, -item.Cantidad);
                 if (!ajuste.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();
@@ -541,7 +597,7 @@ public class CompraRepository : ICompraRepository
                     var producto = await _context.Producto.AsTracking().FirstOrDefaultAsync(p => p.Id == item.ProductoId);
                     if (producto == null || producto.EsServicio) continue; // servicio: sin inventario
 
-                    var ajusteNota = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
+                    var ajusteNota = await StockSucursalHelper.Ajustar(_context, producto, item.SucursalDestinoId ?? compra.SucursalId, -item.Cantidad);
                     if (!ajusteNota.Ok)
                     {
                         await _context.Database.RollbackTransactionAsync();
@@ -787,6 +843,9 @@ public class CompraRepository : ICompraRepository
         if (compra.OrdenCompraId.HasValue)
             return (ServiceStatus.FailedValidation, null, "La factura de una orden de compra no se edita: anúlala y regístrala de nuevo");
 
+        if (await ValidarSucursalesDestino(payload.Detalle.Select(d => d.SucursalDestinoId)) is { } errorSucursal)
+            return (ServiceStatus.FailedValidation, null, errorSucursal);
+
         await _context.Database.BeginTransactionAsync();
 
         try
@@ -798,7 +857,7 @@ public class CompraRepository : ICompraRepository
 
                 if (producto == null || producto.EsServicio) continue; // servicio: sin inventario
 
-                var ajusteRevertir = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, -item.Cantidad);
+                var ajusteRevertir = await StockSucursalHelper.Ajustar(_context, producto, item.SucursalDestinoId ?? compra.SucursalId, -item.Cantidad);
                 if (!ajusteRevertir.Ok)
                     return (ServiceStatus.FailedValidation, null, $"Stock insuficiente para editar la compra: el producto {producto.Nombre} ya no tiene suficiente stock para revertir la cantidad original");
 
@@ -821,10 +880,12 @@ public class CompraRepository : ICompraRepository
             {
                 CompraId = compra.Id,
                 ProductoId = d.ProductoId,
+                Descripcion = d.Descripcion,
                 Cantidad = d.Cantidad,
                 CostoUnitario = d.CostoUnitario,
                 CentroCostoId = d.CentroCostoId,
-                CuentaContableId = d.CuentaContableId
+                CuentaContableId = d.CuentaContableId,
+                SucursalDestinoId = d.SucursalDestinoId
             }).ToList();
 
             var subtotalProductos = nuevoDetalle.Sum(d => d.Cantidad * d.CostoUnitario);
@@ -881,7 +942,7 @@ public class CompraRepository : ICompraRepository
                 var stockTotalAnterior = producto.Stock ?? 0;
                 producto.CostoUnitario = CosteoInventario.PromedioPonderado(stockTotalAnterior, producto.CostoUnitario ?? 0, item.Cantidad, item.CostoUnitario);
 
-                var ajusteNuevo = await StockSucursalHelper.Ajustar(_context, producto, compra.SucursalId, item.Cantidad);
+                var ajusteNuevo = await StockSucursalHelper.Ajustar(_context, producto, item.SucursalDestinoId ?? compra.SucursalId, item.Cantidad);
                 if (!ajusteNuevo.Ok)
                     return (ServiceStatus.FailedValidation, null, ajusteNuevo.Error);
 

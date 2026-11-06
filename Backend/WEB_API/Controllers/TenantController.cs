@@ -85,6 +85,21 @@ public class TenantController : ControllerBase
     public async Task<IActionResult> SetTenantActivo(int identificador, [FromBody] SetTenantActivoPayload payload) => Ok(await tenantService.SetTenantActivo(identificador, payload.Activo));
 
 
+    // Activa/desactiva una app de la suite ("arp", "arm") para la empresa; se refleja en el claim "apps" del proximo token.
+    [Authorize(Roles = "SuperAdmin")]
+    [HttpPut("superadmin/{identificador}/apps")]
+    public async Task<IActionResult> SetApp(int identificador, [FromBody] SetTenantAppPayload payload, [FromServices] Infrastructure.Repositories.TenantAppRepository tenantApps)
+    {
+        var (estado, mensaje) = await tenantApps.SetApp(identificador, payload.App, payload.Activo);
+        return estado switch
+        {
+            Domain.Models.ServiceStatus.Ok => Ok(mensaje),
+            Domain.Models.ServiceStatus.NotFound => NotFound(mensaje),
+            _ => BadRequest(mensaje)
+        };
+    }
+
+
     [Authorize(Roles = "SuperAdmin")]
     [HttpPost("superadmin/{identificador}/reasignar-modulos")]
     public async Task<IActionResult> ReasignarModulos(int identificador) => Ok(await tenantService.ReasignarModulos(identificador));

@@ -42,6 +42,7 @@ namespace Identity.Infrastructure
                     .AddScoped<IAsientoContableRepository, AsientoContableRepository>()
                     .AddScoped<ICierreAnualRepository, CierreAnualRepository>()
                     .AddScoped<TiendaRepository>()
+                    .AddScoped<TenantAppRepository>()
                     .AddScoped<SunatRepository>()
                     .AddScoped<IPedidoVentaRepository, PedidoVentaRepository>()
                     .AddScoped<ICuentasRepository, CuentasRepository>()
