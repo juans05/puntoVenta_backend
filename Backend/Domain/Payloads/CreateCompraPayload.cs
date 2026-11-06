@@ -50,4 +50,6 @@ public class CompraDetallePayload
     public int? CuentaContableId { get; set; }
     // Sede donde ingresa el stock de la linea; null = la sede de la compra.
     public int? SucursalDestinoId { get; set; }
+    // Afectacion IGV de la linea; null = la del documento.
+    public int? TipoIgvId { get; set; }
 }

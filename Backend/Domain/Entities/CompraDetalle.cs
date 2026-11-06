@@ -23,4 +23,6 @@ public class CompraDetalle : EntityBase
     // Sede donde ingresa el stock de esta linea. SucursalId (arriba) es el filtro de sede del
     // sistema y no sirve para esto: ocultaria la linea al ver la compra desde otra sede.
     public int? SucursalDestinoId { get; set; }
+    // Afectacion IGV de la linea; null = la del documento (Compra.TipoIgvId).
+    public int? TipoIgvId { get; set; }
 }

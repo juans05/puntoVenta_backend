@@ -679,6 +679,58 @@ public class CompraRepositoryTests
     }
 
     [Fact]
+    public async Task CrearCompra_ImpuestoPorLinea_GravadaYExoneradaEnLaMismaFactura()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        var exoneradoId = await SeedTipoIgvAsync(context, "20", aplicaPorcentajeImpuesto: false);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload>
+            {
+                new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 118m },                         // gravada (por defecto)
+                new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 50m, TipoIgvId = exoneradoId },  // exonerada
+            }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        Assert.Equal(168m, dto!.Total);
+        Assert.Equal(150m, dto.ValorGravada);
+        Assert.Equal(18m, dto.ValorIgv);
+        Assert.Equal(exoneradoId, dto.Detalle[1].TipoIgvId);
+    }
+
+    [Fact]
+    public async Task CrearCompra_SinCuentasPorDefecto_ElAsientoUsaLaHojaDelPcgeEnVezDelCodigoCorto()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+
+        var productoId = await SeedProductoAsync(context);
+        context.CuentaContable.AddRange(
+            new CuentaContable { Codigo = "60111000", Nombre = "Mercaderias", Tipo = TipoCuentaContable.Gasto, Nivel = 5, ClaseCuenta = "60" },
+            new CuentaContable { Codigo = "42111001", Nombre = "No emitidas MN", Tipo = TipoCuentaContable.Pasivo, Nivel = 5, ClaseCuenta = "42" },
+            new CuentaContable { Codigo = "42121001", Nombre = "Emitidas MN", Tipo = TipoCuentaContable.Pasivo, Nivel = 5, ClaseCuenta = "42" });
+        await context.SaveChangesAsync();
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, dto, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            Detalle = new List<CompraDetallePayload> { new() { ProductoId = productoId, Cantidad = 1, CostoUnitario = 118m } }
+        });
+
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+        var asiento = await context.AsientoContable.AsNoTracking().Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Factura" && a.OrigenId == dto!.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "60111000" && d.Debe == 100m);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "42121001" && d.Haber == 118m); // sugerida, no "No emitidas"
+    }
+
+    [Fact]
     public async Task CrearCompra_ProveedorNoExiste_LoCreaPorRucYAsociaLaCompra()
     {
         var (context, connection) = TestDbContextFactory.CreateContext();

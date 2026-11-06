@@ -70,14 +70,16 @@ public class CompraRepository : ICompraRepository
         return nuevoProveedor.Id;
     }
 
-    // Subtotal -> Descuento -> Otros cargos -> separacion Gravada/IGV segun el TipoIgv elegido para
-    // el documento (a diferencia de las ventas, en compras el IGV es por documento, no por linea).
+    // Subtotal -> Descuento -> Otros cargos -> separacion Gravada/IGV linea por linea, cada una con
+    // su TipoIgv (null = el del documento). Descuento y otros cargos se prorratean por el monto de
+    // cada linea; la ultima absorbe el redondeo para que gravada + IGV cuadre con el total.
     // preciosSinIgv: los costos son valor de venta (factura de una orden de compra) y el IGV se suma
     // encima; si no, los costos ya traen IGV y se separa (compra directa).
     private async Task<(decimal montoDescuento, decimal otrosCargos, decimal gravada, decimal igv, decimal total)> CalcularTotalesCompra(
-        decimal subtotalProductos, decimal? porcentajeDescuento, decimal? montoDescuentoFijo, decimal? otrosCargosPayload, int? tipoIgvId,
+        List<CompraDetallePayload> lineas, decimal? porcentajeDescuento, decimal? montoDescuentoFijo, decimal? otrosCargosPayload, int? tipoIgvId,
         bool preciosSinIgv = false)
     {
+        var subtotalProductos = lineas.Sum(d => d.Cantidad * d.CostoUnitario);
         var montoDescuento = porcentajeDescuento.HasValue && porcentajeDescuento.Value > 0
             ? Math.Round(subtotalProductos * porcentajeDescuento.Value / 100m, 2)
             : montoDescuentoFijo ?? 0m;
@@ -86,10 +88,11 @@ public class CompraRepository : ICompraRepository
 
         var baseConDescuento = subtotalProductos - montoDescuento + otrosCargos;
 
-        var tipoIgv = tipoIgvId.HasValue
-            ? await _context.TipoIgv.AsNoTracking().FirstOrDefaultAsync(t => t.Id == tipoIgvId)
-            : null;
-        var aplicaImpuesto = tipoIgv?.AplicaPorcentajeImpuesto ?? true;
+        var porLinea = subtotalProductos > 0
+            ? lineas.Select(d => (monto: d.Cantidad * d.CostoUnitario, tipoIgvId: d.TipoIgvId ?? tipoIgvId)).ToList()
+            : new() { (monto: baseConDescuento, tipoIgvId) };
+        var ids = porLinea.Where(l => l.tipoIgvId.HasValue).Select(l => l.tipoIgvId!.Value).Distinct().ToList();
+        var tipos = await _context.TipoIgv.AsNoTracking().Where(t => ids.Contains(t.Id)).ToDictionaryAsync(t => t.Id);
 
         var config = await _context.ConfiguracionFiscal
             .IgnoreQueryFilters()
@@ -98,16 +101,29 @@ public class CompraRepository : ICompraRepository
             .FirstOrDefaultAsync();
         var calculadora = _taxCalculatorFactory.GetCalculator(PaisIdClaim);
 
-        var tasa = tipoIgv?.Porcentaje ?? config?.PorcentajeImpuesto;
-        if (preciosSinIgv)
+        decimal gravada = 0m, igv = 0m, asignado = 0m;
+        for (var i = 0; i < porLinea.Count; i++)
         {
-            var igvEncima = aplicaImpuesto ? Math.Round(baseConDescuento * (tasa ?? 18m) / 100m, 2) : 0m;
-            return (montoDescuento, otrosCargos, baseConDescuento, igvEncima, baseConDescuento + igvEncima);
-        }
-        var gravada = aplicaImpuesto ? calculadora.CalcularSubtotal(baseConDescuento, PaisIdClaim, tasa) : baseConDescuento;
-        var igv = aplicaImpuesto ? calculadora.CalcularImpuesto(baseConDescuento, PaisIdClaim, tasa) : 0m;
+            var (monto, tid) = porLinea[i];
+            var baseLinea = i == porLinea.Count - 1 ? baseConDescuento - asignado
+                : subtotalProductos > 0 ? Math.Round(monto * baseConDescuento / subtotalProductos, 2) : monto;
+            asignado += baseLinea;
 
-        return (montoDescuento, otrosCargos, gravada, igv, baseConDescuento);
+            var tipoIgv = tid.HasValue ? tipos.GetValueOrDefault(tid.Value) : null;
+            var aplicaImpuesto = tipoIgv?.AplicaPorcentajeImpuesto ?? true;
+            var tasa = tipoIgv?.Porcentaje ?? config?.PorcentajeImpuesto;
+            if (preciosSinIgv)
+            {
+                gravada += baseLinea;
+                igv += aplicaImpuesto ? Math.Round(baseLinea * (tasa ?? 18m) / 100m, 2) : 0m;
+                continue;
+            }
+            var gravadaLinea = aplicaImpuesto ? calculadora.CalcularSubtotal(baseLinea, PaisIdClaim, tasa) : baseLinea;
+            gravada += gravadaLinea;
+            igv += baseLinea - gravadaLinea;
+        }
+
+        return (montoDescuento, otrosCargos, gravada, igv, preciosSinIgv ? gravada + igv : baseConDescuento);
     }
 
     // Reparte el debe del asiento entre las cuentas contables que se hayan elegido linea por linea
@@ -223,7 +239,8 @@ public class CompraRepository : ICompraRepository
                 CostoUnitario = d.CostoUnitario,
                 CentroCostoId = d.CentroCostoId ?? heredado.CentroCostoId,
                 CuentaContableId = d.CuentaContableId ?? heredado.CuentaContableId,
-                SucursalDestinoId = d.SucursalDestinoId
+                SucursalDestinoId = d.SucursalDestinoId,
+                TipoIgvId = d.TipoIgvId
             };
         }).ToList();
     }
@@ -261,7 +278,7 @@ public class CompraRepository : ICompraRepository
         lineasFactura.AddRange(await LineasDebePorCuenta(detalle, subtotalProductos, gravada,
             d => d.CuentaContableId ?? ProductoDe(d)?.CuentaCostoId,
             d => EsServicio(d) ? "63" : "60"));
-        if (igv > 0) lineasFactura.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(new[] { compra.TipoIgvId }), igv, 0));
+        if (igv > 0) lineasFactura.Add(new LineaAsientoContable(await _context.CodigoCuentaIgvAsync(detalle.Select(d => d.TipoIgvId ?? compra.TipoIgvId)), igv, 0));
         lineasFactura.Add(new LineaAsientoContable(proveedor?.CuentaPorPagar ?? "42", 0, total) { CuentaAsociada = proveedor?.Ruc });
 
         var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
@@ -296,7 +313,7 @@ public class CompraRepository : ICompraRepository
 
         var subtotalProductos = payload.Detalle.Sum(d => d.Cantidad * d.CostoUnitario);
         var (_, _, gravada, igv, total) = await CalcularTotalesCompra(
-            subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId,
+            payload.Detalle, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId,
             preciosSinIgv: deOrden);
 
         // Sin crear el proveedor (la compra real lo crea por RUC si no existe): solo se busca.
@@ -371,7 +388,7 @@ public class CompraRepository : ICompraRepository
             }
 
             var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
-                subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId,
+                payload.Detalle, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId,
                 preciosSinIgv: deOrden);
 
             var compra = new Compra
@@ -885,7 +902,8 @@ public class CompraRepository : ICompraRepository
                 CostoUnitario = d.CostoUnitario,
                 CentroCostoId = d.CentroCostoId,
                 CuentaContableId = d.CuentaContableId,
-                SucursalDestinoId = d.SucursalDestinoId
+                SucursalDestinoId = d.SucursalDestinoId,
+                TipoIgvId = d.TipoIgvId
             }).ToList();
 
             var subtotalProductos = nuevoDetalle.Sum(d => d.Cantidad * d.CostoUnitario);
@@ -901,7 +919,7 @@ public class CompraRepository : ICompraRepository
             }
 
             var (montoDescuento, otrosCargos, gravada, igv, total) = await CalcularTotalesCompra(
-                subtotalProductos, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
+                payload.Detalle, payload.PorcentajeDescuento, payload.MontoDescuento, payload.OtrosCargos, payload.TipoIgvId);
 
             compra.SucursalId = payload.SucursalId;
             compra.ProveedorId = proveedorId;
