@@ -59,4 +59,5 @@ public class CompraDetalleDto
     public int? CuentaContableId { get; set; }
     public string? CuentaContable { get; set; }
     public int? SucursalDestinoId { get; set; }
+    public int? TipoIgvId { get; set; }
 }

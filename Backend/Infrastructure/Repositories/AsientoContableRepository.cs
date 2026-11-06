@@ -117,6 +117,14 @@ public class AsientoContableRepository : IAsientoContableRepository
     public static bool EsGastoConDestino(string codigo)
         => codigo.Length >= 2 && int.TryParse(codigo[..2], out var clase) && clase is >= 62 and <= 68;
 
+    // Hoja del PCGE para los codigos cortos del motor cuando la empresa no configuro cuentas por
+    // defecto (la primera hoja de la rama no sirve en 42/12: es "No emitidas").
+    private static readonly Dictionary<string, string> HojaSugerida = new()
+    {
+        { "60", "60111000" }, { "20", "20111000" }, { "61", "61111000" }, { "40111", "40111000" },
+        { "42", "42121001" }, { "12", "12121001" }, { "70", "70121000" },
+    };
+
     public async Task<(ServiceStatus, AsientoContableDto?, string)> Generar(string origenTipo, int origenId, string glosa, List<LineaAsientoContable> lineas,
         bool aplicarDestino = true, DateTime? fechaDocumento = null, DateTime? fechaVencimiento = null, DateTime? fecha = null)
     {
@@ -136,6 +144,23 @@ public class AsientoContableRepository : IAsientoContableRepository
             .Select(c => new { c.Codigo, Hoja = c.CuentaContable!.Codigo }).ToDictionaryAsync(c => c.Codigo, c => c.Hoja);
         foreach (var l in lineas)
             if (porDefecto.TryGetValue(l.CuentaCodigo, out var hoja)) l.CuentaCodigo = hoja;
+
+        // Sin cuenta por defecto configurada, el codigo corto (2-6 digitos) no se puede usar en un
+        // asiento: va a la hoja sugerida del PCGE o, si no existe, a la primera hoja (7-8 digitos)
+        // de esa rama del plan de cuentas.
+        var ramas = lineas.Select(l => l.CuentaCodigo).Where(c => c.Length is >= 2 and < 7).Select(c => c[..2]).Distinct().ToList();
+        if (ramas.Count > 0)
+        {
+            var hojas = await _context.CuentaContable.AsNoTracking()
+                .Where(c => c.Codigo.Length >= 7 && ramas.Contains(c.Codigo.Substring(0, 2)))
+                .OrderBy(c => c.Codigo).Select(c => c.Codigo).ToListAsync();
+            foreach (var l in lineas.Where(l => l.CuentaCodigo.Length is >= 2 and < 7))
+            {
+                var sugerida = HojaSugerida.GetValueOrDefault(l.CuentaCodigo);
+                l.CuentaCodigo = (sugerida != null && hojas.Contains(sugerida) ? sugerida : null)
+                    ?? hojas.FirstOrDefault(h => h.StartsWith(l.CuentaCodigo)) ?? l.CuentaCodigo;
+            }
+        }
 
         var codigos = lineas.Select(l => l.CuentaCodigo).Distinct().ToList();
         var cuentas = await _context.CuentaContable.AsNoTracking()

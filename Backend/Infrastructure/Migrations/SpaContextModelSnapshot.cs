@@ -943,6 +943,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<int?>("TipoIgvId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UsuarioCreacion")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");

@@ -33,8 +33,11 @@ public static class StockSucursalHelper
         // IgnoreQueryFilters: la sede real puede no coincidir con la sede ambiental de la request
         // (ej. una Transferencia toca dos sedes a la vez), asi que el query filter por sucursal de
         // ProductoSucursalStock (ver SpaContext) se saltaria la fila que en verdad necesitamos.
-        var fila = await context.ProductoSucursalStock.IgnoreQueryFilters().AsTracking()
-            .FirstOrDefaultAsync(s => s.ProductoId == producto.Id && s.SucursalId == sucursalReal);
+        // Local primero: el mismo producto en dos lineas de un documento crea la fila en la primera
+        // y aun no esta guardada -- la consulta a la BD no la veria y se duplicaria.
+        var fila = context.ProductoSucursalStock.Local.FirstOrDefault(s => s.ProductoId == producto.Id && s.SucursalId == sucursalReal)
+            ?? await context.ProductoSucursalStock.IgnoreQueryFilters().AsTracking()
+                .FirstOrDefaultAsync(s => s.ProductoId == producto.Id && s.SucursalId == sucursalReal);
 
         if (fila == null)
         {
@@ -42,7 +45,7 @@ public static class StockSucursalHelper
             // antes de este rediseño, o se le puso Stock a mano como en los tests), su
             // Producto.Stock total se asume integro de la primera sede que lo toca -- asi no
             // hace falta una migracion de datos aparte para no perder el numero.
-            var yaTracked = await context.ProductoSucursalStock.IgnoreQueryFilters()
+            var yaTracked = context.ProductoSucursalStock.Local.Any(s => s.ProductoId == producto.Id) || await context.ProductoSucursalStock.IgnoreQueryFilters()
                 .AnyAsync(s => s.ProductoId == producto.Id);
             fila = new ProductoSucursalStock { ProductoId = producto.Id, SucursalId = sucursalReal.Value, Stock = yaTracked ? 0 : producto.Stock ?? 0 };
             context.ProductoSucursalStock.Add(fila);
