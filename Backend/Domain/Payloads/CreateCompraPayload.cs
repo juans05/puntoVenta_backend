@@ -48,4 +48,6 @@ public class CompraDetallePayload
     public decimal CostoUnitario { get; set; }
     public int? CentroCostoId { get; set; }
     public int? CuentaContableId { get; set; }
+    // Sede donde ingresa el stock de la linea; null = la sede de la compra.
+    public int? SucursalDestinoId { get; set; }
 }

@@ -20,4 +20,7 @@ public class CompraDetalle : EntityBase
     public CentroCosto? CentroCosto { get; set; }
     public int? CuentaContableId { get; set; }
     public CuentaContable? CuentaContable { get; set; }
+    // Sede donde ingresa el stock de esta linea. SucursalId (arriba) es el filtro de sede del
+    // sistema y no sirve para esto: ocultaria la linea al ver la compra desde otra sede.
+    public int? SucursalDestinoId { get; set; }
 }

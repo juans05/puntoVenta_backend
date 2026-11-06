@@ -30,6 +30,14 @@ public class CompraService : ICompraService
         return MessageResult<object>.Of(message, result);
     }
 
+    public async Task<MessageResult<object>> SimularAsiento(CreateCompraPayload payload, bool deOrden)
+    {
+        var (estado, resp, message) = await _compraRepository.SimularAsiento(payload, deOrden);
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(HttpStatusCode.BadRequest, message, null);
+        return MessageResult<object>.Of(message, resp);
+    }
+
     public async Task<MessageResult<object>> AnularCompra(int id)
     {
         var (estado, result, message) = await _compraRepository.AnularCompra(id);

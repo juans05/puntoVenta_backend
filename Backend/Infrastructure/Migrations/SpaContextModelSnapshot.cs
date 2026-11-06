@@ -933,6 +933,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ProductoId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("SucursalDestinoId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("SucursalId")
                         .HasColumnType("integer");
 

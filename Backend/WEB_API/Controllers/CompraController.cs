@@ -19,6 +19,11 @@ public class CompraController : ControllerBase
     [HttpPost("crear")]
     public async Task<IActionResult> CrearCompra([FromBody] CreateCompraPayload payload) => Ok(await _compraService.CrearCompra(payload));
 
+    // Vista previa del asiento con las cuentas configuradas; deOrden=true para facturar una orden.
+    [HttpPost("simular-asiento")]
+    public async Task<IActionResult> SimularAsiento([FromBody] CreateCompraPayload payload, [FromQuery] bool deOrden = false)
+        => Ok(await _compraService.SimularAsiento(payload, deOrden));
+
     [HttpPut("anular")]
     public async Task<IActionResult> AnularCompra([FromQuery] int id) => Ok(await _compraService.AnularCompra(id));
 

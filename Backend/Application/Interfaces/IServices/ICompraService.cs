@@ -8,6 +8,8 @@ public interface ICompraService
 {
     Task<MessageResult<object>> CrearCompra(CreateCompraPayload payload);
 
+    Task<MessageResult<object>> SimularAsiento(CreateCompraPayload payload, bool deOrden);
+
     Task<MessageResult<object>> AnularCompra(int id);
 
     Task<MessageResult<object>> ListarCompras(CompraQueryParams payload);
