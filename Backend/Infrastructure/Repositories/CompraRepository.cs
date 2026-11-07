@@ -1031,7 +1031,11 @@ public class CompraRepository : ICompraRepository
             decimal.TryParse(linea.Element(cbc + "InvoicedQuantity")?.Value,
                 System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var cantidad);
 
-            decimal.TryParse(linea.Element(cac + "Price")?.Element(cbc + "PriceAmount")?.Value,
+            // La compra directa trabaja con precios CON IGV: en UBL ese es el "precio de venta unitario"
+            // (PricingReference, PriceTypeCode 01). cac:Price es el valor unitario SIN IGV: solo de respaldo.
+            var precioConIgv = linea.Element(cac + "PricingReference")?.Elements(cac + "AlternativeConditionPrice")
+                .FirstOrDefault(p => p.Element(cbc + "PriceTypeCode")?.Value == "01")?.Element(cbc + "PriceAmount")?.Value;
+            decimal.TryParse(precioConIgv ?? linea.Element(cac + "Price")?.Element(cbc + "PriceAmount")?.Value,
                 System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var precio);
 
             lineas.Add(new CompraXmlLineaDto { Descripcion = descripcion, Cantidad = cantidad, PrecioUnitario = precio });

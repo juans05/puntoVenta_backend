@@ -50,6 +50,23 @@ public class SunatPropuestaTests
         Assert.Equal(("05/05/2026", "04/06/2026"), (f.Fecha, f.FechaVencimiento));
     }
 
+    // La descarga del XML de un comprobante recibido puede llegar como zip, XML directo o JSON con base64.
+    [Fact]
+    public void ExtraerXml_AceptaZipXmlYJsonBase64()
+    {
+        var xml = Encoding.UTF8.GetBytes("<?xml version=\"1.0\"?><Invoice/>");
+        var zip = new MemoryStream();
+        using (var archivo = new ZipArchive(zip, ZipArchiveMode.Create, true))
+        using (var s = archivo.CreateEntry("20100066603-01-F001-1.xml").Open())
+            s.Write(xml);
+        var json = Encoding.UTF8.GetBytes($"{{\"nomArchivo\":\"x.zip\",\"valArchivo\":\"{Convert.ToBase64String(zip.ToArray())}\"}}");
+
+        Assert.Equal(xml, SunatRepository.ExtraerXml(zip.ToArray()));
+        Assert.Equal(xml, SunatRepository.ExtraerXml(xml));
+        Assert.Equal(xml, SunatRepository.ExtraerXml(json));
+        Assert.Null(SunatRepository.ExtraerXml(Encoding.UTF8.GetBytes("{\"cod\":\"500\",\"msg\":\"error\"}")));
+    }
+
     [Fact]
     public async Task RegistrarVentas_RegistraLaVentaYaAceptadaConSuAsiento_YNoDuplica()
     {

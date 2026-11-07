@@ -9,8 +9,13 @@ namespace WEB_API.Controllers;
 public class SunatController : ControllerBase
 {
     private readonly SunatRepository _repo;
+    private readonly Application.Interfaces.IServices.ICompraService _compras;
 
-    public SunatController(SunatRepository repo) => _repo = repo;
+    public SunatController(SunatRepository repo, Application.Interfaces.IServices.ICompraService compras)
+    {
+        _repo = repo;
+        _compras = compras;
+    }
 
     [HttpGet("credenciales")]
     public async Task<IActionResult> Obtener()
@@ -47,6 +52,16 @@ public class SunatController : ControllerBase
     {
         var (data, error) = await _repo.PropuestaCompras(periodo, numTicket);
         return error is null ? Ok(new { data }) : BadRequest(new { message = error });
+    }
+
+    // Descarga de SUNAT el XML de una factura recibida y lo lee igual que "Subir XML" (proveedor + lineas).
+    [HttpGet("compras/xml")]
+    public async Task<IActionResult> XmlCompra([FromQuery] string rucEmisor, [FromQuery] string tipo, [FromQuery] string serie, [FromQuery] string numero)
+    {
+        var (xml, error) = await _repo.DescargarXmlRecibido(rucEmisor, tipo, serie, numero);
+        if (xml is null) return BadRequest(new { message = error });
+        using var stream = new MemoryStream(xml);
+        return Ok(await _compras.ImportarXmlCompra(stream));
     }
 
     [HttpPost("probar-conexion")]

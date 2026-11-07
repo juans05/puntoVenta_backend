@@ -66,6 +66,25 @@ public class CompraRepositoryTests
         return motivo.Id;
     }
 
+    // UBL trae el valor unitario SIN IGV en cac:Price y el precio CON IGV en PricingReference (tipo 01):
+    // la compra directa usa precios con IGV, asi que se toma el de PricingReference.
+    [Fact]
+    public async Task ImportarXmlCompra_ConPricingReference_UsaElPrecioConIgv()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+        var xml = XmlFacturaValida("20123456789", "Distribuidora Acme SAC").Replace(
+            "<cac:Price><cbc:PriceAmount>50.00</cbc:PriceAmount></cac:Price>",
+            "<cac:PricingReference><cac:AlternativeConditionPrice><cbc:PriceAmount>59.00</cbc:PriceAmount><cbc:PriceTypeCode>01</cbc:PriceTypeCode></cac:AlternativeConditionPrice></cac:PricingReference>" +
+            "<cac:Price><cbc:PriceAmount>50.00</cbc:PriceAmount></cac:Price>");
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+
+        var (estado, preview, _) = await repo.ImportarXmlCompra(ComoStream(xml));
+
+        Assert.Equal(ServiceStatus.Ok, estado);
+        Assert.Equal(59.00m, preview!.Lineas[0].PrecioUnitario);
+    }
+
     [Fact]
     public async Task ImportarXmlCompra_ProveedorNuevo_LoCreaYDevuelveLasLineas()
     {

@@ -26,6 +26,7 @@ public class ImportarVentasSunatPayload
 public class SunatRepository
 {
     private const string ScopeSire = "https://api-sire.sunat.gob.pe";
+    private const string ScopeCpe = "https://api-cpe.sunat.gob.pe";
 
     private readonly SpaContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -87,7 +88,11 @@ public class SunatRepository
     // Token de la API SIRE (dura ~1 hora). Error = mensaje listo para mostrar.
     // detalleCredenciales: solo desde ProbarConexion (exclusivo del dueño) se muestra con que usuario SOL se intento;
     // "Traer de SUNAT" lo usan tambien los contadores y no deben ver el usuario SOL.
-    public async Task<(string? Token, string? Error)> ObtenerTokenSire(bool detalleCredenciales = false)
+    public Task<(string? Token, string? Error)> ObtenerTokenSire(bool detalleCredenciales = false)
+        => ObtenerToken(ScopeSire, detalleCredenciales);
+
+    // Mismo token OAuth (Clave SOL + credenciales de API), con el permiso del servicio que se va a usar.
+    private async Task<(string? Token, string? Error)> ObtenerToken(string scope, bool detalleCredenciales = false)
     {
         var c = await Configuracion();
         if (c is null || string.IsNullOrWhiteSpace(c.Ruc))
@@ -108,7 +113,7 @@ public class SunatRepository
                 new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["grant_type"] = "password",
-                    ["scope"] = ScopeSire,
+                    ["scope"] = scope,
                     ["client_id"] = c.SunatClientId,
                     ["client_secret"] = c.SunatClientSecret,
                     ["username"] = ruc + usuarioSol,
@@ -180,6 +185,94 @@ public class SunatRepository
                $"Motivo: {(string.IsNullOrWhiteSpace(motivo) ? "no indicado" : motivo)}. Respuesta: {await Recorte(r)}. " +
                $"Datos del token: {DatosDelToken(token)}";
     }
+
+    // ---------------------------------------------------------------- XML de un comprobante recibido
+    // Mismo servicio que usa el portal SOL en "Consulta de comprobantes de pago" > Recibido > Descargar XML:
+    // GET api-cpe/.../comprobantes/{rucEmisor}-{tipo}-{serie}-{numero}-2/02 (2 = recibido, 02 = XML).
+    // Devuelve el XML UBL firmado (con sus lineas), listo para CompraRepository.ImportarXmlCompra.
+    public async Task<(byte[]? Xml, string? Error)> DescargarXmlRecibido(string rucEmisor, string tipo, string serie, string numero)
+    {
+        // Todo viaja en la URL hacia SUNAT: solo formatos validos de RUC, tipo, serie y numero.
+        numero = (numero ?? "").Trim().TrimStart('0');
+        serie = (serie ?? "").Trim().ToUpperInvariant();
+        if (!System.Text.RegularExpressions.Regex.IsMatch(rucEmisor ?? "", @"^\d{11}$")
+            || !System.Text.RegularExpressions.Regex.IsMatch(tipo ?? "", @"^\d{2}$")
+            || !System.Text.RegularExpressions.Regex.IsMatch(serie, @"^[A-Z0-9]{4}$")
+            || !System.Text.RegularExpressions.Regex.IsMatch(numero, @"^\d{1,8}$"))
+            return (null, "RUC, tipo, serie o número no válidos");
+
+        var (token, errorToken) = await ObtenerToken(ScopeCpe);
+        if (token is null) return (null, errorToken);
+
+        var cliente = _httpClientFactory.CreateClient();
+        cliente.Timeout = TimeSpan.FromSeconds(60);
+        cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        var url = $"https://api-cpe.sunat.gob.pe/v1/contribuyente/consultacpe/comprobantes/{rucEmisor}-{tipo}-{serie}-{numero}-2/02";
+        try
+        {
+            // SUNAT a veces responde 500 ("reintentar en 5 minutos") y al rato funciona: unos reintentos cortos.
+            HttpResponseMessage? r = null;
+            for (var intento = 0; intento < 3; intento++)
+            {
+                if (intento > 0) await Task.Delay(TimeSpan.FromSeconds(4));
+                r = await cliente.GetAsync(url);
+                if ((int)r.StatusCode < 500) break;
+            }
+            if (r!.StatusCode == System.Net.HttpStatusCode.Unauthorized || r.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                return (null, $"SUNAT no autorizó la descarga del XML (HTTP {(int)r.StatusCode}). Revisa que las credenciales de API tengan acceso a la consulta de comprobantes.");
+            if (r.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || r.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return (null, $"SUNAT no tiene {serie}-{numero} del RUC {rucEmisor} como comprobante recibido por tu RUC");
+            if (!r.IsSuccessStatusCode)
+                return (null, $"SUNAT no entregó el XML (HTTP {(int)r.StatusCode}), intenta de nuevo en unos minutos");
+
+            var xml = ExtraerXml(await r.Content.ReadAsByteArrayAsync());
+            return xml is null ? (null, "La respuesta de SUNAT no trae un XML reconocible") : (xml, null);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return (null, "No se pudo conectar con SUNAT, intenta de nuevo en unos minutos");
+        }
+    }
+
+    // La respuesta puede ser el zip, el XML directo o un JSON con el archivo en base64 (cualquier campo
+    // de texto que decodifique a zip/XML): se acepta cualquiera de las tres.
+    public static byte[]? ExtraerXml(byte[] cuerpo)
+    {
+        if (cuerpo.Length > 1 && cuerpo[0] == 'P' && cuerpo[1] == 'K')
+        {
+            using var zip = new System.IO.Compression.ZipArchive(new MemoryStream(cuerpo));
+            var entrada = zip.Entries.FirstOrDefault(e => e.Name.EndsWith(".xml", StringComparison.OrdinalIgnoreCase));
+            if (entrada is null) return null;
+            using var ms = new MemoryStream();
+            using (var s = entrada.Open()) s.CopyTo(ms);
+            return ms.ToArray();
+        }
+        var texto = System.Text.Encoding.UTF8.GetString(cuerpo).TrimStart('﻿', ' ', '\r', '\n', '\t');
+        if (texto.StartsWith("<")) return cuerpo;
+        if (!texto.StartsWith("{") && !texto.StartsWith("[")) return null;
+
+        System.Text.Json.Nodes.JsonNode? json;
+        try { json = System.Text.Json.Nodes.JsonNode.Parse(texto); }
+        catch (System.Text.Json.JsonException) { return null; }
+        foreach (var valor in Textos(json))
+        {
+            if (valor.Length < 40) continue;
+            byte[] bytes;
+            try { bytes = Convert.FromBase64String(valor); }
+            catch (FormatException) { continue; }
+            var xml = ExtraerXml(bytes);
+            if (xml is not null) return xml;
+        }
+        return null;
+    }
+
+    private static IEnumerable<string> Textos(System.Text.Json.Nodes.JsonNode? nodo) => nodo switch
+    {
+        System.Text.Json.Nodes.JsonObject o => o.SelectMany(p => Textos(p.Value)),
+        System.Text.Json.Nodes.JsonArray a => a.SelectMany(Textos),
+        System.Text.Json.Nodes.JsonValue v when v.TryGetValue<string>(out var t) => new[] { t },
+        _ => Array.Empty<string>()
+    };
 
     // ---------------------------------------------------------------- Ventas (RVIE)
     // Manual "API del Registro de Ventas e Informacion Electronica" v30: 5.18 descargar propuesta
