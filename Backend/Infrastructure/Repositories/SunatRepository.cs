@@ -224,7 +224,8 @@ public class SunatRepository
                 if ((int)r.StatusCode < 500) break;
             }
             if (r!.StatusCode == System.Net.HttpStatusCode.Unauthorized || r.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                return (null, $"SUNAT no autorizó la descarga del XML (HTTP {(int)r.StatusCode}). Revisa que las credenciales de API tengan acceso a la consulta de comprobantes.");
+                return (null, $"SUNAT no autorizó la descarga del XML (HTTP {(int)r.StatusCode}): {await Recorte(r)}. " +
+                              $"Motivo SUNAT: {r.Headers.WwwAuthenticate}. Revisa que las credenciales de API tengan acceso a la consulta de comprobantes.");
             if (r.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || r.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return (null, $"SUNAT no tiene {serie}-{numero} del RUC {rucEmisor} como comprobante recibido por tu RUC");
             if (!r.IsSuccessStatusCode)
