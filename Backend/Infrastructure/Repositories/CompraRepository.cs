@@ -480,6 +480,8 @@ public class CompraRepository : ICompraRepository
                 return (ServiceStatus.FailedValidation, null, errorAsiento);
             }
 
+            if (proveedorId is int provId) await AprenderEquivalencias(provId, payload.Detalle);
+
             await _context.Database.CommitTransactionAsync();
 
             var (_, dto, _) = await ObtenerCompra(compra.Id);
@@ -1038,8 +1040,18 @@ public class CompraRepository : ICompraRepository
             decimal.TryParse(precioConIgv ?? linea.Element(cac + "Price")?.Element(cbc + "PriceAmount")?.Value,
                 System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var precio);
 
-            lineas.Add(new CompraXmlLineaDto { Descripcion = descripcion, Cantidad = cantidad, PrecioUnitario = precio });
+            var codigo = linea.Element(cac + "Item")?.Element(cac + "SellersItemIdentification")?.Element(cbc + "ID")?.Value?.Trim();
+            var afectacion = linea.Element(cac + "TaxTotal")?.Elements(cac + "TaxSubtotal")
+                .Select(t => t.Element(cac + "TaxCategory")?.Element(cbc + "TaxExemptionReasonCode")?.Value?.Trim())
+                .FirstOrDefault(v => !string.IsNullOrEmpty(v));
+
+            lineas.Add(new CompraXmlLineaDto
+            {
+                Descripcion = descripcion, Cantidad = cantidad, PrecioUnitario = precio,
+                Codigo = string.IsNullOrEmpty(codigo) ? null : codigo, AfectacionIgv = afectacion
+            });
         }
+        var moneda = root.Element(cbc + "DocumentCurrencyCode")?.Value?.Trim();
 
         if (string.IsNullOrWhiteSpace(ruc) && lineas.Count == 0)
             return (ServiceStatus.FailedValidation, null, "No se pudo leer el XML: no tiene la estructura de una factura electrónica UBL de SUNAT");
@@ -1066,6 +1078,18 @@ public class CompraRepository : ICompraRepository
             }
         }
 
+        if (proveedorId is int provId)
+        {
+            var claves = lineas.Select(l => ClaveProveedor(l.Codigo, l.Descripcion)).ToList();
+            var conocidas = await _context.ProductoProveedor.AsNoTracking()
+                .Where(e => e.ProveedorId == provId && claves.Contains(e.Clave) && e.Producto!.Estado)
+                .Select(e => new { e.Clave, e.ProductoId, e.Producto!.Nombre })
+                .ToDictionaryAsync(e => e.Clave);
+            for (var i = 0; i < lineas.Count; i++)
+                if (conocidas.TryGetValue(claves[i], out var eq))
+                    (lineas[i].ProductoId, lineas[i].Producto) = (eq.ProductoId, eq.Nombre);
+        }
+
         return (ServiceStatus.Ok, new CompraXmlPreviewDto
         {
             ProveedorId = proveedorId,
@@ -1074,8 +1098,94 @@ public class CompraRepository : ICompraRepository
             NumeroDocumento = numeroDocumento,
             FechaEmision = fechaEmision,
             Total = total,
+            Moneda = string.IsNullOrEmpty(moneda) ? null : moneda,
             Lineas = lineas
         }, "XML leído correctamente");
+    }
+
+    // Clave de la equivalencia: el codigo del proveedor si lo trae (estable), si no su descripcion
+    // normalizada (mayusculas, espacios simples).
+    public static string ClaveProveedor(string? codigo, string? texto)
+    {
+        if (!string.IsNullOrWhiteSpace(codigo)) return "C:" + codigo.Trim().ToUpperInvariant();
+        var t = System.Text.RegularExpressions.Regex.Replace((texto ?? "").Trim().ToUpperInvariant(), @"\s+", " ");
+        return "D:" + (t.Length > 300 ? t[..300] : t);
+    }
+
+    // Guarda (o corrige) "como lo factura el proveedor -> producto" de las lineas que vinieron de un XML.
+    private async Task AprenderEquivalencias(int proveedorId, IEnumerable<CompraDetallePayload> lineas)
+    {
+        var nuevas = lineas
+            .Where(l => l.ProductoId.HasValue && (!string.IsNullOrWhiteSpace(l.CodigoProveedor) || !string.IsNullOrWhiteSpace(l.TextoProveedor)))
+            .GroupBy(l => ClaveProveedor(l.CodigoProveedor, l.TextoProveedor))
+            .ToDictionary(g => g.Key, g => g.Last().ProductoId!.Value);
+        if (nuevas.Count == 0) return;
+
+        var claves = nuevas.Keys.ToList();
+        var existentes = await _context.ProductoProveedor.AsTracking()
+            .Where(e => e.ProveedorId == proveedorId && claves.Contains(e.Clave)).ToDictionaryAsync(e => e.Clave);
+        foreach (var (clave, productoId) in nuevas)
+        {
+            if (existentes.TryGetValue(clave, out var e)) e.ProductoId = productoId;
+            else await _context.ProductoProveedor.AddAsync(new ProductoProveedor { ProveedorId = proveedorId, Clave = clave, ProductoId = productoId });
+        }
+        await _context.SaveChangesAsync();
+    }
+
+    // Factura bajada de SUNAT: si cada linea ya tiene su producto (equivalencia aprendida) y todo cuadra,
+    // se registra sola; si no, se devuelve la lectura del XML con el motivo, para revisarla en el formulario.
+    public async Task<(ServiceStatus, ResultadoXmlSunatDto?, string)> RegistrarXmlSunat(Stream xmlStream, DateTime? fechaVencimiento)
+    {
+        var (estado, preview, mensaje) = await ImportarXmlCompra(xmlStream);
+        if (estado != ServiceStatus.Ok || preview == null) return (estado, null, mensaje);
+
+        ResultadoXmlSunatDto Revisar(string motivo) => new() { Registrada = false, Motivo = motivo, Preview = preview };
+
+        var sinProducto = preview.Lineas.Count(l => l.ProductoId == null);
+        if (preview.Lineas.Count == 0) return (ServiceStatus.Ok, Revisar("El XML no trae líneas"), "");
+        if (sinProducto > 0)
+            return (ServiceStatus.Ok, Revisar($"{sinProducto} línea(s) sin producto asociado: elígelo una vez y la próxima se registra sola"), "");
+        if (preview.ProveedorId == null) return (ServiceStatus.Ok, Revisar("Sin proveedor"), "");
+        if (preview.Lineas.Any(l => l.Cantidad != Math.Floor(l.Cantidad) || l.Cantidad <= 0))
+            return (ServiceStatus.Ok, Revisar("Tiene cantidades con decimales"), "");
+        if (!string.IsNullOrEmpty(preview.Moneda) && preview.Moneda != "PEN")
+            return (ServiceStatus.Ok, Revisar($"Está en {preview.Moneda}: falta el tipo de cambio"), "");
+
+        // Afectacion IGV por linea (tabla 07 de SUNAT); sin codigo = la del documento (gravado).
+        var codigos = preview.Lineas.Select(l => l.AfectacionIgv).Where(c => !string.IsNullOrEmpty(c)).Distinct().ToList();
+        var tipos = await _context.TipoIgv.AsNoTracking().Where(t => codigos.Contains(t.Codigo)).ToDictionaryAsync(t => t.Codigo, t => t.Id);
+        if (codigos.FirstOrDefault(c => !tipos.ContainsKey(c!)) is { } desconocido)
+            return (ServiceStatus.Ok, Revisar($"Afectación de IGV {desconocido} no configurada"), "");
+
+        var partes = (preview.NumeroDocumento ?? "").Split('-', 2);
+        var payload = new CreateCompraPayload
+        {
+            ProveedorId = preview.ProveedorId,
+            Serie = partes.Length > 1 ? partes[0] : null,
+            Numero = partes.Length > 1 ? partes[1].TrimStart('0') : partes[0],
+            FechaEmision = preview.FechaEmision,
+            FechaCompra = preview.FechaEmision, // contabilizacion = emision: queda en el periodo de SUNAT
+            EsCredito = fechaVencimiento.HasValue && preview.FechaEmision.HasValue && fechaVencimiento.Value.Date > preview.FechaEmision.Value.Date,
+            Observacion = "Registrada desde SUNAT",
+            Detalle = preview.Lineas.Select(l => new CompraDetallePayload
+            {
+                ProductoId = l.ProductoId,
+                Cantidad = (int)l.Cantidad,
+                CostoUnitario = l.PrecioUnitario,
+                TipoIgvId = string.IsNullOrEmpty(l.AfectacionIgv) ? null : tipos[l.AfectacionIgv],
+            }).ToList()
+        };
+        if (payload.EsCredito) payload.FechaVencimiento = fechaVencimiento;
+
+        // Solo si el total calculado es el del XML (descuentos, otros cargos o ICBPER harian que no cuadre).
+        var (_, _, _, _, totalCalculado) = await CalcularTotalesCompra(payload.Detalle, null, null, null, null);
+        if (Math.Abs(totalCalculado - preview.Total) > 0.05m)
+            return (ServiceStatus.Ok, Revisar($"El total calculado ({totalCalculado:0.00}) no cuadra con el del XML ({preview.Total:0.00})"), "");
+
+        var (estadoCompra, compra, mensajeCompra) = await CrearCompra(payload);
+        return estadoCompra == ServiceStatus.Ok
+            ? (ServiceStatus.Ok, new ResultadoXmlSunatDto { Registrada = true, CompraId = compra?.Id, Motivo = compra?.NumeroCompra, Preview = preview }, "")
+            : (ServiceStatus.Ok, Revisar(mensajeCompra), "");
     }
 
     // Registro de Compras (PLE 8.1) -- una fila por compra registrada.

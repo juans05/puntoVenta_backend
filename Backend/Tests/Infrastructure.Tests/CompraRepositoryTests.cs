@@ -85,6 +85,44 @@ public class CompraRepositoryTests
         Assert.Equal(59.00m, preview!.Lineas[0].PrecioUnitario);
     }
 
+    // Ciclo de "Descargar y registrar" desde SUNAT: la 1a factura queda por revisar (linea sin producto),
+    // al guardarla se aprende "SKU-9 del proveedor -> producto" y la siguiente se registra sola.
+    [Fact]
+    public async Task RegistrarXmlSunat_AprendeElProductoYLaSiguienteFacturaSeRegistraSola()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+        var productoId = await SeedProductoAsync(context);
+        var repo = new CompraRepository(context, TestDbContextFactory.Mapper, new AsientoContableRepository(context), httpContextAccessor: null);
+        string Xml(string numero) => XmlFacturaValida("20123456789", "Distribuidora Acme SAC")
+            .Replace("F001-123", numero)
+            .Replace("<cac:Item><cbc:Description>Producto de prueba</cbc:Description></cac:Item>",
+                "<cac:Item><cbc:Description>Producto de prueba</cbc:Description><cac:SellersItemIdentification><cbc:ID>SKU-9</cbc:ID></cac:SellersItemIdentification></cac:Item>")
+            .Replace("<cac:Price>",
+                "<cac:PricingReference><cac:AlternativeConditionPrice><cbc:PriceAmount>59.00</cbc:PriceAmount><cbc:PriceTypeCode>01</cbc:PriceTypeCode></cac:AlternativeConditionPrice></cac:PricingReference><cac:Price>");
+
+        var (_, primera, _) = await repo.RegistrarXmlSunat(ComoStream(Xml("F001-123")), null);
+        Assert.False(primera!.Registrada);
+        Assert.Contains("sin producto", primera.Motivo);
+
+        // El usuario la registra en el formulario eligiendo el producto para esa linea.
+        var (estado, _, mensaje) = await repo.CrearCompra(new CreateCompraPayload
+        {
+            ProveedorId = primera.Preview!.ProveedorId, Serie = "F001", Numero = "123",
+            Detalle = new() { new() { ProductoId = productoId, Cantidad = 2, CostoUnitario = 59m, CodigoProveedor = "SKU-9", TextoProveedor = "Producto de prueba" } }
+        });
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var (_, segunda, _) = await repo.RegistrarXmlSunat(ComoStream(Xml("F001-124")), null);
+        Assert.True(segunda!.Registrada, segunda.Motivo);
+        var compra = await context.Compra.SingleAsync(c => c.Id == segunda.CompraId);
+        Assert.Equal(("F001", "124", 118m), (compra.Serie, compra.Numero, compra.Total));
+
+        var (_, repetida, _) = await repo.RegistrarXmlSunat(ComoStream(Xml("F001-124")), null);
+        Assert.False(repetida!.Registrada);
+        Assert.Contains("ya está registrado", repetida.Motivo);
+    }
+
     [Fact]
     public async Task ImportarXmlCompra_ProveedorNuevo_LoCreaYDevuelveLasLineas()
     {

@@ -64,6 +64,19 @@ public class SunatController : ControllerBase
         return Ok(await _compras.ImportarXmlCompra(stream));
     }
 
+    // Baja el XML y, si todas sus lineas ya tienen producto conocido, registra la compra sola;
+    // si no, devuelve el motivo y la lectura del XML para revisarla en el formulario.
+    public record RegistrarXmlPayload(string RucEmisor, string Tipo, string Serie, string Numero, DateTime? FechaVencimiento);
+
+    [HttpPost("compras/registrar-xml")]
+    public async Task<IActionResult> RegistrarXmlCompra([FromBody] RegistrarXmlPayload p)
+    {
+        var (xml, error) = await _repo.DescargarXmlRecibido(p.RucEmisor, p.Tipo, p.Serie, p.Numero);
+        if (xml is null) return BadRequest(new { message = error });
+        using var stream = new MemoryStream(xml);
+        return Ok(await _compras.RegistrarXmlSunat(stream, p.FechaVencimiento));
+    }
+
     [HttpPost("probar-conexion")]
     public async Task<IActionResult> Probar()
         => await _repo.ProbarConexion() is { } error ? BadRequest(new { message = error }) : Ok(new { message = "Conexión con SUNAT correcta" });

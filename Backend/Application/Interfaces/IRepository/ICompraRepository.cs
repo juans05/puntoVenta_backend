@@ -22,6 +22,7 @@ public interface ICompraRepository
     Task<(ServiceStatus, CompraDto?, string)> CrearCompraDeOrden(CreateCompraPayload payload);
     Task<(ServiceStatus, object?, string)> SimularAsiento(CreateCompraPayload payload, bool deOrden);
     Task<(ServiceStatus, CompraXmlPreviewDto?, string)> ImportarXmlCompra(Stream xmlStream);
+    Task<(ServiceStatus, ResultadoXmlSunatDto?, string)> RegistrarXmlSunat(Stream xmlStream, DateTime? fechaVencimiento);
 
     Task<(ServiceStatus, List<LibroCompraDto>?, string)> ObtenerLibroCompras(ContabilidadQueryParams payload);
 

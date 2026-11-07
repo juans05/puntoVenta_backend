@@ -21,6 +21,7 @@ public interface ICompraService
     Task<MessageResult<object>> ActualizarCompra(int id, CreateCompraPayload payload);
 
     Task<MessageResult<object>> ImportarXmlCompra(Stream xmlStream);
+    Task<MessageResult<object>> RegistrarXmlSunat(Stream xmlStream, DateTime? fechaVencimiento);
 
     Task<MessageResult<List<LibroCompraDto>>> ObtenerLibroCompras(ContabilidadQueryParams payload);
 
