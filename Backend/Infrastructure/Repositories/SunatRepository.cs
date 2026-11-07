@@ -26,7 +26,6 @@ public class ImportarVentasSunatPayload
 public class SunatRepository
 {
     private const string ScopeSire = "https://api-sire.sunat.gob.pe";
-    private const string ScopeCpe = "https://api-cpe.sunat.gob.pe";
 
     private readonly SpaContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -201,15 +200,17 @@ public class SunatRepository
             || !System.Text.RegularExpressions.Regex.IsMatch(numero, @"^\d{1,8}$"))
             return (null, "RUC, tipo, serie o número no válidos");
 
-        var (token, errorToken) = await ObtenerToken(ScopeCpe);
+        var (token, errorToken) = await ObtenerTokenPortal();
         if (token is null) return (null, errorToken);
 
         var cliente = _httpClientFactory.CreateClient();
         cliente.Timeout = TimeSpan.FromSeconds(60);
         cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         // El firewall de api-cpe corta la conexion a algunos User-Agent (p. ej. el de curl): se manda uno de navegador.
-        cliente.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+        cliente.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentNavegador);
         cliente.DefaultRequestHeaders.Accept.ParseAdd("application/json, */*");
+        cliente.DefaultRequestHeaders.Referrer = new Uri("https://e-factura.sunat.gob.pe/");
+        cliente.DefaultRequestHeaders.Add("Origin", "https://e-factura.sunat.gob.pe");
         var url = $"https://api-cpe.sunat.gob.pe/v1/contribuyente/consultacpe/comprobantes/{rucEmisor}-{tipo}-{serie}-{numero}-2/02";
         try
         {
@@ -224,8 +225,11 @@ public class SunatRepository
                 if ((int)r.StatusCode < 500) break;
             }
             if (r!.StatusCode == System.Net.HttpStatusCode.Unauthorized || r.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                return (null, $"SUNAT no autorizó la descarga del XML (HTTP {(int)r.StatusCode}): {await Recorte(r)}. " +
-                              $"Motivo SUNAT: {r.Headers.WwwAuthenticate}. Revisa que las credenciales de API tengan acceso a la consulta de comprobantes.");
+            {
+                _tokensPortal.Clear(); // token vencido o revocado: la proxima descarga vuelve a entrar a SOL
+                return (null, $"SUNAT no autorizó la descarga del XML (HTTP {(int)r.StatusCode}): {await Recorte(r)}. Intenta de nuevo; " +
+                              "si se repite, revisa que el usuario SOL tenga acceso a \"Nueva consulta de comprobantes de pago\".");
+            }
             if (r.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity || r.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return (null, $"SUNAT no tiene {serie}-{numero} del RUC {rucEmisor} como comprobante recibido por tu RUC");
             if (!r.IsSuccessStatusCode)
@@ -238,6 +242,102 @@ public class SunatRepository
         {
             return (null, $"No se pudo conectar con SUNAT al descargar el XML ({CausaRed(ex)}), intenta de nuevo en unos minutos");
         }
+    }
+
+    // ---------------------------------------------------------------- Token de la web SOL
+    // El servicio consultacpe de api-cpe solo acepta el token que la web SOL entrega a su app "Nueva consulta de
+    // comprobantes de pago" (las credenciales de API no tienen ese recurso). Se obtiene igual que el navegador:
+    // login OAuth del Menu SOL con RUC + usuario + clave SOL, y luego la opcion 11.38.1.1.1 del menu, que redirige
+    // a la app con ?token= en la URL. El token dura 60 min.
+    private const string ClienteMenuSol = "4f3b88b3-d9d6-402a-b85d-6a0bc857746a";
+    private const string OpcionNuevaConsultaCpe = "11.38.1.1.1";
+    private const string UserAgentNavegador = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
+
+    // Por empresa (RUC + usuario + clave): token valido 50 min, o el rechazo de la clave por 15 min para no repetir
+    // intentos fallidos (SUNAT pide captcha a los 3 y puede bloquear el usuario SOL).
+    // ponytail: cache en memoria del proceso; con varias instancias cada una entra a SOL por su cuenta.
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, (string? Token, string? Error, DateTime Hasta)> _tokensPortal = new();
+
+    private async Task<(string? Token, string? Error)> ObtenerTokenPortal()
+    {
+        var c = await Configuracion();
+        if (c is null || string.IsNullOrWhiteSpace(c.Ruc))
+            return (null, "Registra el RUC de la empresa en Datos de la empresa");
+        if (string.IsNullOrWhiteSpace(c.UsuarioSol) || string.IsNullOrEmpty(c.ClaveSol))
+            return (null, "Completa usuario y clave SOL en Mi Empresa → Certificado y Clave SOL");
+
+        var ruc = c.Ruc.Trim();
+        var usuario = c.UsuarioSol.Trim().ToUpperInvariant();
+        var llave = $"{ruc}|{usuario}|{c.ClaveSol.GetHashCode()}";
+        if (_tokensPortal.TryGetValue(llave, out var guardado) && guardado.Hasta > DateTime.UtcNow)
+            return (guardado.Token, guardado.Error);
+
+        var (token, error, claveRechazada) = await IngresarSol(ruc, usuario, c.ClaveSol);
+        if (token is not null) _tokensPortal[llave] = (token, null, DateTime.UtcNow.AddMinutes(50));
+        else if (claveRechazada) _tokensPortal[llave] = (null, error, DateTime.UtcNow.AddMinutes(15));
+        return (token, error);
+    }
+
+    private static async Task<(string? Token, string? Error, bool ClaveRechazada)> IngresarSol(string ruc, string usuario, string claveSol)
+    {
+        using var handler = new HttpClientHandler { CookieContainer = new System.Net.CookieContainer(), AllowAutoRedirect = false };
+        using var http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(40) };
+        http.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentNavegador);
+        try
+        {
+            // 1. Sin sesion, el menu responde una pagina que redirige (por JS) al login OAuth; este termina en
+            //    loginMenuSol?originalUrl=..&state=.., que el formulario reenvia tal cual.
+            var menu = await http.GetStringAsync("https://e-menu.sunat.gob.pe/cl-ti-itmenu/MenuInternet.htm");
+            var authen = System.Text.RegularExpressions.Regex.Match(menu, @"https://api-seguridad\.sunat\.gob\.pe/[^""'\s]+/oauth2/authen\?[^""'\s]+").Value;
+            if (authen == "") return (null, "No se encontró el ingreso a SOL (SUNAT cambió su página)", false);
+            var (_, login) = await Seguir(http, await http.GetAsync(authen));
+            var q = System.Web.HttpUtility.ParseQueryString(login[^1].Query);
+
+            // 2. Mismo POST que el boton "Iniciar sesion" (tipo 2 = RUC + usuario + clave).
+            http.DefaultRequestHeaders.Referrer = login[^1];
+            var post = await http.PostAsync($"https://api-seguridad.sunat.gob.pe/v1/clientessol/{ClienteMenuSol}/oauth2/j_security_check",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["tipo"] = "2", ["dni"] = "", ["custom_ruc"] = ruc, ["j_username"] = usuario, ["j_password"] = claveSol,
+                    ["captcha"] = "", ["originalUrl"] = q["originalUrl"] ?? "", ["lang"] = "es-PE", ["state"] = q["state"] ?? ""
+                }));
+            var (_, tras) = await Seguir(http, post);
+            // Clave mala (o captcha por intentos fallidos) = SUNAT vuelve a mostrar el login.
+            if (tras[^1].Host.StartsWith("api-seguridad"))
+                return (null, "SUNAT no aceptó el usuario o la clave SOL para entrar a la web de SOL (si hubo varios intentos fallidos, " +
+                              "SUNAT pide un captcha: entra una vez a SOL desde el navegador). Revisa Mi Empresa → Certificado y Clave SOL.", true);
+
+            // 3. Opcion del menu: redirige a .../loader/nuevaconsulta.html?token=... (a veces responde 503 al primer intento).
+            for (var intento = 0; intento < 3; intento++)
+            {
+                if (intento > 0) await Task.Delay(TimeSpan.FromSeconds(3));
+                var (final, saltos) = await Seguir(http, await http.GetAsync(
+                    $"https://e-menu.sunat.gob.pe/cl-ti-itmenu/MenuInternet.htm?action=execute&code={OpcionNuevaConsultaCpe}&s=ww1"));
+                final.Dispose();
+                var token = saltos.Select(u => System.Web.HttpUtility.ParseQueryString(u.Query)["token"]).FirstOrDefault(t => !string.IsNullOrEmpty(t));
+                if (token is not null) return (token, null, false);
+            }
+            return (null, "SOL no entregó acceso a \"Nueva consulta de comprobantes de pago\": revisa que el usuario SOL tenga esa opción", false);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return (null, $"No se pudo entrar a SOL ({CausaRed(ex)}), intenta de nuevo en unos minutos", false);
+        }
+    }
+
+    // Sigue las redirecciones a mano (con las cookies del handler) y devuelve todas las URLs recorridas:
+    // el token llega en una de ellas, no en la ultima.
+    private static async Task<(HttpResponseMessage Final, List<Uri> Recorridas)> Seguir(HttpClient http, HttpResponseMessage r)
+    {
+        var recorridas = new List<Uri> { r.RequestMessage!.RequestUri! };
+        for (var i = 0; i < 10 && (int)r.StatusCode is >= 300 and < 400 && r.Headers.Location is not null; i++)
+        {
+            var siguiente = r.Headers.Location.IsAbsoluteUri ? r.Headers.Location : new Uri(recorridas[^1], r.Headers.Location);
+            recorridas.Add(siguiente);
+            r.Dispose();
+            r = await http.GetAsync(siguiente);
+        }
+        return (r, recorridas);
     }
 
     // Causa tecnica corta para el mensaje (sin datos sensibles): ayuda a distinguir un corte de SUNAT de un timeout.
