@@ -200,7 +200,7 @@ public class SunatRepository
             || !System.Text.RegularExpressions.Regex.IsMatch(numero, @"^\d{1,8}$"))
             return (null, "RUC, tipo, serie o número no válidos");
 
-        var (token, errorToken) = await ObtenerTokenPortal();
+        var (token, errorToken, llave) = await ObtenerTokenPortal();
         if (token is null) return (null, errorToken);
 
         var cliente = _httpClientFactory.CreateClient();
@@ -226,7 +226,7 @@ public class SunatRepository
             }
             if (r!.StatusCode == System.Net.HttpStatusCode.Unauthorized || r.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
-                _tokensPortal.Clear(); // token vencido o revocado: la proxima descarga vuelve a entrar a SOL
+                _tokensPortal.TryRemove(llave!, out _); // token vencido o revocado: solo esta empresa vuelve a entrar a SOL
                 return (null, $"SUNAT no autorizó la descarga del XML (HTTP {(int)r.StatusCode}): {await Recorte(r)}. Intenta de nuevo; " +
                               "si se repite, revisa que el usuario SOL tenga acceso a \"Nueva consulta de comprobantes de pago\".");
             }
@@ -258,24 +258,24 @@ public class SunatRepository
     // ponytail: cache en memoria del proceso; con varias instancias cada una entra a SOL por su cuenta.
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, (string? Token, string? Error, DateTime Hasta)> _tokensPortal = new();
 
-    private async Task<(string? Token, string? Error)> ObtenerTokenPortal()
+    private async Task<(string? Token, string? Error, string? Llave)> ObtenerTokenPortal()
     {
         var c = await Configuracion();
         if (c is null || string.IsNullOrWhiteSpace(c.Ruc))
-            return (null, "Registra el RUC de la empresa en Datos de la empresa");
+            return (null, "Registra el RUC de la empresa en Datos de la empresa", null);
         if (string.IsNullOrWhiteSpace(c.UsuarioSol) || string.IsNullOrEmpty(c.ClaveSol))
-            return (null, "Completa usuario y clave SOL en Mi Empresa → Certificado y Clave SOL");
+            return (null, "Completa usuario y clave SOL en Mi Empresa → Certificado y Clave SOL", null);
 
         var ruc = c.Ruc.Trim();
         var usuario = c.UsuarioSol.Trim().ToUpperInvariant();
         var llave = $"{ruc}|{usuario}|{c.ClaveSol.GetHashCode()}";
         if (_tokensPortal.TryGetValue(llave, out var guardado) && guardado.Hasta > DateTime.UtcNow)
-            return (guardado.Token, guardado.Error);
+            return (guardado.Token, guardado.Error, llave);
 
         var (token, error, claveRechazada) = await IngresarSol(ruc, usuario, c.ClaveSol);
         if (token is not null) _tokensPortal[llave] = (token, null, DateTime.UtcNow.AddMinutes(50));
         else if (claveRechazada) _tokensPortal[llave] = (null, error, DateTime.UtcNow.AddMinutes(15));
-        return (token, error);
+        return (token, error, llave);
     }
 
     private static async Task<(string? Token, string? Error, bool ClaveRechazada)> IngresarSol(string ruc, string usuario, string claveSol)
