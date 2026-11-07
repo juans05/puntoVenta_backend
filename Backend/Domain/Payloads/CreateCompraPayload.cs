@@ -52,4 +52,8 @@ public class CompraDetallePayload
     public int? SucursalDestinoId { get; set; }
     // Afectacion IGV de la linea; null = la del documento.
     public int? TipoIgvId { get; set; }
+    // Linea que vino de un XML: como la llamo el proveedor (codigo o descripcion). No se guarda en la
+    // compra; sirve para aprender la equivalencia proveedor -> producto (ProductoProveedor).
+    public string? CodigoProveedor { get; set; }
+    public string? TextoProveedor { get; set; }
 }

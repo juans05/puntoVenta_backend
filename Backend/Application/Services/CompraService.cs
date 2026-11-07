@@ -114,6 +114,20 @@ public class CompraService : ICompraService
         return MessageResult<object>.Of(message, result);
     }
 
+    public async Task<MessageResult<object>> RegistrarXmlSunat(Stream xmlStream, DateTime? fechaVencimiento)
+    {
+        var (estado, result, message) = await _compraRepository.RegistrarXmlSunat(xmlStream, fechaVencimiento);
+
+        if (estado != ServiceStatus.Ok)
+            throw new ErrorHandler(
+                    estado == ServiceStatus.FailedValidation
+                    ? HttpStatusCode.BadRequest
+                    : HttpStatusCode.InternalServerError
+                , message, result);
+
+        return MessageResult<object>.Of(message, result);
+    }
+
     public async Task<MessageResult<object>> ImportarXmlCompra(Stream xmlStream)
     {
         var (estado, result, message) = await _compraRepository.ImportarXmlCompra(xmlStream);

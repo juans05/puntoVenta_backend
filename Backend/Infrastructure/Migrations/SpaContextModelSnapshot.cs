@@ -3849,6 +3849,50 @@ namespace Infrastructure.Migrations
                     b.ToTable("Producto");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ProductoProveedor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Clave")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("Estado")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProveedorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("ProveedorId");
+
+                    b.HasIndex("TenantId", "ProveedorId", "Clave")
+                        .IsUnique();
+
+                    b.ToTable("ProductoProveedor");
+                });
+
             modelBuilder.Entity("Domain.Entities.ProductoSucursalStock", b =>
                 {
                     b.Property<int>("Id")
@@ -6124,6 +6168,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("TipoIgv");
 
                     b.Navigation("UnidadMedida");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ProductoProveedor", b =>
+                {
+                    b.HasOne("Domain.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Proveedor", "Proveedor")
+                        .WithMany()
+                        .HasForeignKey("ProveedorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Proveedor");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductoSucursalStock", b =>

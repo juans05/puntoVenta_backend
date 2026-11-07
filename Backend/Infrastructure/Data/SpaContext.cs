@@ -97,6 +97,7 @@ public class SpaContext : IdentityDbContext<User, Role, string>
     public DbSet<Compra> Compra => Set<Compra>();
     public DbSet<NotaCompra> NotaCompra => Set<NotaCompra>();
     public DbSet<CompraDetalle> CompraDetalle => Set<CompraDetalle>();
+    public DbSet<ProductoProveedor> ProductoProveedor => Set<ProductoProveedor>();
     public DbSet<ConfiguracionFlujo> ConfiguracionFlujo => Set<ConfiguracionFlujo>();
     public DbSet<OrdenCompra> OrdenCompra => Set<OrdenCompra>();
     public DbSet<Departamento> Departamento => Set<Departamento>();
@@ -255,6 +256,9 @@ public class SpaContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Recepcion>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<RecepcionDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<CompraDetalle>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
+        // Equivalencias de todo el negocio (no por sede): una por proveedor + clave.
+        modelBuilder.Entity<ProductoProveedor>().HasQueryFilter(e => e.TenantId == _tenant.Name);
+        modelBuilder.Entity<ProductoProveedor>().HasIndex(e => new { e.TenantId, e.ProveedorId, e.Clave }).IsUnique();
         modelBuilder.Entity<Gasto>().HasQueryFilter(e => e.TenantId == _tenant.Name && (e.SucursalId == null || e.SucursalId == _tenant.SucursalId));
         modelBuilder.Entity<GastoPublicidad>().HasQueryFilter(e => e.TenantId == _tenant.Name);
         modelBuilder.Entity<CategoriaGasto>().HasQueryFilter(e => e.TenantId == _tenant.Name);
