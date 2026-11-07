@@ -133,7 +133,7 @@ public class SunatRepository
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
-            return (null, "No se pudo conectar con SUNAT, intenta de nuevo en unos minutos");
+            return (null, $"No se pudo conectar con SUNAT al pedir el token ({CausaRed(ex)}), intenta de nuevo en unos minutos");
         }
     }
 
@@ -207,15 +207,20 @@ public class SunatRepository
         var cliente = _httpClientFactory.CreateClient();
         cliente.Timeout = TimeSpan.FromSeconds(60);
         cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        // El firewall de api-cpe corta la conexion a algunos User-Agent (p. ej. el de curl): se manda uno de navegador.
+        cliente.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+        cliente.DefaultRequestHeaders.Accept.ParseAdd("application/json, */*");
         var url = $"https://api-cpe.sunat.gob.pe/v1/contribuyente/consultacpe/comprobantes/{rucEmisor}-{tipo}-{serie}-{numero}-2/02";
         try
         {
-            // SUNAT a veces responde 500 ("reintentar en 5 minutos") y al rato funciona: unos reintentos cortos.
+            // SUNAT a veces responde 500 ("reintentar en 5 minutos") o corta la conexion y al rato funciona:
+            // unos reintentos cortos; si el ultimo tambien falla, la excepcion llega al catch con su causa.
             HttpResponseMessage? r = null;
             for (var intento = 0; intento < 3; intento++)
             {
                 if (intento > 0) await Task.Delay(TimeSpan.FromSeconds(4));
-                r = await cliente.GetAsync(url);
+                try { r = await cliente.GetAsync(url); }
+                catch (HttpRequestException) when (intento < 2) { continue; }
                 if ((int)r.StatusCode < 500) break;
             }
             if (r!.StatusCode == System.Net.HttpStatusCode.Unauthorized || r.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -230,9 +235,17 @@ public class SunatRepository
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            return (null, "No se pudo conectar con SUNAT, intenta de nuevo en unos minutos");
+            return (null, $"No se pudo conectar con SUNAT al descargar el XML ({CausaRed(ex)}), intenta de nuevo en unos minutos");
         }
     }
+
+    // Causa tecnica corta para el mensaje (sin datos sensibles): ayuda a distinguir un corte de SUNAT de un timeout.
+    private static string CausaRed(Exception ex) => ex switch
+    {
+        TaskCanceledException => "SUNAT no respondió a tiempo",
+        System.Text.Json.JsonException => "SUNAT devolvió una respuesta no válida",
+        _ => ex.InnerException?.Message ?? ex.Message
+    };
 
     // La respuesta puede ser el zip, el XML directo o un JSON con el archivo en base64 (cualquier campo
     // de texto que decodifique a zip/XML): se acepta cualquiera de las tres.
