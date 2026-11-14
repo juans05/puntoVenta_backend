@@ -842,7 +842,9 @@ namespace Infrastructure.Repositories
                                                          {
                                                              id = p.Id,
                                                              value = p.Nombre,
-                                                             estado = p.Estado
+                                                             estado = p.Estado,
+                                                             cuentaContableId = p.CuentaContableId,
+                                                             cuenta = p.CuentaContable != null ? p.CuentaContable.Codigo + " - " + p.CuentaContable.Nombre : null
                                                          }).ToListAsync();
 
                 return (ServiceStatus.Ok, metodoPago, "Success");
@@ -871,6 +873,25 @@ namespace Infrastructure.Repositories
             {
                 return (ServiceStatus.FailedValidation, null, $"Error al registrar método de pago -> {e.InnerException?.Message ?? e.Message}");
             }
+        }
+
+        // Edita el nombre y la cuenta contable (caja/banco, de ultimo nivel) del medio de pago.
+        public async Task<(ServiceStatus, string)> ActualizarMetodoPago(int id, ActualizarMetodoPagoPayload payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload.Nombre))
+                return (ServiceStatus.FailedValidation, "El nombre del método de pago es obligatorio");
+
+            var metodoPago = await _context.Metodopago.AsTracking().FirstOrDefaultAsync(p => p.Id == id);
+            if (metodoPago == null)
+                return (ServiceStatus.NotFound, $"No se encontró el método de pago {id}");
+            if (await CuentaUltimoNivel.Validar(_context.CuentaContable, payload.CuentaContableId) is { } error)
+                return (ServiceStatus.FailedValidation, error);
+
+            metodoPago.Nombre = payload.Nombre.Trim();
+            metodoPago.CuentaContableId = payload.CuentaContableId;
+            await _context.SaveChangesAsync();
+
+            return (ServiceStatus.Ok, "Método de pago actualizado");
         }
 
         public async Task<(ServiceStatus, string)> CambiarEstadoMetodoPago(int id, bool estado)

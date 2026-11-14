@@ -209,6 +209,67 @@ public class CuentaContableRepository : ICuentaContableRepository
         return await Obtener(id);
     }
 
+    // Subir Excel: crea las cuentas nuevas y actualiza nombre/tipo/estado de las que ya existen (por
+    // codigo). Todo o nada: con una fila invalida no se guarda ninguna. La cuenta padre de una nueva
+    // es la de codigo mas largo que sea prefijo del suyo (puede venir en el mismo archivo).
+    // ponytail: solo Codigo/Nombre/Tipo/Estado; EEFF, destino y centro de costo se editan en pantalla.
+    public async Task<(ServiceStatus, object?, string)> Importar(List<ImportarCuentaContablePayload> filas)
+    {
+        if (filas == null || filas.Count == 0) return (ServiceStatus.FailedValidation, null, "El archivo no tiene filas");
+
+        var existentes = await _context.CuentaContable.AsTracking().ToDictionaryAsync(c => c.Codigo);
+        CuentaContable? Padre(string codigo)
+        {
+            for (var largo = codigo.Length - 1; largo >= 2; largo--)
+                if (existentes.TryGetValue(codigo[..largo], out var padre)) return padre;
+            return null;
+        }
+
+        var errores = new List<string>();
+        var vistos = new HashSet<string>();
+        int creadas = 0, actualizadas = 0;
+        // Ordenadas por codigo: el padre se procesa antes que sus subcuentas.
+        foreach (var (fila, n) in filas.Select((f, i) => (f, i + 2)).OrderBy(x => x.f.Codigo?.Trim(), StringComparer.Ordinal))
+        {
+            var codigo = fila.Codigo?.Trim() ?? "";
+            var nombre = fila.Nombre?.Trim() ?? "";
+            string? error =
+                codigo.Length == 0 || !codigo.All(char.IsDigit) ? "el código solo puede contener dígitos"
+                : !NivelPorLongitudCodigo.ContainsKey(codigo.Length) ? "el código debe tener 2, 3, 4, 5, 7 u 8 dígitos"
+                : !vistos.Add(codigo) ? $"el código {codigo} está repetido"
+                : nombre.Length == 0 ? "falta el nombre"
+                : null;
+            existentes.TryGetValue(codigo, out var cuenta);
+            var tipo = string.IsNullOrWhiteSpace(fila.Tipo)
+                ? cuenta?.Tipo ?? (error == null ? Padre(codigo)?.Tipo : null)
+                : TiposValidos.FirstOrDefault(t => t.Equals(fila.Tipo.Trim(), StringComparison.OrdinalIgnoreCase));
+            error ??= tipo == null ? $"tipo inválido (usa {string.Join(", ", TiposValidos)})" : null;
+            if (error != null) { errores.Add($"Fila {n}: {error}"); continue; }
+
+            if (cuenta == null)
+            {
+                cuenta = new CuentaContable { Codigo = codigo, CuentaPadre = Padre(codigo), Nivel = NivelPorLongitudCodigo[codigo.Length], ClaseCuenta = codigo[..2] };
+                _context.CuentaContable.Add(cuenta);
+                existentes[codigo] = cuenta;
+                creadas++;
+            }
+            else actualizadas++;
+            cuenta.Nombre = nombre;
+            cuenta.Tipo = tipo!;
+            if (fila.Estado.HasValue) cuenta.Estado = fila.Estado.Value;
+        }
+
+        if (errores.Count > 0)
+        {
+            _context.ChangeTracker.Clear();
+            var resto = errores.Count > 10 ? $" (y {errores.Count - 10} más)" : "";
+            return (ServiceStatus.FailedValidation, null, string.Join(". ", errores.Take(10)) + resto);
+        }
+
+        await _context.SaveChangesAsync();
+        return (ServiceStatus.Ok, new { creadas, actualizadas }, $"{creadas} cuentas creadas y {actualizadas} actualizadas");
+    }
+
     // Sube por la cadena de padres desde nuevoPadreId; si encuentra id en el camino, asignarlo
     // como padre crearia un ciclo (directo -- nuevoPadreId == id -- o indirecto via un ancestro).
     // Tope de 100 saltos: por si ya hubiera un ciclo preexistente en los datos, no nos quedamos

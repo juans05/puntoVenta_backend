@@ -393,6 +393,20 @@ namespace Application.Services
             return MessageResult<object>.Of(message, resp);
         }
 
+        public async Task<MessageResult<bool>> ActualizarMetodoPago(int id, ActualizarMetodoPagoPayload payload)
+        {
+            var (status, message) = await _extensionesRepository.ActualizarMetodoPago(id, payload);
+
+            if (status != ServiceStatus.Ok)
+                throw new ErrorHandler(
+                        status == ServiceStatus.NotFound ? HttpStatusCode.NotFound
+                        : status == ServiceStatus.FailedValidation ? HttpStatusCode.BadRequest
+                        : HttpStatusCode.InternalServerError
+                    , message, null);
+
+            return MessageResult<bool>.Of(message, true);
+        }
+
         public async Task<MessageResult<bool>> CambiarEstadoMetodoPago(int id, bool estado)
         {
 

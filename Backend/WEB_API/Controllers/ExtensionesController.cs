@@ -155,6 +155,9 @@ public class ExtensionesController : ControllerBase
     [HttpPost("metodo-pago/crear")]
     public async Task<IActionResult> CrearMetodoPago([FromBody] CreateMetodoPagoPayload payload) => Ok(await _extensionesService.CrearMetodoPago(payload));
 
+    [HttpPut("metodo-pago/{id}")]
+    public async Task<IActionResult> ActualizarMetodoPago(int id, [FromBody] ActualizarMetodoPagoPayload payload) => Ok(await _extensionesService.ActualizarMetodoPago(id, payload));
+
     [HttpPut("metodo-pago/{id}/estado")]
     public async Task<IActionResult> CambiarEstadoMetodoPago(int id, [FromBody] SetEstadoPayload payload) => Ok(await _extensionesService.CambiarEstadoMetodoPago(id, payload.Estado));
 

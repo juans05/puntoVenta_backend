@@ -2704,6 +2704,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool?>("CambioPermitido")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("CuentaContableId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Descripcion")
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
@@ -2743,6 +2746,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CuentaContableId");
 
                     b.ToTable("Metodopago");
                 });
@@ -5836,6 +5841,15 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Metodopago", b =>
+                {
+                    b.HasOne("Domain.Entities.CuentaContable", "CuentaContable")
+                        .WithMany()
+                        .HasForeignKey("CuentaContableId");
+
+                    b.Navigation("CuentaContable");
                 });
 
             modelBuilder.Entity("Domain.Entities.Moneda", b =>

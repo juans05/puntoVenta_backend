@@ -7,6 +7,8 @@ public class RegistrarPagoCuentaPayload
     public int MetodoPagoId { get; set; }
     public string? Referencia { get; set; }
     public string? Observacion { get; set; }
+    // Fecha del cobro/pago (puede ser anterior a hoy); sin enviar, es ahora.
+    public DateTime? Fecha { get; set; }
     public List<PagoCuentaLineaPayload> Detalle { get; set; } = new();
 }
 
