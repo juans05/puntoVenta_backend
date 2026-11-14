@@ -42,3 +42,12 @@ public class GuardarCuentaPorDefectoPayload
 {
     public int? CuentaContableId { get; set; }
 }
+
+// Fila del Excel del plan de cuentas (Contabilidad > Plan de Cuentas > Subir Excel).
+public class ImportarCuentaContablePayload
+{
+    public string Codigo { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
+    public string? Tipo { get; set; }
+    public bool? Estado { get; set; }
+}

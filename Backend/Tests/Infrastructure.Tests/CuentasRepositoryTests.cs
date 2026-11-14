@@ -304,4 +304,33 @@ public class CuentasRepositoryTests
         Assert.Equal(ServiceStatus.FailedValidation, sinCliente);
         Assert.Contains("cliente", mensaje);
     }
+
+    // Medio de pago con cuenta contable propia (banco) y fecha de cobro elegida: el asiento usa ambas.
+    [Fact]
+    public async Task Cobro_ConCuentaDelMedioDePagoYFecha_VaAlBancoEnEsaFecha()
+    {
+        var (repo, context, connection) = Preparar();
+        using var _ = connection; using var __ = context;
+        var banco = new CuentaContable { Codigo = "10411001", Nombre = "BCP Cta Cte", Tipo = "Activo", Nivel = 5, ClaseCuenta = "10" };
+        context.CuentaContable.Add(banco);
+        context.Metodopago.Add(new Metodopago { Id = 2, Nombre = "Transferencia", CuentaContable = banco });
+        await context.SaveChangesAsync();
+        var (clienteId, ventaId) = await SeedVentaCredito(context, 100m);
+        var ayer = DateTime.UtcNow.AddHours(-5).Date.AddDays(-1);
+
+        var payload = Pago(clienteId, 2, ventaId, 100m);
+        payload.Fecha = ayer;
+        var (estado, cobro, mensaje) = await repo.RegistrarPago(true, payload);
+        Assert.True(estado == ServiceStatus.Ok, mensaje);
+
+        var asiento = await context.AsientoContable.Include(a => a.Detalle).ThenInclude(d => d.CuentaContable)
+            .SingleAsync(a => a.OrigenTipo == "Cobro" && a.OrigenId == cobro!.Id);
+        Assert.Contains(asiento.Detalle, d => d.CuentaContable!.Codigo == "10411001" && d.Debe == 100m);
+        Assert.Equal(ayer, asiento.Fecha.Date);
+        Assert.Equal(ayer, (await context.Cobranza.SingleAsync()).Fecha.Date);
+
+        payload = Pago(clienteId, 2, ventaId, 1m);
+        payload.Fecha = DateTime.UtcNow.AddDays(3);
+        Assert.Equal(ServiceStatus.FailedValidation, (await repo.RegistrarPago(true, payload)).Item1);
+    }
 }

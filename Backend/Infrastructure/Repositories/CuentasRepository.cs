@@ -190,8 +190,17 @@ public class CuentasRepository : ICuentasRepository
     public async Task<(ServiceStatus, PagoCuentaDto?, string)> RegistrarPago(bool cobrar, RegistrarPagoCuentaPayload payload)
     {
         if (ValidarPayload(payload) is { } error) return (ServiceStatus.FailedValidation, null, error);
-        if (!await _context.Metodopago.AnyAsync(m => m.Id == payload.MetodoPagoId))
+        var metodo = await _context.Metodopago.AsNoTracking().Where(m => m.Id == payload.MetodoPagoId)
+            .Select(m => new { Cuenta = (string?)m.CuentaContable!.Codigo }).FirstOrDefaultAsync();
+        if (metodo == null)
             return (ServiceStatus.FailedValidation, null, "Medio de pago no válido");
+        // Cuenta de caja/banco del medio de pago (Metodos de pago > Editar); sin configurar, la "10" por defecto.
+        var cuentaCaja = metodo.Cuenta ?? "10";
+
+        var ahora = NowLocal();
+        if (payload.Fecha?.Date > ahora.Date)
+            return (ServiceStatus.FailedValidation, null, "La fecha no puede ser posterior a hoy");
+        var fecha = payload.Fecha is { } f ? DateTime.SpecifyKind(f.Date + ahora.TimeOfDay, ahora.Kind) : ahora;
 
         var docs = await CargarDocumentos(cobrar, payload.SocioId, payload.Detalle.Select(d => d.DocumentoId).ToList());
         foreach (var l in payload.Detalle)
@@ -223,7 +232,7 @@ public class CuentasRepository : ICuentasRepository
                 numero = $"COB-{((await _context.Cobranza.IgnoreQueryFilters().CountAsync(c => c.TenantId == _context.CurrentTenantName)) + 1).ToString().PadLeft(6, '0')}";
                 var cobranza = new Cobranza
                 {
-                    Numero = numero, ClienteId = payload.SocioId, Fecha = NowLocal(), MetodoPagoId = payload.MetodoPagoId,
+                    Numero = numero, ClienteId = payload.SocioId, Fecha = fecha, MetodoPagoId = payload.MetodoPagoId,
                     Monto = total, Referencia = payload.Referencia, Observacion = payload.Observacion,
                     Detalles = payload.Detalle.Select(d => new CobranzaDetalle
                     {
@@ -242,7 +251,7 @@ public class CuentasRepository : ICuentasRepository
                 // por Cobrar. Sin esto "12" nunca se cerraba aunque el cliente ya hubiera pagado.
                 var (estadoAsientoCobro, _, mensajeAsientoCobro) = await _asientoContableRepository.Generar(
                     OrigenAsientoContable.Cobro, cobranza.Id, $"Cobro {numero}",
-                    new List<LineaAsientoContable> { new("10", total, 0), new("12", 0, total) });
+                    new List<LineaAsientoContable> { new(cuentaCaja, total, 0), new("12", 0, total) }, fecha: fecha);
                 if (estadoAsientoCobro != ServiceStatus.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();
@@ -254,7 +263,7 @@ public class CuentasRepository : ICuentasRepository
                 numero = $"PAG-{((await _context.PagoProveedor.IgnoreQueryFilters().CountAsync(c => c.TenantId == _context.CurrentTenantName)) + 1).ToString().PadLeft(6, '0')}";
                 var pago = new PagoProveedor
                 {
-                    Numero = numero, ProveedorId = payload.SocioId, Fecha = NowLocal(), MetodoPagoId = payload.MetodoPagoId,
+                    Numero = numero, ProveedorId = payload.SocioId, Fecha = fecha, MetodoPagoId = payload.MetodoPagoId,
                     Monto = total, Referencia = payload.Referencia, Observacion = payload.Observacion,
                     Detalles = payload.Detalle.Select(d => new PagoProveedorDetalle
                     {
@@ -269,7 +278,7 @@ public class CuentasRepository : ICuentasRepository
 
                 var (estadoAsiento, _, mensajeAsiento) = await _asientoContableRepository.Generar(
                     OrigenAsientoContable.Pago, pago.Id, $"Pago {numero}",
-                    new List<LineaAsientoContable> { new("42", total, 0), new("10", 0, total) });
+                    new List<LineaAsientoContable> { new("42", total, 0), new(cuentaCaja, 0, total) }, fecha: fecha);
                 if (estadoAsiento != ServiceStatus.Ok)
                 {
                     await _context.Database.RollbackTransactionAsync();

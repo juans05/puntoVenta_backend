@@ -49,6 +49,7 @@ namespace Application.Interfaces.IServices
         Task<MessageResult<object>> ListarMetodoPago();
         Task<MessageResult<object>> ListarMetodoPagoAdmin();
         Task<MessageResult<object>> CrearMetodoPago(CreateMetodoPagoPayload payload);
+        Task<MessageResult<bool>> ActualizarMetodoPago(int id, ActualizarMetodoPagoPayload payload);
         Task<MessageResult<bool>> CambiarEstadoMetodoPago(int id, bool estado);
         Task<MessageResult<object>> ListarNacionalidad();
         Task<MessageResult<object>> ListarRubros();

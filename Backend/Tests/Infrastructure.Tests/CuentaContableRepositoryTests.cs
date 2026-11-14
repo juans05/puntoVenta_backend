@@ -107,4 +107,40 @@ public class CuentaContableRepositoryTests
         Assert.Equal(Domain.Models.ServiceStatus.FailedValidation, estado);
         Assert.Contains("ciclo", mensaje, StringComparison.OrdinalIgnoreCase);
     }
+
+    // Subir Excel: actualiza la existente, crea la nueva colgada de su prefijo mas largo (aunque
+    // venga en el mismo archivo y despues), y con una fila invalida no guarda nada.
+    [Fact]
+    public async Task Importar_CreaActualizaYEsTodoONada()
+    {
+        var (context, connection) = TestDbContextFactory.CreateContext();
+        using var _ = connection;
+        var repo = new CuentaContableRepository(context);
+        await repo.Crear(new CrearCuentaContablePayload { Codigo = "77", Nombre = "Viejo", Tipo = "Ingreso" });
+
+        var (malo, _, error) = await repo.Importar(new()
+        {
+            new() { Codigo = "771", Nombre = "Ok" },
+            new() { Codigo = "7X", Nombre = "Malo" },
+        });
+        Assert.Equal(Domain.Models.ServiceStatus.FailedValidation, malo);
+        Assert.Contains("Fila 3", error);
+        Assert.False(await context.CuentaContable.AnyAsync(c => c.Codigo == "771"));
+
+        var (estado, _, mensaje) = await repo.Importar(new()
+        {
+            new() { Codigo = "7711001", Nombre = "Hoja", Estado = false },
+            new() { Codigo = "77", Nombre = "Nuevo", Tipo = "ingreso" },
+            new() { Codigo = "771", Nombre = "Sub" },
+        });
+        Assert.True(estado == Domain.Models.ServiceStatus.Ok, mensaje);
+
+        var cuentas = await context.CuentaContable.AsNoTracking().Where(c => c.Codigo.StartsWith("77")).ToDictionaryAsync(c => c.Codigo);
+        Assert.Equal("Nuevo", cuentas["77"].Nombre);
+        Assert.Equal(cuentas["77"].Id, cuentas["771"].CuentaPadreId);
+        Assert.Equal(cuentas["771"].Id, cuentas["7711001"].CuentaPadreId);
+        Assert.Equal("Ingreso", cuentas["7711001"].Tipo);
+        Assert.Equal(5, cuentas["7711001"].Nivel);
+        Assert.False(cuentas["7711001"].Estado);
+    }
 }

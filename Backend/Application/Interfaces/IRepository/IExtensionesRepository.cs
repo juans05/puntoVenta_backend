@@ -54,6 +54,7 @@ namespace Application.Interfaces.IRepository
         Task<(ServiceStatus, object?, string)> ListarMetodoPago();
         Task<(ServiceStatus, object?, string)> ListarMetodoPagoAdmin();
         Task<(ServiceStatus, object?, string)> CrearMetodoPago(CreateMetodoPagoPayload payload);
+        Task<(ServiceStatus, string)> ActualizarMetodoPago(int id, ActualizarMetodoPagoPayload payload);
         Task<(ServiceStatus, string)> CambiarEstadoMetodoPago(int id, bool estado);
         Task<(ServiceStatus, object?, string)> ListarNacionalidad();
         Task<(ServiceStatus, object?, string)> ListarRubros();

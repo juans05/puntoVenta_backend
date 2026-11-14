@@ -24,6 +24,10 @@ public class CuentaContableController : ControllerBase
     [Authorize(Policy = "RolesPermisosAdmin")]
     public async Task<IActionResult> Actualizar(int id, [FromBody] ActualizarCuentaContablePayload payload) => Ok(await _service.Actualizar(id, payload));
 
+    [HttpPost("importar")]
+    [Authorize(Policy = "RolesPermisosAdmin")]
+    public async Task<IActionResult> Importar([FromBody] List<ImportarCuentaContablePayload> filas) => Ok(await _service.Importar(filas));
+
     [HttpGet("listar")]
     public async Task<IActionResult> Listar([FromQuery] bool incluirInactivas = false) => Ok(await _service.Listar(incluirInactivas));
 
